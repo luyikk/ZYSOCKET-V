@@ -299,13 +299,15 @@ namespace ZYSocket.Server
             sock.Listen(512);           
             ReceiveTimeout = 1000;
 
+            var memoryPool = new Thruster.FastMemoryPool<byte>();
 
             for (int i = 0; i < MaxConnectCout; i++)
             {
 
                 PoolSend poolSend = new PoolSend();
-                var memoryPool = new SlabMemoryPool();
-                 //var memoryPool = new MemoryPool.BufferMemoryPool();
+                // var memoryPool = new SlabMemoryPool();
+                //  var memoryPool = new MemoryPool.BufferMemoryPool();
+               
 
                 ZYSocketAsyncEventArgs socketasyn = new ZYSocketAsyncEventArgs(
                     new LinesReadStream(MaxBufferSize),

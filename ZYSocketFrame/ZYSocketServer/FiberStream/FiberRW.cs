@@ -201,9 +201,9 @@ namespace ZYSocket.FiberStream
 
             return count;
         }
-        public Memory<byte> GetMemory(int inithint)
+        public IMemoryOwner<byte> GetMemory(int inithint)
         {
-           return memoryPool.Rent(inithint).Memory;
+           return memoryPool.Rent(inithint);
         }
 
 
@@ -488,26 +488,30 @@ namespace ZYSocket.FiberStream
 
         #region read memory block
 
-        public async ValueTask<Memory<byte>> ReadMemory(int count)
+        public async ValueTask<Result<Memory<byte>>> ReadMemory(int count)
         {
-            var memory = GetMemory(count);
+            var imo = GetMemory(count);
 
+            var memory = imo.Memory;
             var array = memory.GetArray();
 
-            int len = await Read(array.Array, 0, count);
+            int len = await Read(array.Array, array.Offset, count);
 
-            if(len!=count)                
-                    throw new System.IO.IOException($"not read data");
+            if (len != count)
+                throw new System.IO.IOException($"not read data");
 
-            return array.AsMemory<byte>().Slice(0,len);
+            var slice_mem= memory.Slice(0, len);
+
+            return new Result<Memory<byte>>(imo, slice_mem);
+
         }
 
-        public async ValueTask<Memory<byte>> ReadMemory()
+        public async ValueTask<Result<Memory<byte>>> ReadMemory()
         {
             int? len = await ReadInt32();
 
             if (len == null)
-                return null;
+                return default;
             else
             {
                 return await ReadMemory(len.Value);
@@ -546,19 +550,24 @@ namespace ZYSocket.FiberStream
             int? len = await ReadInt32();
 
             if (len == null)
-                return null;
+                return default;
             else
             {
-                var memory = GetMemory(len.Value);
 
-                var array = memory.GetArray();
+                using (var imo = GetMemory(len.Value))
+                {
 
-                int rlen = await Read(array.Array, 0, len.Value);
+                    var array = imo.Memory.GetArray();
 
-                if (rlen != len.Value)
-                    throw new System.IO.IOException($"not read data");
+                    int rlen = await Read(array.Array, array.Offset, len.Value);
 
-                return Encoding.GetString(array.Array, array.Offset, rlen);
+                    if (rlen != len.Value)
+                        throw new System.IO.IOException($"not read data");
+
+                    return Encoding.GetString(array.Array, array.Offset, rlen);
+
+
+                }
             }
         }
 
@@ -568,11 +577,14 @@ namespace ZYSocket.FiberStream
         #region read obj
         public async ValueTask<S> ReadObject<S>()
         {
-            var mem = await ReadMemory();
-            var array = mem.GetArray();
-            using (System.IO.MemoryStream stream = new System.IO.MemoryStream(array.Array, array.Offset, array.Count))
+            using (var mem = await ReadMemory())
             {
-                return ProtoBuf.Serializer.Deserialize<S>(stream);
+                var array = mem.Value.GetArray();
+
+                using (System.IO.MemoryStream stream = new System.IO.MemoryStream(array.Array, array.Offset, array.Count))
+                {
+                    return ProtoBuf.Serializer.Deserialize<S>(stream);
+                }
             }
         }
         #endregion
@@ -605,7 +617,7 @@ namespace ZYSocket.FiberStream
         public ValueTask<int> Write(Memory<byte> data, int offset, int count)
         {
             var array = data.GetArray();
-            streamWriteFormat.Write(array.Array, offset, count);
+            streamWriteFormat.Write(array.Array, array.Offset+offset, count);
             return fiberWriteStream.AwaitFlush();
         }
 

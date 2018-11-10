@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -11,7 +12,7 @@ namespace ZYSocket.Server
 
 
 
-    public  struct ReadBytes
+    public  struct ReadBytes:IDisposable
     {
         public static LengthLen LenType { get; set; } = LengthLen.Int32;
 
@@ -20,6 +21,8 @@ namespace ZYSocket.Server
         public IFiberRw FiberRw { get; private set; }
 
         public int Packerlen { get; private set; }
+
+        public IMemoryOwner<byte> MemoryOwner { get; private set; }
 
         public Memory<byte> Memory { get; private set; }
 
@@ -31,9 +34,17 @@ namespace ZYSocket.Server
         {
             this.FiberRw = readFiber;
             this.Packerlen = -1;
-            Memory = null;           
+            Memory = null;
+            MemoryOwner = null;
             HandLen = (int)LenType;
             IsLittleEndian = FiberRw.IsLittleEndian;
+        }
+
+
+        public void Dispose()
+        {
+            MemoryOwner?.Dispose();
+            MemoryOwner = null;
         }
 
         public async ValueTask<ReadBytes> Init()
@@ -82,7 +93,9 @@ namespace ZYSocket.Server
 
 
 
-            Memory = FiberRw.GetMemory(Packerlen);
+            MemoryOwner = FiberRw.GetMemory(Packerlen);
+
+            Memory = MemoryOwner.Memory;
 
             var array = Memory.GetArray();
 
@@ -311,6 +324,18 @@ namespace ZYSocket.Server
 
         }
 
+        public Span<byte> ReadSpan(int  count)
+        {
+            var mm = Memory.Slice(0, count);
+            Memory = Memory.Slice(count);
+            return  mm.Span;
+        }
+
+        public Span<byte> ReadSpan()
+        {
+            return ReadMemory().Span;
+        }
+
         public byte[] ReadArray()
         {
             var len = ReadInt32();
@@ -350,5 +375,6 @@ namespace ZYSocket.Server
 
 
         }
+
     }
 }

@@ -285,7 +285,7 @@ namespace ZYSocket.Server
             {              
                 if (SocketError == SocketError.Success)
                     return new ValueTask<int>(BytesTransferred);
-                else if(SocketError!=SocketError.ConnectionReset && SocketError != SocketError.OperationAborted)
+                else if(SocketError!=SocketError.ConnectionReset && SocketError != SocketError.OperationAborted&&SocketError!= SocketError.ConnectionAborted)
                     throw  GetException(SocketError);
                 else
                     return new ValueTask<int>(0);
@@ -347,7 +347,7 @@ namespace ZYSocket.Server
             {
                 builder.SetResult(saea.BytesTransferred);
             }
-            else if(error!= SocketError.ConnectionReset&&error!=SocketError.OperationAborted)
+            else if(error!= SocketError.ConnectionReset&&error!=SocketError.OperationAborted&& error != SocketError.ConnectionAborted)
             {
                 builder.SetException(GetException(error));
             }

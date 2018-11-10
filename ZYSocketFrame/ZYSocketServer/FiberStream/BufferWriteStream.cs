@@ -24,6 +24,7 @@ namespace ZYSocket.FiberStream
         public static LengthLen LenType { get; set; } = LengthLen.Int32;
 
         private readonly List<ArraySegment<byte>> DataSegment;
+        private readonly List<IMemoryOwner<byte>> MemoryOwners;
 
         private readonly MemoryPool<byte> MemoryPool;
 
@@ -57,13 +58,20 @@ namespace ZYSocket.FiberStream
             Send = send;
             AsyncSend = asyncSend;
             DataSegment = new List<ArraySegment<byte>>();
+            MemoryOwners = new List<IMemoryOwner<byte>>();
         }
 
 
 
         public override void Close()
         {
+            Reset();
             DataSegment.Clear();
+            foreach (var item in MemoryOwners)
+            {
+                item.Dispose();
+            }
+            MemoryOwners.Clear();
             base.Close();
         }
 

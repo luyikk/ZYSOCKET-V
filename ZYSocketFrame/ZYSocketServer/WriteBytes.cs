@@ -96,7 +96,7 @@ namespace ZYSocket.Server
         {
             var array = data.GetArray();
 
-            StreamWriteFormat.Write(array.Array, offset, count);
+            StreamWriteFormat.Write(array.Array, array.Offset+offset, count);
         }
 
         public void Write(Memory<byte> data, bool wlen = true)

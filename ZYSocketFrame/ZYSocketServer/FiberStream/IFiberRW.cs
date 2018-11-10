@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
 using ZYSocket.Server;
+using System.Buffers;
 
 namespace ZYSocket.FiberStream
 {
@@ -18,7 +19,7 @@ namespace ZYSocket.FiberStream
         bool IsLittleEndian { get; }    
         Stream StreamReadFormat { get; }
         Stream StreamWriteFormat { get; }
-        Memory<byte> GetMemory(int inithint);
+        IMemoryOwner<byte> GetMemory(int inithint);
         ValueTask<long> NextMove(long offset);
         ValueTask<int> Read(byte[] data, int offset, int count);
         ValueTask<byte[]> ReadArray();
@@ -31,8 +32,8 @@ namespace ZYSocket.FiberStream
         ValueTask<short?> ReadInt16();
         ValueTask<int?> ReadInt32();
         ValueTask<long?> ReadInt64();
-        ValueTask<Memory<byte>> ReadMemory();
-        ValueTask<Memory<byte>> ReadMemory(int count);
+        ValueTask<Result<Memory<byte>>> ReadMemory();
+        ValueTask<Result<Memory<byte>>> ReadMemory(int count);
         ValueTask<S> ReadObject<S>();
         ValueTask<float?> ReadSingle();
         ValueTask<string> ReadString();

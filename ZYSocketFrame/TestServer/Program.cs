@@ -81,11 +81,10 @@ namespace TestServer
             for (; ; )
             {
                 //读取 发送 测试
-                var data = await fiberRw.ReadToBlockArrayEnd();
-              
-                WriteBytes writeBytes = new WriteBytes(fiberRw);
-                writeBytes.Write(data);
-                writeBytes.Flush();
+                //var data = await fiberRw.ReadToBlockArrayEnd();
+                //WriteBytes writeBytes = new WriteBytes(fiberRw);
+                //writeBytes.Write(data);
+                //writeBytes.Flush();
 
                 try
                 {
@@ -93,7 +92,7 @@ namespace TestServer
                     //ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
                     //DataOn(ref readBytes, fiberRw);
 
-                    // await DataOnByLine(fiberRw);
+                     await DataOnByLine(fiberRw);
 
                 }
                 catch (Exception er)
@@ -121,24 +120,28 @@ namespace TestServer
             var p5 = await fiberRw.ReadBoolean();
             var p6 = await fiberRw.ReadBoolean();
             var p7 = await fiberRw.ReadString();
-            var p8 = await fiberRw.ReadMemory();
-            var p9 = await fiberRw.ReadInt16();
-            var p10 = await fiberRw.ReadObject<List<Guid>>();
+
+            using (var p8 = await fiberRw.ReadMemory())
+            {
+
+                var p9 = await fiberRw.ReadInt16();
+                var p10 = await fiberRw.ReadObject<List<Guid>>();
+
+                await fiberRw.Write(len.Value);
+                await fiberRw.Write(cmd.Value);
+                await fiberRw.Write(p1.Value);
+                await fiberRw.Write(p2.Value);
+                await fiberRw.Write(p3.Value);
+                await fiberRw.Write(p4.Value);
+                await fiberRw.Write(p5.Value);
+                await fiberRw.Write(p6.Value);
+                await fiberRw.Write(p7);
+                await fiberRw.Write(p8.Value);
+                await fiberRw.Write(p9.Value);
+                await fiberRw.Write(p10);
+            }
 
 
-            await fiberRw.Write(len.Value);
-            await fiberRw.Write(cmd.Value);
-            await fiberRw.Write(p1.Value);
-            await fiberRw.Write(p2.Value);
-            await fiberRw.Write(p3.Value);
-            await fiberRw.Write(p4.Value);
-            await fiberRw.Write(p5.Value);
-            await fiberRw.Write(p6.Value);
-            await fiberRw.Write(p7);
-            await fiberRw.Write(p8);
-            await fiberRw.Write(p9.Value);
-            await fiberRw.Write(p10);
-          
         }
 
         static void  DataOn(ref ReadBytes read, FiberRw<string> fiberRw)
@@ -155,6 +158,7 @@ namespace TestServer
             var p8 = read.ReadMemory();                       
             var p9 = read.ReadInt16();
             var p10 = read.ReadObject<List<Guid>>();
+            read.Dispose();
 
             WriteBytes writeBytes = new WriteBytes(fiberRw);
             writeBytes.WriteLen();
@@ -170,6 +174,7 @@ namespace TestServer
             writeBytes.Write(p9.Value);
             writeBytes.Write(p10);
             writeBytes.Flush();
+
 
 
         }
