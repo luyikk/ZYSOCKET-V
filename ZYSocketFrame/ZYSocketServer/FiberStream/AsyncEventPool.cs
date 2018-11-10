@@ -1,0 +1,373 @@
+﻿//by luyikk 2010.5.9
+
+using System;
+using System.Reflection;
+using System.Net.Sockets;
+using System.Runtime.CompilerServices;
+using System.IO;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
+namespace ZYSocket.Server
+{
+    /// <summary>
+    ///     泛型的对象池-可输入构造函数,以及参数
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class ObjectPool<T> where T : new()
+    {
+
+        private object lockStack = new object();
+        /// <summary>
+        ///     对象处理代理
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="pool"></param>
+        /// <returns></returns>
+        public delegate T ObjectRunTimeHandle(T obj, ObjectPool<T> pool);
+
+
+        /// <summary>
+        /// 对象第一次创建时的代理
+        /// </summary>
+        public ObjectRunTimeHandle ObjectCreateRunTime { get; set; }
+
+
+        /// <summary>
+        ///     获取对象时所处理的方法
+        /// </summary>
+        public ObjectRunTimeHandle GetObjectRunTime { get; set; }
+     
+
+        /// <summary>
+        ///     回收对象时处理的方法
+        /// </summary>
+        public ObjectRunTimeHandle ReleaseObjectRunTime { get; set; }
+
+        /// <summary>
+        ///     最大对象数量
+        /// </summary>
+        public int MaxObjectCount { get; set; }
+
+
+        /// <summary>
+        ///     对象存储Stack
+        /// </summary>
+        public Stack<T> ObjectStack { get; set; }
+
+
+        /// <summary>
+        ///     构造函数
+        /// </summary>
+        public ConstructorInfo TheConstructor { get; set; }
+
+        /// <summary>
+        ///     参数
+        /// </summary>
+        public object[] Param { get; set; }
+
+        public ObjectPool(int maxObjectCount)
+        {
+            ObjectStack = new Stack<T>();
+            MaxObjectCount = maxObjectCount;
+        }
+
+        private T GetT()
+        {
+            T x;
+            if (TheConstructor != null)
+                x = (T)TheConstructor.Invoke(Param);
+            else
+                x = new T();
+
+            if (ObjectCreateRunTime != null)
+                x=ObjectCreateRunTime(x, this);
+
+            return x;
+        }
+
+
+        /// <summary>
+        ///     获取对象
+        /// </summary>
+        /// <returns></returns>
+        public T GetObject()
+        {
+            lock (lockStack)
+            {
+                if (ObjectStack.Count == 0)
+                {
+                    var p = GetT();
+                    if (GetObjectRunTime != null)
+                        p = GetObjectRunTime(p, this);
+
+                    return p;
+                }
+                else
+                {
+                    T p;
+
+                    if ((p = ObjectStack.Peek()) != null)
+                    {
+                        ObjectStack.Pop();
+                        if (GetObjectRunTime != null)
+                            p = GetObjectRunTime(p, this);
+                        return p;
+                    }
+
+                    p = GetT();
+                    if (GetObjectRunTime != null)
+                        p = GetObjectRunTime(p, this);
+                    return p;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     获取对象
+        /// </summary>
+        /// <param name="cout"></param>
+        /// <returns></returns>
+        public T[] GetObject(int cout)
+        {
+            lock (lockStack)
+            {
+                if (ObjectStack.Count == 0)
+                {
+                    var p = new T[cout];
+
+                    for (var i = 0; i < cout; i++)
+                    {
+                        p[i] = GetT();
+                        if (GetObjectRunTime != null)
+                            p[i] = GetObjectRunTime(p[i], this);
+                    }
+
+                    return p;
+                }
+                else
+                {
+                    T[] p = new T[cout];
+
+                    for (int i = 0; i < cout; i++)
+                    {
+                        if (ObjectStack.Count > 0)
+                        {
+                            p[i] = ObjectStack.Pop();
+
+                            if (p[i] == null)
+                                p[i] = GetT();
+                        }
+                        else
+                        {
+                            p[i] = GetT();
+                        }
+
+
+                        if (GetObjectRunTime != null)
+                            p[i] = GetObjectRunTime(p[i], this);
+                    }
+
+                    return p;
+                }
+            }
+        }
+
+
+        /// <summary>
+        ///     回收对象
+        /// </summary>
+        /// <param name="obj"></param>
+        public void ReleaseObject(T obj)
+        {
+            if (ReleaseObjectRunTime != null)
+            {
+                obj = ReleaseObjectRunTime(obj, this);
+
+                if (obj == null)
+                    return;
+            }
+
+            lock (lockStack)
+            {
+                if (ObjectStack.Count >= MaxObjectCount)
+                {
+                    if (obj is IDisposable)
+                        ((IDisposable)obj).Dispose();
+                }
+                else
+                {
+                    ObjectStack.Push(obj);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 回收对象
+        /// </summary>
+        /// <param name="obj"></param>
+        public void ReleaseObject(T[] obj)
+        {
+            foreach (var p in obj)
+                ReleaseObject(p);
+        }
+    }
+
+
+
+    /// <summary>A SocketAsyncEventArgs with an associated async method builder.</summary>
+    public class TaskSocketAsyncEventArgs<TResult> : SocketAsyncEventArgs
+    {
+      
+        public AsyncValueTaskMethodBuilder<TResult> _builder;
+
+        public new event EventHandler<TaskSocketAsyncEventArgs<TResult>> Completed;
+
+        public bool _accessed = false;
+        public TaskSocketAsyncEventArgs() :base() // avoid flowing context at lower layers as we only expose Task, which handles it
+        {
+            base.Completed += TaskSocketAsyncEventArgs_Completed;
+        }
+
+        private void TaskSocketAsyncEventArgs_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            this.Completed?.Invoke(sender, this);
+        }
+
+        /// <summary>Gets the builder's task with appropriate synchronization.</summary>
+        public ref AsyncValueTaskMethodBuilder<TResult> GetCompletionResponsibility(out bool responsibleForReturningToPool)
+        {
+            lock (this)
+            {
+                responsibleForReturningToPool = _accessed;
+                _accessed = true;             
+                return ref _builder;
+            }
+        }
+    }
+
+    public class SendTaskSocketAsyncEventArgs : TaskSocketAsyncEventArgs<int>
+    {
+        
+
+        private static readonly SendTaskSocketAsyncEventArgs s_rentedsendSentinel = new SendTaskSocketAsyncEventArgs();
+
+        public new event EventHandler<SendTaskSocketAsyncEventArgs> Completed;
+
+        public void Reset()
+        {
+            _accessed = false;
+            _builder = default(AsyncValueTaskMethodBuilder<int>); 
+        }
+
+        public SendTaskSocketAsyncEventArgs():base(){
+            base.Completed += IntTaskSocketAsyncEventArgs_Completed;
+        }
+
+        private void IntTaskSocketAsyncEventArgs_Completed(object sender, TaskSocketAsyncEventArgs<int> e)
+        {
+            Completed?.Invoke(sender, this);
+        }
+
+        public ValueTask<int> SendSync(Socket sock)
+        {
+            ValueTask<int> t;
+
+            if (sock.SendAsync(this))
+            {
+                bool responsibleForReturningToPool;
+                t = GetCompletionResponsibility(out responsibleForReturningToPool).Task;
+
+                if (responsibleForReturningToPool)
+                    Reset();
+            }
+            else
+            {              
+                if (SocketError == SocketError.Success)
+                    return new ValueTask<int>(BytesTransferred);
+                else if(SocketError!=SocketError.ConnectionReset && SocketError != SocketError.OperationAborted)
+                    throw  GetException(SocketError);
+                else
+                    return new ValueTask<int>(0);
+            }
+
+            return t;
+        }
+
+        private static Exception GetException(SocketError error)
+        {
+            return new SocketException((int)error);
+           
+        }
+    }
+
+       
+
+    public class SendSocketAsyncEventPool:ObjectPool<SendTaskSocketAsyncEventArgs>
+    {
+        public static SendSocketAsyncEventPool Shared { get; } = new SendSocketAsyncEventPool();
+
+
+        public SendSocketAsyncEventPool(int maxObjectCount=1000) :base(maxObjectCount)
+        {
+            base.ObjectCreateRunTime=(obj,pool)=>
+            {
+                obj.Completed += Async_Completed;
+                return obj;
+            };
+
+          
+            base.ReleaseObjectRunTime = (obj, pool) =>
+              {                 
+                 // obj.SetBuffer(null, 0, 0);
+                 // obj.BufferList = null;
+                  obj.Reset();
+                  return obj;
+              };
+        }
+
+        private void Async_Completed(object sender, SendTaskSocketAsyncEventArgs e)
+        {
+            CompleteAccept(e.AcceptSocket, e);
+
+        }
+
+        private static void CompleteAccept(Socket s, SendTaskSocketAsyncEventArgs saea)
+        {
+          
+            SocketError error = saea.SocketError;  
+            
+            bool responsibleForReturningToPool;
+            AsyncValueTaskMethodBuilder<int> builder = saea.GetCompletionResponsibility(out responsibleForReturningToPool);
+
+            if (responsibleForReturningToPool)
+                saea.Reset();
+          
+            if (error == SocketError.Success)
+            {
+                builder.SetResult(saea.BytesTransferred);
+            }
+            else if(error!= SocketError.ConnectionReset&&error!=SocketError.OperationAborted)
+            {
+                builder.SetException(GetException(error));
+            }
+            else
+            {
+                builder.SetResult(0);
+            }
+
+        }
+
+        private static Exception GetException(SocketError error)
+        {
+            Exception e = new SocketException((int)error);
+            return new IOException($"Unable to transfer data on the transport connection:{ e.Message}", e);
+
+        }
+
+
+
+    }
+
+
+}
