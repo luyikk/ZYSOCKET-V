@@ -84,7 +84,7 @@ namespace TestServer
                 var data = await fiberRw.ReadToBlockArrayEnd();
                 WriteBytes writeBytes = new WriteBytes(fiberRw);
                 writeBytes.Write(data);
-                writeBytes.Flush();
+                await writeBytes.AwaitFlush();
 
                 try
                 {

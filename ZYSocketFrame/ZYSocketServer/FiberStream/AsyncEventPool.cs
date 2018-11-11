@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.IO;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace ZYSocket.Server
 {
@@ -17,7 +17,7 @@ namespace ZYSocket.Server
     public class ObjectPool<T> where T : new()
     {
 
-        private object lockStack = new object();
+   
         /// <summary>
         ///     对象处理代理
         /// </summary>
@@ -53,7 +53,7 @@ namespace ZYSocket.Server
         /// <summary>
         ///     对象存储Stack
         /// </summary>
-        public Stack<T> ObjectStack { get; set; }
+        public ConcurrentStack<T> ObjectStack { get; set; }
 
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace ZYSocket.Server
 
         public ObjectPool(int maxObjectCount)
         {
-            ObjectStack = new Stack<T>();
+            ObjectStack = new ConcurrentStack<T>();
             MaxObjectCount = maxObjectCount;
         }
 
@@ -93,34 +93,18 @@ namespace ZYSocket.Server
         /// <returns></returns>
         public T GetObject()
         {
-            lock (lockStack)
+            if (ObjectStack.TryPop(out T p))
             {
-                if (ObjectStack.Count == 0)
-                {
-                    var p = GetT();
-                    if (GetObjectRunTime != null)
-                        p = GetObjectRunTime(p, this);
 
-                    return p;
-                }
-                else
-                {
-                    T p;
-
-                    if ((p = ObjectStack.Peek()) != null)
-                    {
-                        ObjectStack.Pop();
-                        if (GetObjectRunTime != null)
-                            p = GetObjectRunTime(p, this);
-                        return p;
-                    }
-
-                    p = GetT();
-                    if (GetObjectRunTime != null)
-                        p = GetObjectRunTime(p, this);
-                    return p;
-                }
+                if (GetObjectRunTime != null)
+                    p = GetObjectRunTime(p, this);
+                return p;
             }
+
+            p = GetT();
+            if (GetObjectRunTime != null)
+                p = GetObjectRunTime(p, this);
+            return p;
         }
 
         /// <summary>
@@ -130,47 +114,41 @@ namespace ZYSocket.Server
         /// <returns></returns>
         public T[] GetObject(int cout)
         {
-            lock (lockStack)
+
+
+            T[] p = new T[cout];
+
+            int Lpcout = ObjectStack.TryPopRange(p);
+
+
+            if (Lpcout < cout)
             {
-                if (ObjectStack.Count == 0)
+                int x = cout - Lpcout;
+
+                T[] xp = new T[x];
+
+                for (int i = 0; i < x; i++)
                 {
-                    var p = new T[cout];
-
-                    for (var i = 0; i < cout; i++)
-                    {
-                        p[i] = GetT();
-                        if (GetObjectRunTime != null)
-                            p[i] = GetObjectRunTime(p[i], this);
-                    }
-
-                    return p;
+                    xp[i] = GetT();
                 }
-                else
-                {
-                    T[] p = new T[cout];
 
-                    for (int i = 0; i < cout; i++)
-                    {
-                        if (ObjectStack.Count > 0)
-                        {
-                            p[i] = ObjectStack.Pop();
-
-                            if (p[i] == null)
-                                p[i] = GetT();
-                        }
-                        else
-                        {
-                            p[i] = GetT();
-                        }
-
-
-                        if (GetObjectRunTime != null)
-                            p[i] = GetObjectRunTime(p[i], this);
-                    }
-
-                    return p;
-                }
+                Array.Copy(xp, 0, p, Lpcout, x);
             }
+
+            if (GetObjectRunTime != null)
+            {
+                for (int i = 0; i < p.Length; i++)
+                {
+                    p[i] = GetObjectRunTime(p[i], this);
+
+                }
+
+            }
+
+
+            return p;
+
+
         }
 
 
@@ -188,18 +166,16 @@ namespace ZYSocket.Server
                     return;
             }
 
-            lock (lockStack)
+            if (ObjectStack.Count >= MaxObjectCount)
             {
-                if (ObjectStack.Count >= MaxObjectCount)
-                {
-                    if (obj is IDisposable)
-                        ((IDisposable)obj).Dispose();
-                }
-                else
-                {
-                    ObjectStack.Push(obj);
-                }
+                if (obj is IDisposable)
+                    ((IDisposable)obj).Dispose();
             }
+            else
+            {
+                ObjectStack.Push(obj);
+            }
+
         }
 
         /// <summary>
