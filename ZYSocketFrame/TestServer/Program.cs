@@ -81,10 +81,10 @@ namespace TestServer
             for (; ; )
             {
                 //读取 发送 测试
-                //var data = await fiberRw.ReadToBlockArrayEnd();
-                //WriteBytes writeBytes = new WriteBytes(fiberRw);
-                //writeBytes.Write(data);
-                //writeBytes.Flush();
+                var data = await fiberRw.ReadToBlockArrayEnd();
+                WriteBytes writeBytes = new WriteBytes(fiberRw);
+                writeBytes.Write(data);
+                writeBytes.Flush();
 
                 try
                 {
@@ -92,7 +92,7 @@ namespace TestServer
                     //ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
                     //DataOn(ref readBytes, fiberRw);
 
-                     await DataOnByLine(fiberRw);
+                    // await DataOnByLine(fiberRw);
 
                 }
                 catch (Exception er)

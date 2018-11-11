@@ -182,7 +182,15 @@ namespace ZYSocket.FiberStream
                 
                 if(v>0)
                 {
-                    DataSegment.RemoveRange(DataSegment.Count - v, v);
+                    var start = DataSegment.Count - v;
+                    DataSegment.RemoveRange(start, v);
+                    var remove= MemoryOwners.GetRange(start, v);
+                    MemoryOwners.RemoveRange(start, v);
+                    foreach (var item in remove)
+                    {
+                        item.Dispose();
+                    }
+                    remove.Clear();
                     set_current_tmp_postion(value);
                     _len = value;
                 }
@@ -300,7 +308,9 @@ namespace ZYSocket.FiberStream
 
             while (p > 0)
             {
-                DataSegment.Add(MemoryPool.Rent(BufferBlockSize).Memory.GetArray());
+                var memoryOwner = MemoryPool.Rent(BufferBlockSize);
+                DataSegment.Add(memoryOwner.Memory.GetArray());
+                MemoryOwners.Add(memoryOwner);
                 p -= 4096;
             }
         }
