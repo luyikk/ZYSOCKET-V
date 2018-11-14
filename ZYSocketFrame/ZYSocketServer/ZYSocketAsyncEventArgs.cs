@@ -45,7 +45,7 @@ namespace ZYSocket.Server
             _check_thread = 0;
         }
 
-        public ZYSocketAsyncEventArgs(IFiberReadStream r_stream, IFiberWriteStream w_stream, MemoryPool<byte> memoryPool, Encoding encoding,ISend send,IAsyncSend asyncsend, bool isLittleEndian=false)
+        public ZYSocketAsyncEventArgs(IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, bool isLittleEndian=false)
         {
             this.MemoryPool = memoryPool;
             this.RStream = r_stream;

@@ -92,18 +92,10 @@ namespace ZYSocket.Server
                 throw new System.IO.IOException($"not read packer size");
 
 
+            var res = await FiberRw.ReadMemory(Packerlen);
+            MemoryOwner = res.MemoryOwner;
+            Memory = res.Value;
 
-            MemoryOwner = FiberRw.GetMemory(Packerlen);
-
-            Memory = MemoryOwner.Memory;
-
-            var array = Memory.GetArray();
-
-            int len = await FiberRw.Read(array.Array, array.Offset, Packerlen);
-
-            if (len != Packerlen)
-                throw new System.IO.IOException($"not read data");
-        
             return this;
         }
 

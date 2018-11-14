@@ -22,14 +22,20 @@ namespace Thruster
             pool4K = new MemoryPoolImpl<T, Size4K>(processorCount);
         }
 
-        public override IMemoryOwner<T> Rent(int size = -1)
+        public override IMemoryOwner<T> Rent(int size = 0)
         {
             if (size <= 0)
             {
                 size = 1;
             }
 
+            if (size > MaxBufferSize)
+                throw new System.IO.IOException($"the size > max buffer size: {MaxBufferSize}");
+
+
+
             var chunk4KCount = size >> default(Size4K).GetChunkSizeLog();
+
             if (chunk4KCount < 15)
             {
                 return pool4K.Rent(size);
@@ -85,7 +91,7 @@ namespace Thruster
             }
         }
 
-        public override int MaxBufferSize => 8 * default(Size16K).GetChunkSize();
+        public override int MaxBufferSize => 8 * default(Size16K).GetChunkSize();  //max 2576 * 1024;
 
         protected override void Dispose(bool disposing)
         {

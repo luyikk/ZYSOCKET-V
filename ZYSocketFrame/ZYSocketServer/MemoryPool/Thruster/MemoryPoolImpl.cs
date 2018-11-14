@@ -113,7 +113,7 @@ namespace Thruster
                 ChunkCount = chunkCount;
                 Lease = lease;
                 var offset = (bucketId * ChunksPerBucket + lease) * default(TSize).GetChunkSize();
-                Memory = MemoryMarshal.CreateFromPinnedArray(pool.memory, offset, default(TSize).GetChunkSize());
+                Memory = MemoryMarshal.CreateFromPinnedArray(pool.memory, offset, default(TSize).GetChunkSize()* ChunkCount);
             }
 
             public void Dispose()

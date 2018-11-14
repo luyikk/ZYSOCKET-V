@@ -305,17 +305,18 @@ namespace ZYSocket.Server
             {
 
                 PoolSend poolSend = new PoolSend();
-                // var memoryPool = new SlabMemoryPool();
-                //  var memoryPool = new MemoryPool.BufferMemoryPool();
-               
+                 //var memoryPool = new SlabMemoryPool();
+                 // var memoryPool = new MemoryPool.BufferMemoryPool();
+             
 
                 ZYSocketAsyncEventArgs socketasyn = new ZYSocketAsyncEventArgs(
                     new LinesReadStream(MaxBufferSize),
-                    new BufferWriteStream(memoryPool,poolSend,poolSend),
-                    memoryPool, 
-                    Encoding.UTF8, 
-                    poolSend, 
-                    poolSend);
+                    new BufferWriteStream(memoryPool, poolSend, poolSend),
+                    poolSend,
+                    poolSend,
+                    memoryPool,
+                    Encoding.UTF8
+                   );
 
                 poolSend.SetAccpet(socketasyn);
                 socketasyn.Completed += new EventHandler<ZYSocketAsyncEventArgs>(Asyn_Completed);
