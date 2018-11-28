@@ -20,6 +20,7 @@ namespace ZYSocket.FiberStream
         Stream StreamReadFormat { get; }
         Stream StreamWriteFormat { get; }
         IMemoryOwner<byte> GetMemory(int inithint);
+        void Disconnect();
         ValueTask<long> NextMove(long offset);
         ValueTask<int> Read(byte[] data, int offset, int count);
         ValueTask<byte[]> ReadArray();
@@ -42,6 +43,8 @@ namespace ZYSocket.FiberStream
         ValueTask<ushort?> ReadUInt16();
         ValueTask<uint?> ReadUInt32();
         ValueTask<ulong?> ReadUInt64();
+
+
     }
 
 }

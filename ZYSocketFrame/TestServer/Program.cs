@@ -1,39 +1,45 @@
 ﻿using System;
 using ZYSocket.Server;
-using System.Net.Sockets;
-using System.IO;
-using System.Threading;
 using System.Collections.Generic;
 using ZYSocket.FiberStream;
 using System.Threading.Tasks;
-using Thruster;
-using ZYSocket.Server.MemoryPool;
+using ZYSocket.Server.Builder;
+using Autofac;
 
 namespace TestServer
 {
     class Program
     {
-        //建立一个ZYSOCKETSERVER 对象 注意启动前应该先设置 App.Config 文件,
-        //如果你不想设置App.Config文件 那么可以在构造方法里面传入相关的设置
-        static ZYSocketSuper server;
-
-       
+      
+              
         // static byte[] httpRespone;
 
         //程序入口
         static void Main(string[] args)
         {
-           
-
-            //httpRespone = File.ReadAllBytes("http.txt");
-            server = new ZYSocketSuper("any", 1000, 1000, 1024 * 4)
-            {               
-                BinaryInput = new BinaryInputHandler(BinaryInputHandler), //设置输入代理
-                Connetions = new ConnectionFilter(ConnectionFilter), //设置连接代理
-                MessageInput = new MessageInputHandler(MessageInputHandler) //设置 客户端断开
-            };
-
+                        
+            var server = new SockServBuilder().Bulid();
+            server.BinaryInput = new BinaryInputHandler(BinaryInputHandler); //设置输入代理
+            server.Connetions = new ConnectionFilter(ConnectionFilter); //设置连接代理
+            server.MessageInput = new DisconnectHandler(DisconnectHandler); //设置 客户端断开
             server.Start(); //启动服务器
+
+
+            var server2 = new SockServBuilder().ConfigServer(p=>p.Port=1001).Bulid();
+            server2.BinaryInput = new BinaryInputHandler(BinaryInputHandler); //设置输入代理
+            server2.Connetions = new ConnectionFilter(ConnectionFilter); //设置连接代理
+            server2.MessageInput = new DisconnectHandler(DisconnectHandler); //设置 客户端断开
+            server2.Start(); //启动服务器
+
+
+            ContainerBuilder containerBuilder = new ContainerBuilder();
+            new SockServBuilder(containerBuilder).ConfigServer(p => p.Port = 1002);
+            var server3 = containerBuilder.Build().Resolve<ISocketServer>();
+            server3.BinaryInput = new BinaryInputHandler(BinaryInputHandler); //设置输入代理
+            server3.Connetions = new ConnectionFilter(ConnectionFilter); //设置连接代理
+            server3.MessageInput = new DisconnectHandler(DisconnectHandler); //设置 客户端断开
+            server3.Start(); //启动服务器
+
 
             Console.ReadLine();
         }
@@ -47,7 +53,7 @@ namespace TestServer
         /// <param name="message">断开消息</param>
         /// <param name="socketAsync">断开的SOCKET</param>
         /// <param name="erorr">错误的ID</param>
-        static void MessageInputHandler(string message, ZYSocketAsyncEventArgs socketAsync, int erorr)
+        static void DisconnectHandler(string message, ZYSocketAsyncEventArgs socketAsync, int erorr)
         {
             Console.WriteLine(message);
             socketAsync.UserToken = null;
@@ -83,17 +89,17 @@ namespace TestServer
 
             for (; ; )
             {
-                //读取 发送 测试
-                //var data = await fiberRw.ReadToBlockArrayEnd();
-                //WriteBytes writeBytes = new WriteBytes(fiberRw);
-                //writeBytes.Write(data);
-                //await writeBytes.AwaitFlush();
+                // 读取 发送 测试
+                var data = await fiberRw.ReadToBlockArrayEnd();
+                WriteBytes writeBytes = new WriteBytes(fiberRw);
+                writeBytes.Write(data);
+                await writeBytes.AwaitFlush();
 
                 try
                 {
                     //提供2种数据 读取写入方式
-                    ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
-                    DataOn(ref readBytes, fiberRw);
+                    //ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
+                    //DataOn(ref readBytes, fiberRw);
 
                     //  await DataOnByLine(fiberRw);
 
@@ -108,7 +114,7 @@ namespace TestServer
 
             }
 
-            server.Disconnect(socketAsync.AcceptSocket);
+            fiberRw.Disconnect();
 
         }
 
@@ -122,13 +128,13 @@ namespace TestServer
             var p4 = await fiberRw.ReadSingle();
             var p5 = await fiberRw.ReadBoolean();
             var p6 = await fiberRw.ReadBoolean();
-           // var p7 = await fiberRw.ReadString();
+            var p7 = await fiberRw.ReadString();
 
-           // using (var p8 = await fiberRw.ReadMemory())
-           // {
+            using (var p8 = await fiberRw.ReadMemory())
+            {
 
                 var p9 = await fiberRw.ReadInt16();
-                //var p10 = await fiberRw.ReadObject<List<Guid>>();
+                var p10 = await fiberRw.ReadObject<List<Guid>>();
 
                 await fiberRw.Write(len.Value);
                 await fiberRw.Write(cmd.Value);
@@ -138,11 +144,11 @@ namespace TestServer
                 await fiberRw.Write(p4.Value);
                 await fiberRw.Write(p5.Value);
                 await fiberRw.Write(p6.Value);
-               // await fiberRw.Write(p7);
-               // await fiberRw.Write(p8.Value);
+                await fiberRw.Write(p7);
+                await fiberRw.Write(p8.Value);
                 await fiberRw.Write(p9.Value);
-                //await fiberRw.Write(p10);
-           // }
+                await fiberRw.Write(p10);
+            }
 
 
         }

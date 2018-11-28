@@ -71,6 +71,22 @@ namespace ZYSocket.FiberStream
         }
 
 
+        public void Disconnect()
+        {
+            try
+            {
+                Async?.AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
+
         public async ValueTask<long> NextMove(long offset)
         {
             long offset_next = offset;
@@ -96,7 +112,6 @@ namespace ZYSocket.FiberStream
 
             return offset - offset_next;
         }
-
 
         public async ValueTask<Memory<byte>> ReadToBlockEnd()
         {
@@ -764,6 +779,8 @@ namespace ZYSocket.FiberStream
             write.Write(obj);
             return fiberWriteStream.AwaitFlush();
         }
+
+  
         #endregion
     }
 

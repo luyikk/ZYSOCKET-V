@@ -16,6 +16,8 @@ using System.IO;
 using System.Threading;
 using ZYSocket.FiberStream;
 using System.Buffers;
+using Autofac;
+using ZYSocket.Server.Builder;
 
 namespace ZYSocket.Server
 {
@@ -40,13 +42,13 @@ namespace ZYSocket.Server
     /// <param name="message">消息</param>
     /// <param name="socketAsync"></param>
     /// <param name="erorr">错误代码</param>
-    public delegate void MessageInputHandler(string message, ZYSocketAsyncEventArgs socketAsync, int erorr);
+    public delegate void DisconnectHandler(string message, ZYSocketAsyncEventArgs socketAsync, int erorr);
 
     /// <summary>
     /// ZYSOCKET框架 服务器端
     ///（通过6W个连接测试。理论上支持10W个连接，可谓.NET最强SOCKET模型）
     /// </summary>
-    public class ZYSocketSuper : IDisposable
+    public class ZYSocketSuper : IDisposable, ISocketServer
     {
 
         #region 释放
@@ -87,8 +89,7 @@ namespace ZYSocket.Server
             }
         }
 #endregion
-
-     
+             
     
         /// <summary>
         /// SOCK对象
@@ -115,7 +116,7 @@ namespace ZYSocket.Server
         /// <summary>
         /// 异常错误通常是用户断开处理
         /// </summary>
-        public MessageInputHandler MessageInput { get; set; }
+        public DisconnectHandler MessageInput { get; set; }
 
 
         private readonly System.Threading.AutoResetEvent[] reset;
@@ -217,17 +218,13 @@ namespace ZYSocket.Server
         private readonly int Port;
 
 
-
-
-       
-
+        
         public ZYSocketSuper(string host, int port, int maxconnectcout, int maxbuffersize)
         {
             this.Port = port;
             this.Host = host;
             this.MaxBufferSize = maxbuffersize;
             this.MaxConnectCout = maxconnectcout;
-
            
             this.reset = new System.Threading.AutoResetEvent[1];
             reset[0] = new System.Threading.AutoResetEvent(false);
@@ -235,8 +232,6 @@ namespace ZYSocket.Server
             Run();
 
         }
-
-
         /// <summary>
         /// 启动
         /// </summary>
@@ -325,6 +320,127 @@ namespace ZYSocket.Server
 
 
         }
+
+
+        
+        public ZYSocketSuper(IComponentContext component)
+        {
+            var config = component.Resolve<SocketServerOptions>();
+
+
+            this.Port = config.Port;
+            this.Host = config.Host;
+            this.MaxBufferSize = config.MaxBufferSize;
+            this.MaxConnectCout = config.MaxConnectCout;
+
+            this.reset = new System.Threading.AutoResetEvent[1];
+            reset[0] = new System.Threading.AutoResetEvent(false);
+
+            Run(component);
+        }
+
+
+        /// <summary>
+        /// 启动
+        /// </summary>
+        private void Run(IComponentContext component)
+        {
+            if (isDisposed == true)
+            {
+                throw new ObjectDisposedException("ZYServer is Disposed");
+            }
+
+            var config = component.Resolve<SocketServerOptions>();
+
+
+            IPEndPoint myEnd = new IPEndPoint(IPAddress.Any, Port);
+
+            if (!Host.Equals("any", StringComparison.CurrentCultureIgnoreCase))
+            {
+                if (String.IsNullOrEmpty(Host))
+                {
+
+                    IPHostEntry p = Dns.GetHostEntry(Dns.GetHostName());
+
+                    foreach (IPAddress s in p.AddressList)
+                    {
+                        if (!s.IsIPv6LinkLocal && s.AddressFamily != AddressFamily.InterNetworkV6)
+                        {
+                            myEnd = new IPEndPoint(s, Port);
+                            break;
+                        }
+                    }
+
+                }
+                else
+                {
+                    try
+                    {
+                        myEnd = new IPEndPoint(IPAddress.Parse(Host), Port);
+                    }
+                    catch (FormatException)
+                    {
+
+                        IPHostEntry p = Dns.GetHostEntry(Dns.GetHostName());
+
+                        foreach (IPAddress s in p.AddressList)
+                        {
+                            if (!s.IsIPv6LinkLocal)
+                                myEnd = new IPEndPoint(s, Port);
+                        }
+                    }
+
+                }
+
+
+            }
+
+            sock = new Socket(myEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+
+
+            sock.Bind(myEnd);
+            sock.Listen(config.BackLog);
+
+            if(config.ReceiveTimeout>0)
+                ReceiveTimeout = config.ReceiveTimeout;
+            if (config.SendTimeout > 0)
+                SendTimeout = config.SendTimeout;
+
+
+
+
+            var memoryPool = component.Resolve<MemoryPool<byte>>();
+            var encode = component.Resolve<Encoding>();
+
+            for (int i = 0; i < MaxConnectCout; i++)
+            {
+              
+                var poolSend = component.Resolve<ISend>();
+                var poolAsyncSend = component.Resolve<IAsyncSend>();
+
+                ZYSocketAsyncEventArgs socketasyn = new ZYSocketAsyncEventArgs(
+                    new LinesReadStream(MaxBufferSize),
+                    new BufferWriteStream(memoryPool, poolSend, poolAsyncSend),
+                    poolSend,
+                    poolAsyncSend,
+                    memoryPool,
+                    encode,
+                    config.IsLittleEndian
+                   );
+
+                poolSend.SetAccpet(socketasyn);
+                poolAsyncSend.SetAccpet(socketasyn);
+
+                socketasyn.Completed += new EventHandler<ZYSocketAsyncEventArgs>(Asyn_Completed);
+                Accept(socketasyn);
+            }
+
+        }
+
+
+
 
         public void Start()
         {
@@ -489,48 +605,5 @@ namespace ZYSocket.Server
 
 
     }
-
-    public enum LogType
-    {
-        Error,
-    }
-
-
-    public class LogOutEventArgs : EventArgs
-    {
-
-        /// <summary>
-        /// 消息类型
-        /// </summary>     
-        private readonly LogType messClass;
-
-        /// <summary>
-        /// 消息类型
-        /// </summary>  
-        public LogType MessClass
-        {
-            get { return messClass; }
-        }
-
-
-
-        /// <summary>
-        /// 消息
-        /// </summary>
-        private readonly string mess;
-
-        public string Mess
-        {
-            get { return mess; }
-        }
-
-        public LogOutEventArgs(LogType messclass, string str)
-        {
-            messClass = messclass;
-            mess = str;
-
-        }
-
-
-    }
+   
 }

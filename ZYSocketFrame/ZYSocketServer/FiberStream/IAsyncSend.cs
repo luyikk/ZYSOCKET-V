@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace ZYSocket.Server
 {
     public interface IAsyncSend
     {
+        void SetAccpet(SocketAsyncEventArgs accpet);
         ValueTask<int> SendAsync(ArraySegment<byte> data);
         ValueTask<int> SendAsync(byte[] data);
         ValueTask<int> SendAsync(IList<ArraySegment<byte>> data);
