@@ -11,7 +11,7 @@ namespace ZYSocket.FiberStream
     public interface IFiberRw
     {
 
-        ZYSocketAsyncEventArgs Async { get; }
+        ISockAsyncEvent Async { get; }
         Encoding Encoding { get; }
         IFiberReadStream FiberReadStream { get; }
         IFiberWriteStream FiberWriteStream { get; }
@@ -35,7 +35,7 @@ namespace ZYSocket.FiberStream
         ValueTask<long?> ReadInt64();
         ValueTask<Result<Memory<byte>>> ReadMemory();
         ValueTask<Result<Memory<byte>>> ReadMemory(int count);
-        ValueTask<S> ReadObject<S>();
+        ValueTask<T> ReadObject<T>();
         ValueTask<float?> ReadSingle();
         ValueTask<string> ReadString();
         ValueTask<ArraySegment<byte>> ReadToBlockArrayEnd();
@@ -44,7 +44,28 @@ namespace ZYSocket.FiberStream
         ValueTask<uint?> ReadUInt32();
         ValueTask<ulong?> ReadUInt64();
 
+        ValueTask<int> Write(ArraySegment<byte> data);
+        ValueTask<int> Write(byte[] data, int offset, int count);
+        ValueTask<int> Write(byte[] data, bool wlen = true);
+        ValueTask<int> Write(Memory<byte> data, int offset, int count);
+        ValueTask<int> Write(Memory<byte> data, bool wlen = true);
+        ValueTask<int> Write(string data);
+        ValueTask<int> Write(byte data);
+        ValueTask<int> Write(short data);
+        ValueTask<int> Write(int data);
+        ValueTask<int> Write(long data);
+        ValueTask<int> Write(ushort data);
+        ValueTask<int> Write(uint data);
+        ValueTask<int> Write(ulong data);
+        ValueTask<int> Write(double data);
+        ValueTask<int> Write(float data);
+        ValueTask<int> Write(bool data);
+        ValueTask<int> Write(object obj);
 
     }
 
+    public interface IFiberRw<T> : IFiberRw
+    {
+        T UserToken { get; set; }
+    }
 }

@@ -9,7 +9,7 @@ using ZYSocket.Server;
 
 namespace ZYSocket.FiberStream
 {
-    public class FiberRw<T> : IFiberRw where T:class
+    public class FiberRw<T> : IFiberRw<T> where T:class
     {
         private readonly MemoryPool<byte> memoryPool;
         public  MemoryPool<byte> MemoryPool { get => memoryPool; }
@@ -35,21 +35,17 @@ namespace ZYSocket.FiberStream
 
         private readonly Stream streamWriteFormat;
         public Stream StreamWriteFormat { get => streamWriteFormat; }
-        public ZYSocketAsyncEventArgs Async { get; private set; }       
+        public ISockAsyncEvent Async { get; private set; }       
         public T UserToken { get; set; }
 
         private readonly byte[] read_Numericbytes;
         private readonly byte[] write_Numericbytes;
 
-        public FiberRw(ZYSocketAsyncEventArgs async_obj,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,bool isLittleEndian=false, Func<(Stream,Stream),(Stream,Stream)> init=null)
+        public FiberRw(ISockAsyncEvent async,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,bool isLittleEndian=false, Func<(Stream,Stream),(Stream,Stream)> init=null)
         {
            
             if (init != null)
             {
-
-                // streamReadFormat = init(fiberRStream as Stream);
-                //streamWriteFormat = init(fiberWStream as Stream);
-
                 (streamReadFormat, streamWriteFormat) = init((fiberRStream as Stream, fiberWStream as Stream));
             }
             else
@@ -59,7 +55,7 @@ namespace ZYSocket.FiberStream
             }
 
             UserToken = null;
-            this.Async = async_obj;
+            this.Async = async;
             fiberReadStream = fiberRStream;
             fiberWriteStream = fiberWStream;
             this.Encoding = encoding;
@@ -633,6 +629,7 @@ namespace ZYSocket.FiberStream
         {
             var array = data.GetArray();
             streamWriteFormat.Write(array.Array, array.Offset+offset, count);
+
             return fiberWriteStream.AwaitFlush();
         }
 
@@ -648,12 +645,15 @@ namespace ZYSocket.FiberStream
             return fiberWriteStream.AwaitFlush();
         }
 
+   
 
         public ValueTask<int> Write(string data)
         {
             byte[] bytes = Encoding.GetBytes(data);
             return Write(bytes);
         }
+
+      
 
         #endregion
 
@@ -665,83 +665,83 @@ namespace ZYSocket.FiberStream
             return fiberWriteStream.AwaitFlush();
         }
 
-        public ValueTask<int> Write(short data)
+        public unsafe ValueTask<int> Write(short data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
+       
+            fixed (byte* numRef = &write_Numericbytes[0])
+            {
+                *((short*)numRef) = data;
 
-            write_Numericbytes[0] = (byte)data;
-            write_Numericbytes[1] = (byte)(data >> 8);
+                return Write(write_Numericbytes, 0, 2);
+            }
 
-            return Write(write_Numericbytes, 0, 2);
+           
         }
-        public ValueTask<int> Write(int data)
+        public unsafe ValueTask<int> Write(int data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
 
-            write_Numericbytes[0] = (byte)data;
-            write_Numericbytes[1] = (byte)(data >> 8);
-            write_Numericbytes[2] = (byte)(data >> 0x10);
-            write_Numericbytes[3] = (byte)(data >> 0x18);
+            fixed (byte* numRef = &write_Numericbytes[0])
+            {
+                *((int*)numRef) = data;
 
-            return Write(write_Numericbytes, 0, 4);
-        }
-        public ValueTask<int> Write(long data)
-        {
-            if (IsLittleEndian)
-                data = BinaryPrimitives.ReverseEndianness(data);
-
-
-            write_Numericbytes[0] = (byte)data;
-            write_Numericbytes[1] = (byte)(data >> 8);
-            write_Numericbytes[2] = (byte)(data >> 0x10);
-            write_Numericbytes[3] = (byte)(data >> 0x18);
-            write_Numericbytes[4] = (byte)(data >> 0x20);
-            write_Numericbytes[5] = (byte)(data >> 0x28);
-            write_Numericbytes[6] = (byte)(data >> 0x30);
-            write_Numericbytes[7] = (byte)(data >> 0x38);
-
-            return Write(write_Numericbytes, 0, 8);
+                return Write(write_Numericbytes, 0, 4);
+            }
         }
 
-        public ValueTask<int> Write(ushort data)
+        public unsafe  ValueTask<int> Write(long data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
 
-            write_Numericbytes[0] = (byte)data;
-            write_Numericbytes[1] = (byte)(data >> 8);
-            return Write(write_Numericbytes, 0, 2);
+            fixed (byte* numRef = &write_Numericbytes[0])
+            {
+                *((long*)numRef) = data;
+
+                return Write(write_Numericbytes, 0, 8);
+            }
         }
-        public ValueTask<int> Write(uint data)
+
+        public unsafe ValueTask<int> Write(ushort data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
 
-            write_Numericbytes[0] = (byte)data;
-            write_Numericbytes[1] = (byte)(data >> 8);
-            write_Numericbytes[2] = (byte)(data >> 0x10);
-            write_Numericbytes[3] = (byte)(data >> 0x18);
+            fixed (byte* numRef = &write_Numericbytes[0])
+            {
+                *((ushort*)numRef) = data;
 
-            return Write(write_Numericbytes, 0, 4);
+                return Write(write_Numericbytes, 0, 2);
+            }
         }
-        public ValueTask<int> Write(ulong data)
+
+
+        public unsafe ValueTask<int> Write(uint data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
 
+            fixed (byte* numRef = &write_Numericbytes[0])
+            {
+                *((uint*)numRef) = data;
 
-            write_Numericbytes[0] = (byte)data;
-            write_Numericbytes[1] = (byte)(data >> 8);
-            write_Numericbytes[2] = (byte)(data >> 0x10);
-            write_Numericbytes[3] = (byte)(data >> 0x18);
-            write_Numericbytes[4] = (byte)(data >> 0x20);
-            write_Numericbytes[5] = (byte)(data >> 0x28);
-            write_Numericbytes[6] = (byte)(data >> 0x30);
-            write_Numericbytes[7] = (byte)(data >> 0x38);
+                return Write(write_Numericbytes, 0, 4);
+            }
+        }
+        public unsafe ValueTask<int> Write(ulong data)
+        {
+            if (IsLittleEndian)
+                data = BinaryPrimitives.ReverseEndianness(data);
 
-            return Write(write_Numericbytes, 0, 8);
+            fixed (byte* numRef = &write_Numericbytes[0])
+            {
+                *((ulong*)numRef) = data;
+
+                return Write(write_Numericbytes, 0, 8);
+            }
         }
 
 

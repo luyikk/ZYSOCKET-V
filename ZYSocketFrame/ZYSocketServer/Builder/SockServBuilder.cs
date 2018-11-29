@@ -11,19 +11,28 @@ namespace ZYSocket.Server.Builder
         private ContainerBuilder Container { get; set; }
 
         public IContainer ContainerBuilder { get; private set; }
+     
 
-        public SockServBuilder()
+        public SockServBuilder(Func<IComponentContext,ISocketServer> func=null)
         {
             Container = new ContainerBuilder();
             ConfigureDefaults();
-            Container.Register<ZYSocketSuper>(p => new ZYSocketSuper(p)).As<ISocketServer>().SingleInstance();
+            if (func is null)
+                Container.Register<ZYSocketSuper>(p => new ZYSocketSuper(p)).As<ISocketServer>().SingleInstance();
+            else
+                Container.Register<ISocketServer>(func).SingleInstance();
+
         }
 
-        public SockServBuilder(ContainerBuilder container)
+        public SockServBuilder(ContainerBuilder container, Func<IComponentContext, ISocketServer> func = null)
         {
             this.Container = container;
             ConfigureDefaults();
-            Container.Register<ZYSocketSuper>(p => new ZYSocketSuper(p)).As<ISocketServer>().SingleInstance();
+
+            if (func is null)
+                Container.Register<ZYSocketSuper>(p => new ZYSocketSuper(p)).As<ISocketServer>().SingleInstance();
+            else
+                Container.Register<ISocketServer>(func).SingleInstance();            
         }
 
 

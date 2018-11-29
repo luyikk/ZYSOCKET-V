@@ -26,14 +26,14 @@ namespace ZYSocket.Server
     /// 连接的代理
     /// </summary>
     /// <param name="socketAsync"></param>
-    public delegate bool ConnectionFilter(ZYSocketAsyncEventArgs socketAsync);
+    public delegate bool ConnectionFilter(ISockAsyncEvent socketAsync);
 
     /// <summary>
     /// 数据包输入代理
     /// </summary>
     /// <param name="data">输入包</param>
     /// <param name="socketAsync"></param>
-    public delegate void BinaryInputHandler(ZYSocketAsyncEventArgs socketAsync);
+    public delegate void BinaryInputHandler(ISockAsyncEvent socketAsync);
 
 
     /// <summary>
@@ -42,7 +42,7 @@ namespace ZYSocket.Server
     /// <param name="message">消息</param>
     /// <param name="socketAsync"></param>
     /// <param name="erorr">错误代码</param>
-    public delegate void DisconnectHandler(string message, ZYSocketAsyncEventArgs socketAsync, int erorr);
+    public delegate void DisconnectHandler(string message, ISockAsyncEvent socketAsync, int erorr);
 
     /// <summary>
     /// ZYSOCKET框架 服务器端
@@ -76,7 +76,7 @@ namespace ZYSocket.Server
             {
                 try
                 {
-                    sock.Shutdown(SocketShutdown.Both);
+                   // sock.Shutdown(SocketShutdown.Both);
                     sock.Close();
                     sock.Dispose();
                   
@@ -458,11 +458,14 @@ namespace ZYSocket.Server
 
             sockasyn.Reset();
 
-            if (!Sock.AcceptAsync(sockasyn))
+            try
             {
-                BeginAccep(sockasyn);
+                if (!Sock.AcceptAsync(sockasyn))
+                {
+                    BeginAccep(sockasyn);
+                }
             }
-
+            catch (ObjectDisposedException) { }
         }
 
         void BeginAccep(ZYSocketAsyncEventArgs e)

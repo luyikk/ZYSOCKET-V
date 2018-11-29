@@ -10,37 +10,62 @@ namespace TestServer
 {
     class Program
     {
-      
-              
+
+
         // static byte[] httpRespone;
 
         //程序入口
         static void Main(string[] args)
         {
-                        
-            var server = new SockServBuilder().Bulid();
-            server.BinaryInput = new BinaryInputHandler(BinaryInputHandler); //设置输入代理
-            server.Connetions = new ConnectionFilter(ConnectionFilter); //设置连接代理
-            server.MessageInput = new DisconnectHandler(DisconnectHandler); //设置 客户端断开
+
+            var server = new SockServBuilder(p =>
+            {
+                return new ZYSocketSuper(p)
+                {
+                    BinaryInput = new BinaryInputHandler(BinaryInputHandler),
+                    Connetions = new ConnectionFilter(ConnectionFilter),
+                    MessageInput = new DisconnectHandler(DisconnectHandler)
+                };
+
+            }).Bulid();
             server.Start(); //启动服务器
 
 
-            var server2 = new SockServBuilder().ConfigServer(p=>p.Port=1001).Bulid();
-            server2.BinaryInput = new BinaryInputHandler(BinaryInputHandler); //设置输入代理
-            server2.Connetions = new ConnectionFilter(ConnectionFilter); //设置连接代理
-            server2.MessageInput = new DisconnectHandler(DisconnectHandler); //设置 客户端断开
+            var server2 = new SockServBuilder(p =>
+            {
+                return new ZYSocketSuper(p)
+                {
+                    BinaryInput = new BinaryInputHandler(BinaryInputHandler),
+                    Connetions = new ConnectionFilter(ConnectionFilter),
+                    MessageInput = new DisconnectHandler(DisconnectHandler)
+                };
+
+            })
+            .ConfigServer(p => p.Port = 1001)
+            .Bulid();
             server2.Start(); //启动服务器
 
 
+
             ContainerBuilder containerBuilder = new ContainerBuilder();
-            new SockServBuilder(containerBuilder).ConfigServer(p => p.Port = 1002);
-            var server3 = containerBuilder.Build().Resolve<ISocketServer>();
-            server3.BinaryInput = new BinaryInputHandler(BinaryInputHandler); //设置输入代理
-            server3.Connetions = new ConnectionFilter(ConnectionFilter); //设置连接代理
-            server3.MessageInput = new DisconnectHandler(DisconnectHandler); //设置 客户端断开
+            new SockServBuilder(containerBuilder, p =>
+             {
+                 return new ZYSocketSuper(p)
+                 {
+                     BinaryInput = new BinaryInputHandler(BinaryInputHandler),
+                     Connetions = new ConnectionFilter(ConnectionFilter),
+                     MessageInput = new DisconnectHandler(DisconnectHandler)
+                 };
+             }).ConfigServer(p => p.Port = 1002);
+
+            var build = containerBuilder.Build();
+
+            var server3 = build.Resolve<ISocketServer>();
             server3.Start(); //启动服务器
 
 
+            Console.ReadLine();
+            build.Dispose();
             Console.ReadLine();
         }
 
@@ -53,7 +78,7 @@ namespace TestServer
         /// <param name="message">断开消息</param>
         /// <param name="socketAsync">断开的SOCKET</param>
         /// <param name="erorr">错误的ID</param>
-        static void DisconnectHandler(string message, ZYSocketAsyncEventArgs socketAsync, int erorr)
+        static void DisconnectHandler(string message, ISockAsyncEvent socketAsync, int erorr)
         {
             Console.WriteLine(message);
             socketAsync.UserToken = null;
@@ -64,11 +89,10 @@ namespace TestServer
         /// </summary>
         /// <param name="socketAsync">连接的SOCKET</param>
         /// <returns>如果返回FALSE 则断开连接,这里注意下 可以用来封IP</returns>
-        static bool ConnectionFilter(ZYSocketAsyncEventArgs socketAsync)
+        static bool ConnectionFilter(ISockAsyncEvent socketAsync)
         {
-            // Console.WriteLine("UserConn {0}", socketAsync.AcceptSocket.RemoteEndPoint.ToString());
-            //socketAsync.UserToken = new AsyncSend(socketAsync.AcceptSocket,-1);
-
+            Console.WriteLine("UserConn {0}", socketAsync.AcceptSocket.RemoteEndPoint.ToString());
+           
             return true;
         }
 
@@ -80,28 +104,28 @@ namespace TestServer
         /// </summary>
         /// <param name="data">输入数据</param>
         /// <param name="socketAsync">该数据包的通讯SOCKET</param>
-        static async void BinaryInputHandler(ZYSocketAsyncEventArgs socketAsync)
+        static async void BinaryInputHandler(ISockAsyncEvent socketAsync)
         {          
 
             var fiberRw = await socketAsync.GetFiberRw<string>();
 
-            fiberRw.UserToken = "my is ttk";
+            fiberRw.UserToken = "my is ttk";            
 
             for (; ; )
             {
                 // 读取 发送 测试
-                var data = await fiberRw.ReadToBlockArrayEnd();
-                WriteBytes writeBytes = new WriteBytes(fiberRw);
-                writeBytes.Write(data);
-                await writeBytes.AwaitFlush();
+                //var data = await fiberRw.ReadToBlockArrayEnd();
+                //WriteBytes writeBytes = new WriteBytes(fiberRw);
+                //writeBytes.Write(data);
+                //await writeBytes.AwaitFlush();
 
                 try
                 {
                     //提供2种数据 读取写入方式
-                    //ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
-                    //DataOn(ref readBytes, fiberRw);
+                    ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
+                    DataOn(ref readBytes, fiberRw);
 
-                    //  await DataOnByLine(fiberRw);
+                    // await DataOnByLine(fiberRw);
 
                 }
                 catch (Exception er)
@@ -118,7 +142,7 @@ namespace TestServer
 
         }
 
-        static async ValueTask DataOnByLine(FiberRw<string> fiberRw)
+        static async ValueTask DataOnByLine(IFiberRw<string> fiberRw)
         {
             var len = await fiberRw.ReadInt32();
             var cmd = await fiberRw.ReadInt32();
@@ -153,7 +177,7 @@ namespace TestServer
 
         }
 
-        static void  DataOn(ref ReadBytes read, FiberRw<string> fiberRw)
+        static void  DataOn(ref ReadBytes read, IFiberRw<string> fiberRw)
         {          
 
             var cmd = read.ReadInt32();

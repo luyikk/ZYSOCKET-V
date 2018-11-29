@@ -9,7 +9,17 @@ using ZYSocket.FiberStream;
 
 namespace ZYSocket.Server
 {
-    public class ZYSocketAsyncEventArgs : SocketAsyncEventArgs
+    public interface ISockAsyncEvent
+    {
+        Encoding Encoding { get; }
+        bool IsLittleEndian { get; }
+        object UserToken { get; set; }
+        Socket AcceptSocket { get; }
+        ValueTask<IFiberRw> GetFiberRw(System.Func<(Stream, Stream), (Stream, Stream)> init = null);
+        ValueTask<IFiberRw<T>> GetFiberRw<T>(System.Func<(Stream, Stream), (Stream, Stream)> init = null) where T : class;
+    }
+
+    public class ZYSocketAsyncEventArgs : SocketAsyncEventArgs, ISockAsyncEvent
     {
       
 
@@ -24,10 +34,7 @@ namespace ZYSocket.Server
         public  bool IsLittleEndian { get; private set; }
         public  Encoding Encoding { get; private set; }
         public ISend SendImplemented { get;  private set; }
-        public IAsyncSend AsyncSendImplemented { get; private set; }
-
-
-     
+        public IAsyncSend AsyncSendImplemented { get; private set; }    
 
 
         private int _check_thread = 0;
@@ -75,7 +82,7 @@ namespace ZYSocket.Server
                 return null;
         }
 
-        public async ValueTask<FiberRw<T>> GetFiberRw<T>(Func<(Stream, Stream), (Stream, Stream)> init = null) where T:class
+        public async ValueTask<IFiberRw<T>> GetFiberRw<T>(Func<(Stream, Stream), (Stream, Stream)> init = null) where T:class
         {
             if (await RStream.WaitStreamInit())
             {
