@@ -29,7 +29,7 @@ namespace TestServer
                 };
 
             }).Bulid();
-            server.Start(); //启动服务器
+            server.Start(); //启动服务器 1000端口
 
 
             var server2 = new SockServBuilder(p =>
@@ -49,7 +49,7 @@ namespace TestServer
                 p.Port = 1001;
              })
             .Bulid();
-            server2.Start(); //启动服务器
+            server2.Start(); //启动服务器 所有IPV6 1001端口
 
 
 
@@ -65,13 +65,13 @@ namespace TestServer
              })
              .ConfigServer(p => {
                  p.Port = 1002;
-                 p.MaxBufferSize = 8196;
+                 p.MaxBufferSize = 8192;
                  });
 
             var build = containerBuilder.Build();
 
             var server3 = build.Resolve<ISocketServer>();
-            server3.Start(); //启动服务器
+            server3.Start(); //启动服务器 1002端口 缓冲区为8KB 
 
 
             Console.ReadLine();
@@ -124,10 +124,10 @@ namespace TestServer
             for (; ; )
             {
                 // 读取 发送 测试
-                var data = await fiberRw.ReadToBlockArrayEnd();
-                WriteBytes writeBytes = new WriteBytes(fiberRw);
-                writeBytes.Write(data);
-                await writeBytes.AwaitFlush();
+                //var data = await fiberRw.ReadToBlockArrayEnd();
+                //WriteBytes writeBytes = new WriteBytes(fiberRw);
+                //writeBytes.Write(data);
+                //await writeBytes.AwaitFlush();
 
                 try
                 {
@@ -135,7 +135,7 @@ namespace TestServer
                     //ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
                     //DataOn(ref readBytes, fiberRw);
 
-                     //await DataOnByLine(fiberRw);
+                     await DataOnByLine(fiberRw);
 
                 }
                 catch (Exception er)
