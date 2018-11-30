@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
-using System.Net.Sockets;
 using System.Text;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ZYSocket.FiberStream;
 using ZYSocket.Share;
 
-namespace ZYSocket.Server
+namespace ZYSocket.Client
 {
 
     public class ZYSocketAsyncEventArgs : SocketAsyncEventArgs, ISockAsyncEvent
@@ -28,9 +29,7 @@ namespace ZYSocket.Server
         public IAsyncSend AsyncSendImplemented { get; private set; }    
 
 
-        private int _check_thread = 0;
-
-     
+        private int _check_thread = 0;     
 
         public int Add_check()
         {

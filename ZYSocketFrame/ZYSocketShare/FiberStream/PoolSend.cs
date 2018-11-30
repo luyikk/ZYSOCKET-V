@@ -4,10 +4,12 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZYSocket.Server
+namespace ZYSocket.Share
 {
     public class PoolSend : ISend, IAsyncSend
     {
+        private bool isAccpet = false;
+
         private SocketAsyncEventArgs _accpet;
 
         private readonly SendSocketAsyncEventPool _sendPool;
@@ -26,19 +28,33 @@ namespace ZYSocket.Server
 
         public void SetAccpet(SocketAsyncEventArgs accpet)
         {
+            isAccpet = true;
             _accpet = accpet;
+        }
+
+        public void SetConnect(SocketAsyncEventArgs connect)
+        {
+            isAccpet = false;
+            _accpet = connect;
         }
 
         
 
         public void Send(ArraySegment<byte> data)
         {
-            if (_accpet.AcceptSocket != null)
-            {
-               
+            Socket socket = null;
+
+            if (isAccpet)
+                socket = _accpet.AcceptSocket;
+            else
+                socket = _accpet.ConnectSocket;
+            
+
+            if (socket != null)
+            {               
                 try
                 {
-                    _accpet.AcceptSocket.Send(data.Array, data.Offset, data.Count, SocketFlags.None);
+                    socket.Send(data.Array, data.Offset, data.Count, SocketFlags.None);
                 }
                 catch (SocketException er)
                 {
@@ -46,17 +62,24 @@ namespace ZYSocket.Server
                         throw er;
                 }
 
-            }        
+            }
         }
 
         public  void Send(byte[] data)
         {
-            if (_accpet.AcceptSocket != null)
+            Socket socket = null;
+
+            if (isAccpet)
+                socket = _accpet.AcceptSocket;
+            else
+                socket = _accpet.ConnectSocket;
+
+            if (socket != null)
             {
                 
                 try
                 {
-                    _accpet.AcceptSocket.Send(data, 0, data.Length, SocketFlags.None);
+                    socket.Send(data, 0, data.Length, SocketFlags.None);
                 }
                 catch (SocketException er)
                 {
@@ -70,12 +93,19 @@ namespace ZYSocket.Server
 
         public  void Send(IList<ArraySegment<byte>> data)
         {
-            if (_accpet.AcceptSocket != null)
+            Socket socket = null;
+
+            if (isAccpet)
+                socket = _accpet.AcceptSocket;
+            else
+                socket = _accpet.ConnectSocket;
+
+            if (socket != null)
             {
                
                 try
                 {
-                    _accpet.AcceptSocket.Send(data, SocketFlags.None);
+                    socket.Send(data, SocketFlags.None);
                 }
                 catch (SocketException er)
                 {
@@ -89,13 +119,20 @@ namespace ZYSocket.Server
 
         public  void Send(ReadOnlyMemory<byte> data)
         {
-            if (_accpet.AcceptSocket != null)
+            Socket socket = null;
+
+            if (isAccpet)
+                socket = _accpet.AcceptSocket;
+            else
+                socket = _accpet.ConnectSocket;
+
+            if (socket != null)
             {
                
                 try
                 {
                     var array = data.GetArray();
-                    _accpet.AcceptSocket.Send(array.Array, array.Offset, array.Count, SocketFlags.None);
+                    socket.Send(array.Array, array.Offset, array.Count, SocketFlags.None);
                 }
                 catch (SocketException er)
                 {
@@ -110,14 +147,21 @@ namespace ZYSocket.Server
 
         public async ValueTask<int> SendAsync(ArraySegment<byte> data)
         {
-            if (_accpet.AcceptSocket != null)
+            Socket socket = null;
+
+            if (isAccpet)
+                socket = _accpet.AcceptSocket;
+            else
+                socket = _accpet.ConnectSocket;
+
+            if (socket != null)
             {
                 var async = _sendPool.GetObject();
                 async.SetBuffer(data.Array, data.Offset, data.Count);
 
                 try
                 {
-                    var len = await async.SendSync(_accpet.AcceptSocket);
+                    var len = await async.SendSync(socket);
                     return len;
                 }               
                 finally
@@ -133,13 +177,20 @@ namespace ZYSocket.Server
 
         public async ValueTask<int> SendAsync(byte[] data)
         {
-            if (_accpet.AcceptSocket != null)
+            Socket socket = null;
+
+            if (isAccpet)
+                socket = _accpet.AcceptSocket;
+            else
+                socket = _accpet.ConnectSocket;
+
+            if (socket != null)
             {
                 var async = _sendPool.GetObject();
                 async.SetBuffer(data, 0, data.Length);
                 try
                 {
-                    var len = await async.SendSync(_accpet.AcceptSocket);
+                    var len = await async.SendSync(socket);
                     return len;
                 }              
                 finally
@@ -155,13 +206,20 @@ namespace ZYSocket.Server
 
         public async ValueTask<int> SendAsync(IList<ArraySegment<byte>> data)
         {
-            if (_accpet.AcceptSocket != null)
+            Socket socket = null;
+
+            if (isAccpet)
+                socket = _accpet.AcceptSocket;
+            else
+                socket = _accpet.ConnectSocket;
+
+            if (socket != null)
             {
                 var async = _sendPool.GetObject();
                 async.BufferList = data;
                 try
                 {
-                    var len = await async.SendSync(_accpet.AcceptSocket);
+                    var len = await async.SendSync(socket);
                     return len;
                 }              
                 finally
@@ -177,7 +235,14 @@ namespace ZYSocket.Server
 
         public async ValueTask<int> SendAsync(ReadOnlyMemory<byte> data)
         {
-            if (_accpet.AcceptSocket != null)
+            Socket socket = null;
+
+            if (isAccpet)
+                socket = _accpet.AcceptSocket;
+            else
+                socket = _accpet.ConnectSocket;
+
+            if (socket != null)
             {
                 var async = _sendPool.GetObject();
 
@@ -185,7 +250,7 @@ namespace ZYSocket.Server
                 async.SetBuffer(array.Array, array.Offset, array.Count);
                 try
                 {
-                    var len = await async.SendSync(_accpet.AcceptSocket);
+                    var len = await async.SendSync(socket);
                     return len;
                 }           
                 finally

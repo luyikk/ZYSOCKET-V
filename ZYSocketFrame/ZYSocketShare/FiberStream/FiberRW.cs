@@ -5,7 +5,6 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using ZYSocket.Server;
 
 namespace ZYSocket.FiberStream
 {
@@ -41,12 +40,12 @@ namespace ZYSocket.FiberStream
         private readonly byte[] read_Numericbytes;
         private readonly byte[] write_Numericbytes;
 
-        public FiberRw(ISockAsyncEvent async,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,bool isLittleEndian=false, Func<(Stream,Stream),(Stream,Stream)> init=null)
+        public FiberRw(ISockAsyncEvent async,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,bool isLittleEndian=false, Func<Stream,Stream,(Stream,Stream)> init=null)
         {
            
             if (init != null)
             {
-                (streamReadFormat, streamWriteFormat) = init((fiberRStream as Stream, fiberWStream as Stream));
+                (streamReadFormat, streamWriteFormat) = init(fiberRStream as Stream, fiberWStream as Stream);
             }
             else
             {

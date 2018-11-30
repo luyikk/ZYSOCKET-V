@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZYSocket.FiberStream;
 
-namespace ZYSocket.Server
+namespace ZYSocket
 {
 
 

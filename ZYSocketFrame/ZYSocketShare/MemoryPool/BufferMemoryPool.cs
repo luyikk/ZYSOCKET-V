@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace ZYSocket.Server.MemoryPool
+namespace ZYSocket.MemoryPool
 {
     public class BufferMemoryPool : MemoryPool<byte>
     {

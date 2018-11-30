@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace ZYSocket.Server
+namespace ZYSocket.Share
 {
     public class AsyncSend 
     {

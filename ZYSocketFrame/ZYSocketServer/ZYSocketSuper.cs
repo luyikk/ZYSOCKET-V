@@ -18,6 +18,7 @@ using ZYSocket.FiberStream;
 using System.Buffers;
 using Autofac;
 using ZYSocket.Server.Builder;
+using ZYSocket.Share;
 
 namespace ZYSocket.Server
 {
@@ -245,7 +246,11 @@ namespace ZYSocket.Server
 
             IPEndPoint myEnd = new IPEndPoint(IPAddress.Any, Port);
 
-            if (!Host.Equals("any",StringComparison.CurrentCultureIgnoreCase))
+            if (Host.Equals("ipv6any", StringComparison.CurrentCultureIgnoreCase))
+            {
+                myEnd = new IPEndPoint(IPAddress.IPv6Any, Port);
+            }
+            else if (!Host.Equals("any",StringComparison.CurrentCultureIgnoreCase))
             {
                 if (String.IsNullOrEmpty(Host))
                 {
@@ -280,15 +285,12 @@ namespace ZYSocket.Server
                         }
                     }
 
-                }
-            
+                }           
             
             }
 
             sock = new Socket(myEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
             sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
-
 
             sock.Bind(myEnd);
             sock.Listen(512);           
@@ -355,7 +357,11 @@ namespace ZYSocket.Server
 
             IPEndPoint myEnd = new IPEndPoint(IPAddress.Any, Port);
 
-            if (!Host.Equals("any", StringComparison.CurrentCultureIgnoreCase))
+            if (Host.Equals("ipv6any", StringComparison.CurrentCultureIgnoreCase))
+            {
+                myEnd = new IPEndPoint(IPAddress.IPv6Any, Port);
+            }
+            else if (!Host.Equals("any", StringComparison.CurrentCultureIgnoreCase))
             {
                 if (String.IsNullOrEmpty(Host))
                 {

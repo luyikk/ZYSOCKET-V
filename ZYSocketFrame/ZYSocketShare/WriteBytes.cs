@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZYSocket.FiberStream;
 
-namespace ZYSocket.Server
+namespace ZYSocket
 {
 
 
@@ -14,8 +14,6 @@ namespace ZYSocket.Server
     public struct WriteBytes
     {
      
-     
-
         public IFiberRw FiberRw { get; private set; }
 
         public LengthLen LenType { get; set; }
@@ -119,11 +117,11 @@ namespace ZYSocket.Server
 
         public void Write(object obj)
         {
-            Write(0);
             var bkpostion = StreamWriteFormat.Position;
+            Write(0);           
             ProtoBuf.Meta.RuntimeTypeModel.Default.Serialize(StreamWriteFormat, obj);
             var lastpostion = StreamWriteFormat.Position;
-            var len = lastpostion - bkpostion;
+            var len = lastpostion - bkpostion-4;
             StreamWriteFormat.Position = bkpostion;
             Write((int)len);
             StreamWriteFormat.Position = lastpostion;

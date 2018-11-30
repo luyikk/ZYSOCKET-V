@@ -8,7 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 
-namespace ZYSocket.Server
+namespace ZYSocket.Share
 {
     /// <summary>
     ///     泛型的对象池-可输入构造函数,以及参数
@@ -233,7 +233,7 @@ namespace ZYSocket.Server
         public void Reset()
         {
             _accessed = false;
-            _builder = default(AsyncValueTaskMethodBuilder<int>); 
+            _builder = default; 
         }
 
         public SendTaskSocketAsyncEventArgs():base(){
@@ -251,8 +251,7 @@ namespace ZYSocket.Server
 
             if (sock.SendAsync(this))
             {
-                bool responsibleForReturningToPool;
-                t = GetCompletionResponsibility(out responsibleForReturningToPool).Task;
+                t = GetCompletionResponsibility(out bool responsibleForReturningToPool).Task;
 
                 if (responsibleForReturningToPool)
                     Reset();
@@ -272,7 +271,7 @@ namespace ZYSocket.Server
 
         private static Exception GetException(SocketError error)
         {
-            return new SocketException((int)error);
+            return new IOException($"SocketError:{error}",new SocketException((int)error));
            
         }
     }
@@ -311,10 +310,9 @@ namespace ZYSocket.Server
         private static void CompleteAccept(Socket s, SendTaskSocketAsyncEventArgs saea)
         {
           
-            SocketError error = saea.SocketError;  
-            
-            bool responsibleForReturningToPool;
-            AsyncValueTaskMethodBuilder<int> builder = saea.GetCompletionResponsibility(out responsibleForReturningToPool);
+            SocketError error = saea.SocketError;
+
+            AsyncValueTaskMethodBuilder<int> builder = saea.GetCompletionResponsibility(out bool responsibleForReturningToPool);
 
             if (responsibleForReturningToPool)
                 saea.Reset();
@@ -337,7 +335,7 @@ namespace ZYSocket.Server
         private static Exception GetException(SocketError error)
         {
             Exception e = new SocketException((int)error);
-            return new IOException($"Unable to transfer data on the transport connection:{ e.Message}", e);
+            return new IOException($"SocketError:{error}", e);
 
         }
 

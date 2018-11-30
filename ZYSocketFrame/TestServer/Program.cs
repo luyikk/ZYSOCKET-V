@@ -5,6 +5,7 @@ using ZYSocket.FiberStream;
 using System.Threading.Tasks;
 using ZYSocket.Server.Builder;
 using Autofac;
+using ZYSocket;
 
 namespace TestServer
 {
@@ -41,7 +42,12 @@ namespace TestServer
                 };
 
             })
-            .ConfigServer(p => p.Port = 1001)
+          
+            .ConfigServer(p => 
+            {
+                p.Host = "ipv6any";
+                p.Port = 1001;
+             })
             .Bulid();
             server2.Start(); //启动服务器
 
@@ -56,7 +62,11 @@ namespace TestServer
                      Connetions = new ConnectionFilter(ConnectionFilter),
                      MessageInput = new DisconnectHandler(DisconnectHandler)
                  };
-             }).ConfigServer(p => p.Port = 1002);
+             })
+             .ConfigServer(p => {
+                 p.Port = 1002;
+                 p.MaxBufferSize = 8196;
+                 });
 
             var build = containerBuilder.Build();
 
@@ -114,18 +124,18 @@ namespace TestServer
             for (; ; )
             {
                 // 读取 发送 测试
-                //var data = await fiberRw.ReadToBlockArrayEnd();
-                //WriteBytes writeBytes = new WriteBytes(fiberRw);
-                //writeBytes.Write(data);
-                //await writeBytes.AwaitFlush();
+                var data = await fiberRw.ReadToBlockArrayEnd();
+                WriteBytes writeBytes = new WriteBytes(fiberRw);
+                writeBytes.Write(data);
+                await writeBytes.AwaitFlush();
 
                 try
                 {
                     //提供2种数据 读取写入方式
-                    ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
-                    DataOn(ref readBytes, fiberRw);
+                    //ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
+                    //DataOn(ref readBytes, fiberRw);
 
-                    // await DataOnByLine(fiberRw);
+                     //await DataOnByLine(fiberRw);
 
                 }
                 catch (Exception er)
@@ -157,7 +167,7 @@ namespace TestServer
             using (var p8 = await fiberRw.ReadMemory())
             {
 
-                var p9 = await fiberRw.ReadInt16();
+                var p9 = await fiberRw.ReadInt16();               
                 var p10 = await fiberRw.ReadObject<List<Guid>>();
 
                 await fiberRw.Write(len.Value);

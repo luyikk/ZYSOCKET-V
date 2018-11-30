@@ -40,7 +40,7 @@ namespace ZYSocket.FiberStream
             return write;
         }
 
-        public  PipeFilberAwaiter Advance(int len, CancellationToken cancellationTokenSource = default(CancellationToken))
+        public  PipeFilberAwaiter Advance(int len, CancellationToken cancellationTokenSource = default)
         {
             wl = len;
 
@@ -58,7 +58,7 @@ namespace ZYSocket.FiberStream
 
         }
 
-        public PipeFilberAwaiter Need(int len = 0, CancellationToken cancellationTokenSource = default(CancellationToken))
+        public PipeFilberAwaiter Need(int len = 0, CancellationToken cancellationTokenSource = default)
         {
 
             rl = len;

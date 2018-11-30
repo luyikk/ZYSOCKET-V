@@ -2,9 +2,8 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
-using ZYSocket.Server;
+using ZYSocket.Share;
 
 namespace ZYSocket.FiberStream
 {
