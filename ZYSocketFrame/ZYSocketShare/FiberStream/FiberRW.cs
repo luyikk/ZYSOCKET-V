@@ -618,55 +618,46 @@ namespace ZYSocket.FiberStream
 
         #region write buf
 
-        public ValueTask<int> Write(ArraySegment<byte> data)
+        public void Write(ArraySegment<byte> data)
         {
-            streamWriteFormat.Write(data.Array, data.Offset, data.Count);
-
-            return fiberWriteStream.AwaitFlush();
+            streamWriteFormat.Write(data.Array, data.Offset, data.Count);            
         }
 
-        public ValueTask<int> Write(byte[] data, int offset, int count)
+        public void Write(byte[] data, int offset, int count)
         {
-            streamWriteFormat.Write(data, offset, count);
-
-            return fiberWriteStream.AwaitFlush();
+            streamWriteFormat.Write(data, offset, count);          
         }
 
-        public ValueTask<int> Write(byte[] data, bool wlen = true)
+        public void Write(byte[] data, bool wlen = true)
         {
             if (wlen)
                 Write(data.Length);
-
-            streamWriteFormat.Write(data, 0, data.Length);
-            return fiberWriteStream.AwaitFlush();
+            streamWriteFormat.Write(data, 0, data.Length);           
         }
 
-        public ValueTask<int> Write(Memory<byte> data, int offset, int count)
+        public void Write(Memory<byte> data, int offset, int count)
         {
             var array = data.GetArray();
-            streamWriteFormat.Write(array.Array, array.Offset+offset, count);
-
-            return fiberWriteStream.AwaitFlush();
+            streamWriteFormat.Write(array.Array, array.Offset+offset, count);           
         }
 
 
-        public ValueTask<int> Write(Memory<byte> data, bool wlen = true)
+        public void Write(Memory<byte> data, bool wlen = true)
         {
             var array = data.GetArray();
 
             if (wlen)
                 Write(array.Count);
 
-            streamWriteFormat.Write(array.Array, array.Offset, array.Count);
-            return fiberWriteStream.AwaitFlush();
+            streamWriteFormat.Write(array.Array, array.Offset, array.Count);           
         }
 
    
 
-        public ValueTask<int> Write(string data)
+        public void Write(string data)
         {
             byte[] bytes = Encoding.GetBytes(data);
-            return Write(bytes);
+            Write(bytes);
         }
 
       
@@ -675,13 +666,12 @@ namespace ZYSocket.FiberStream
 
         #region integer
 
-        public ValueTask<int> Write(byte data)
+        public void Write(byte data)
         {
-            streamWriteFormat.WriteByte(data);
-            return fiberWriteStream.AwaitFlush();
+            streamWriteFormat.WriteByte(data);          
         }
 
-        public unsafe ValueTask<int> Write(short data)
+        public unsafe void Write(short data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
@@ -689,13 +679,12 @@ namespace ZYSocket.FiberStream
             fixed (byte* numRef = &write_Numericbytes[0])
             {
                 *((short*)numRef) = data;
-
-                return Write(write_Numericbytes, 0, 2);
+                Write(write_Numericbytes, 0, 2);
             }
 
            
         }
-        public unsafe ValueTask<int> Write(int data)
+        public unsafe void Write(int data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
@@ -703,12 +692,11 @@ namespace ZYSocket.FiberStream
             fixed (byte* numRef = &write_Numericbytes[0])
             {
                 *((int*)numRef) = data;
-
-                return Write(write_Numericbytes, 0, 4);
+                Write(write_Numericbytes, 0, 4);
             }
         }
 
-        public unsafe  ValueTask<int> Write(long data)
+        public unsafe  void Write(long data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
@@ -716,12 +704,11 @@ namespace ZYSocket.FiberStream
             fixed (byte* numRef = &write_Numericbytes[0])
             {
                 *((long*)numRef) = data;
-
-                return Write(write_Numericbytes, 0, 8);
+                Write(write_Numericbytes, 0, 8);
             }
         }
 
-        public unsafe ValueTask<int> Write(ushort data)
+        public unsafe void Write(ushort data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
@@ -729,13 +716,12 @@ namespace ZYSocket.FiberStream
             fixed (byte* numRef = &write_Numericbytes[0])
             {
                 *((ushort*)numRef) = data;
-
-                return Write(write_Numericbytes, 0, 2);
+                Write(write_Numericbytes, 0, 2);
             }
         }
 
 
-        public unsafe ValueTask<int> Write(uint data)
+        public unsafe void Write(uint data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
@@ -743,11 +729,10 @@ namespace ZYSocket.FiberStream
             fixed (byte* numRef = &write_Numericbytes[0])
             {
                 *((uint*)numRef) = data;
-
-                return Write(write_Numericbytes, 0, 4);
+                Write(write_Numericbytes, 0, 4);
             }
         }
-        public unsafe ValueTask<int> Write(ulong data)
+        public unsafe void Write(ulong data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
@@ -755,45 +740,68 @@ namespace ZYSocket.FiberStream
             fixed (byte* numRef = &write_Numericbytes[0])
             {
                 *((ulong*)numRef) = data;
-
-                return Write(write_Numericbytes, 0, 8);
+                 Write(write_Numericbytes, 0, 8);
             }
         }
 
 
-        public ValueTask<int> Write(double data)
+        public void Write(double data)
         {
             unsafe
             {
                 ulong format = *(((ulong*)&data));
-                return Write(format);
+                Write(format);
             }
         }
 
-        public ValueTask<int> Write(float data)
+        public void Write(float data)
         {
             unsafe
             {
                 uint format = *(((uint*)&data));
-                return Write(format);
+                Write(format);
             }
         }
 
 
-        public ValueTask<int> Write(bool data)
+        public void Write(bool data)
         {
-            return Write(data ? ((byte)1) : ((byte)0));
+            Write(data ? ((byte)1) : ((byte)0));
         }
 
         #endregion
 
         #region wr obj
 
-        public  ValueTask<int> Write(object obj)
+        public void Write(object obj)
         {
-            WriteBytes write = new WriteBytes(this);
-            write.Write(obj);
-            return fiberWriteStream.AwaitFlush();
+            if (StreamWriteFormat.CanSeek)
+            {
+                var bkpostion = StreamWriteFormat.Position;
+                Write(0);
+                ProtoBuf.Meta.RuntimeTypeModel.Default.Serialize(StreamWriteFormat, obj);
+                var lastpostion = StreamWriteFormat.Position;
+                var len = lastpostion - bkpostion - 4;
+                StreamWriteFormat.Position = bkpostion;
+                Write((int)len);
+                StreamWriteFormat.Position = lastpostion;
+            }
+            else
+            {
+                using (var stream = new MemoryStream())
+                {
+                    ProtoBuf.Meta.RuntimeTypeModel.Default.Serialize(stream, obj);
+                    byte[] data = stream.ToArray();
+                    Write(data);
+                }
+
+            }
+        }
+
+        public async ValueTask<int> Flush()
+        {
+            StreamWriteFormat.Flush();
+            return await FiberWriteStream.AwaitFlush();
         }
 
   

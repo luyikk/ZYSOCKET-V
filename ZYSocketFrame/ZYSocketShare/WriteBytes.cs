@@ -11,7 +11,7 @@ namespace ZYSocket
 
 
 
-    public struct WriteBytes
+    public struct WriteBytes:IDisposable
     {
 
         public IFiberRw FiberRw { get; private set; }
@@ -23,8 +23,9 @@ namespace ZYSocket
         private readonly byte[] Numericbytes;
 
         private readonly Stream StreamWriteFormat;
-
         private readonly IFiberWriteStream FiberWriteStream;
+
+        private readonly MemoryStream StreamWrite;
 
         public WriteBytes(IFiberRw fiberRw)
         {
@@ -34,19 +35,27 @@ namespace ZYSocket
             Numericbytes = FiberRw.FiberWriteStream.Numericbytes;
             StreamWriteFormat = FiberRw.StreamWriteFormat;
             FiberWriteStream = FiberRw.FiberWriteStream;
+            StreamWrite = new MemoryStream();
         }
 
+        public void Dispose()
+        {
+            StreamWrite.Dispose();
+        }
+
+        public void Reset()
+        {
+            StreamWrite.SetLength(0);
+            StreamWrite.Position = 0;
+        }
 
 
         public void WriteLen(LengthLen headLenType = LengthLen.Int32)
         {
-            if (StreamWriteFormat.CanSeek)
-            {
-                if (StreamWriteFormat.Length > 0)
-                    throw new System.IO.InvalidDataException("the stream not null");
-            }
-            else
-                return;
+
+            if (StreamWrite.Length > 0)
+                throw new System.IO.InvalidDataException("the stream not null");
+
 
             LenType = headLenType;
 
@@ -54,22 +63,22 @@ namespace ZYSocket
             {
                 case LengthLen.Byte:
                     {
-                        StreamWriteFormat.Write(Numericbytes, 0, 1);
+                        StreamWrite.Write(Numericbytes, 0, 1);
                     }
                     break;
                 case LengthLen.Int16:
                     {
-                        StreamWriteFormat.Write(Numericbytes, 0, 2);
+                        StreamWrite.Write(Numericbytes, 0, 2);
                     }
                     break;
                 case LengthLen.Int32:
                     {
-                        StreamWriteFormat.Write(Numericbytes, 0, 4);
+                        StreamWrite.Write(Numericbytes, 0, 4);
                     }
                     break;
                 case LengthLen.Int64:
                     {
-                        StreamWriteFormat.Write(Numericbytes, 0, 8);
+                        StreamWrite.Write(Numericbytes, 0, 8);
                     }
                     break;
             }
@@ -84,7 +93,7 @@ namespace ZYSocket
 
         public void Write(ArraySegment<byte> data)
         {
-            StreamWriteFormat.Write(data.Array, data.Offset, data.Count);
+            StreamWrite.Write(data.Array, data.Offset, data.Count);
         }
 
         public void Write(byte[] data, bool wlen = true)
@@ -92,14 +101,14 @@ namespace ZYSocket
             if (wlen)
                 Write(data.Length);
 
-            StreamWriteFormat.Write(data, 0, data.Length);
+            StreamWrite.Write(data, 0, data.Length);
         }
 
         public void Write(Memory<byte> data, int offset, int count)
         {
             var array = data.GetArray();
 
-            StreamWriteFormat.Write(array.Array, array.Offset + offset, count);
+            StreamWrite.Write(array.Array, array.Offset + offset, count);
         }
 
         public void Write(Memory<byte> data, bool wlen = true)
@@ -109,7 +118,7 @@ namespace ZYSocket
             if (wlen)
                 Write(array.Count);
 
-            StreamWriteFormat.Write(array.Array, array.Offset, array.Count);
+            StreamWrite.Write(array.Array, array.Offset, array.Count);
         }
 
 
@@ -122,21 +131,23 @@ namespace ZYSocket
 
         public void Write(object obj)
         {
-            var bkpostion = StreamWriteFormat.Position;
+
+            var bkpostion = StreamWrite.Position;
             Write(0);
-            ProtoBuf.Meta.RuntimeTypeModel.Default.Serialize(StreamWriteFormat, obj);
-            var lastpostion = StreamWriteFormat.Position;
+            ProtoBuf.Meta.RuntimeTypeModel.Default.Serialize(StreamWrite, obj);
+            var lastpostion = StreamWrite.Position;
             var len = lastpostion - bkpostion - 4;
-            StreamWriteFormat.Position = bkpostion;
+            StreamWrite.Position = bkpostion;
             Write((int)len);
-            StreamWriteFormat.Position = lastpostion;
+            StreamWrite.Position = lastpostion;
+
         }
 
 
 
         public void Write(byte data)
         {
-            StreamWriteFormat.WriteByte(data);
+            StreamWrite.WriteByte(data);
         }
 
         public void Write(short data)
@@ -247,40 +258,41 @@ namespace ZYSocket
         {
 
 
-            if (StreamWriteFormat.CanSeek)
-                switch (LenType)
-                {
-                    case LengthLen.Byte:
-                        {
-                            StreamWriteFormat.Position = 0;
-                            var lenbytes = (byte)StreamWriteFormat.Length;
-                            Write(lenbytes);
-                        }
-                        break;
-                    case LengthLen.Int16:
-                        {
-                            StreamWriteFormat.Position = 0;
-                            Write((ushort)StreamWriteFormat.Length);
-                        }
-                        break;
-                    case LengthLen.Int32:
-                        {
-                            StreamWriteFormat.Position = 0;
-                            Write((uint)StreamWriteFormat.Length);
-                        }
-                        break;
-                    case LengthLen.Int64:
-                        {
-                            StreamWriteFormat.Position = 0;
-                            Write((ulong)StreamWriteFormat.Length);
-                        }
-                        break;
+            switch (LenType)
+            {
+                case LengthLen.Byte:
+                    {
+                        StreamWrite.Position = 0;
+                        var lenbytes = (byte)StreamWrite.Length;
+                        Write(lenbytes);
+                    }
+                    break;
+                case LengthLen.Int16:
+                    {
+                        StreamWrite.Position = 0;
+                        Write((ushort)StreamWrite.Length);
+                    }
+                    break;
+                case LengthLen.Int32:
+                    {
+                        StreamWrite.Position = 0;
+                        Write((uint)StreamWrite.Length);
+                    }
+                    break;
+                case LengthLen.Int64:
+                    {
+                        StreamWrite.Position = 0;
+                        Write((ulong)StreamWrite.Length);
+                    }
+                    break;
 
-                }
+            }
 
 
-            StreamWriteFormat.Flush();
 
+            byte[] data = StreamWrite.ToArray();
+            StreamWriteFormat.Write(data, 0, data.Length);
+            StreamWriteFormat.Flush();           
             await FiberWriteStream.AwaitFlush();
         }
 
@@ -289,40 +301,44 @@ namespace ZYSocket
         {
 
 
-            if (StreamWriteFormat.CanSeek)
-                switch (LenType)
-                {
-                    case LengthLen.Byte:
-                        {
-                            StreamWriteFormat.Position = 0;
-                            var lenbytes = (byte)StreamWriteFormat.Length;
-                            Write(lenbytes);
-                        }
-                        break;
-                    case LengthLen.Int16:
-                        {
-                            StreamWriteFormat.Position = 0;
-                            Write((ushort)StreamWriteFormat.Length);
-                        }
-                        break;
-                    case LengthLen.Int32:
-                        {
-                            StreamWriteFormat.Position = 0;
-                            Write((uint)StreamWriteFormat.Length);
-                        }
-                        break;
-                    case LengthLen.Int64:
-                        {
-                            StreamWriteFormat.Position = 0;
-                            Write((ulong)StreamWriteFormat.Length);
-                        }
-                        break;
 
-                }
+            switch (LenType)
+            {
+                case LengthLen.Byte:
+                    {
+                        StreamWrite.Position = 0;
+                        var lenbytes = (byte)StreamWrite.Length;
+                        Write(lenbytes);
+                    }
+                    break;
+                case LengthLen.Int16:
+                    {
+                        StreamWrite.Position = 0;
+                        Write((ushort)StreamWrite.Length);
+                    }
+                    break;
+                case LengthLen.Int32:
+                    {
+                        StreamWrite.Position = 0;
+                        Write((uint)StreamWrite.Length);
+                    }
+                    break;
+                case LengthLen.Int64:
+                    {
+                        StreamWrite.Position = 0;
+                        Write((ulong)StreamWrite.Length);
+                    }
+                    break;
+
+            }
 
 
+            byte[] data = StreamWrite.ToArray();
+            StreamWriteFormat.Write(data, 0, data.Length);
+            StreamWriteFormat.Flush();           
             return await FiberWriteStream.AwaitFlush();
         }
 
+       
     }
 }

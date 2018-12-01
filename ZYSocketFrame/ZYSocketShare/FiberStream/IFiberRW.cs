@@ -43,24 +43,24 @@ namespace ZYSocket.FiberStream
         ValueTask<uint?> ReadUInt32();
         ValueTask<ulong?> ReadUInt64();
 
-        ValueTask<int> Write(ArraySegment<byte> data);
-        ValueTask<int> Write(byte[] data, int offset, int count);
-        ValueTask<int> Write(byte[] data, bool wlen = true);
-        ValueTask<int> Write(Memory<byte> data, int offset, int count);
-        ValueTask<int> Write(Memory<byte> data, bool wlen = true);
-        ValueTask<int> Write(string data);
-        ValueTask<int> Write(byte data);
-        ValueTask<int> Write(short data);
-        ValueTask<int> Write(int data);
-        ValueTask<int> Write(long data);
-        ValueTask<int> Write(ushort data);
-        ValueTask<int> Write(uint data);
-        ValueTask<int> Write(ulong data);
-        ValueTask<int> Write(double data);
-        ValueTask<int> Write(float data);
-        ValueTask<int> Write(bool data);
-        ValueTask<int> Write(object obj);
-
+        void Write(ArraySegment<byte> data);
+        void Write(byte[] data, int offset, int count);
+        void Write(byte[] data, bool wlen = true);
+        void Write(Memory<byte> data, int offset, int count);
+        void Write(Memory<byte> data, bool wlen = true);
+        void Write(string data);
+        void Write(byte data);
+        void Write(short data);
+        void Write(int data);
+        void Write(long data);
+        void Write(ushort data);
+        void Write(uint data);
+        void Write(ulong data);
+        void Write(double data);
+        void Write(float data);
+        void Write(bool data);
+        void Write(object obj);
+        ValueTask<int> Flush();
     }
 
     public interface IFiberRw<T> : IFiberRw

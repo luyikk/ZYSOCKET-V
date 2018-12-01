@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ZYSocket.Server.Builder;
 using Autofac;
 using ZYSocket;
+using System.IO.Compression;
 
 namespace TestServer
 {
@@ -115,9 +116,16 @@ namespace TestServer
         /// <param name="data">输入数据</param>
         /// <param name="socketAsync">该数据包的通讯SOCKET</param>
         static async void BinaryInputHandler(ISockAsyncEvent socketAsync)
-        {          
+        {
 
-            var fiberRw = await socketAsync.GetFiberRw<string>();
+            var fiberRw = await socketAsync.GetFiberRw<string>((input, output) =>
+            {
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
+                var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
+
+                //return (gzip_input, gzip_output); //return gzip mode
+                return (input, output);
+            });
 
             fiberRw.UserToken = "my is ttk";            
 
@@ -167,21 +175,22 @@ namespace TestServer
             using (var p8 = await fiberRw.ReadMemory())
             {
 
-                var p9 = await fiberRw.ReadInt16();               
+                var p9 = await fiberRw.ReadInt16();
                 var p10 = await fiberRw.ReadObject<List<Guid>>();
 
-                await fiberRw.Write(len.Value);
-                await fiberRw.Write(cmd.Value);
-                await fiberRw.Write(p1.Value);
-                await fiberRw.Write(p2.Value);
-                await fiberRw.Write(p3.Value);
-                await fiberRw.Write(p4.Value);
-                await fiberRw.Write(p5.Value);
-                await fiberRw.Write(p6.Value);
-                await fiberRw.Write(p7);
-                await fiberRw.Write(p8.Value);
-                await fiberRw.Write(p9.Value);
-                await fiberRw.Write(p10);
+                fiberRw.Write(len.Value);
+                fiberRw.Write(cmd.Value);
+                fiberRw.Write(p1.Value);
+                fiberRw.Write(p2.Value);
+                fiberRw.Write(p3.Value);
+                fiberRw.Write(p4.Value);
+                fiberRw.Write(p5.Value);
+                fiberRw.Write(p6.Value);
+                fiberRw.Write(p7);
+                fiberRw.Write(p8.Value);
+                fiberRw.Write(p9.Value);
+                fiberRw.Write(p10);
+                await fiberRw.Flush();
             }
 
 
@@ -189,7 +198,7 @@ namespace TestServer
 
         static void  DataOn(ref ReadBytes read, IFiberRw<string> fiberRw)
         {          
-
+                        
             var cmd = read.ReadInt32();
             var p1 = read.ReadInt32();
             var p2 = read.ReadInt64();
@@ -203,21 +212,22 @@ namespace TestServer
             var p10 = read.ReadObject<List<Guid>>();
             read.Dispose();
 
-            WriteBytes writeBytes = new WriteBytes(fiberRw);
-            writeBytes.WriteLen();
-            writeBytes.Cmd(cmd.Value);
-            writeBytes.Write(p1.Value);
-            writeBytes.Write(p2.Value);
-            writeBytes.Write(p3.Value);
-            writeBytes.Write(p4.Value);
-            writeBytes.Write(p5.Value);
-            writeBytes.Write(p6.Value);
-            writeBytes.Write(p7);
-            writeBytes.Write(p8);
-            writeBytes.Write(p9.Value);
-            writeBytes.Write(p10);
-            writeBytes.Flush();
-
+            using (WriteBytes writeBytes = new WriteBytes(fiberRw))
+            {
+                writeBytes.WriteLen();
+                writeBytes.Cmd(cmd.Value);
+                writeBytes.Write(p1.Value);
+                writeBytes.Write(p2.Value);
+                writeBytes.Write(p3.Value);
+                writeBytes.Write(p4.Value);
+                writeBytes.Write(p5.Value);
+                writeBytes.Write(p6.Value);
+                writeBytes.Write(p7);
+                writeBytes.Write(p8);
+                writeBytes.Write(p9.Value);
+                writeBytes.Write(p10);
+                writeBytes.Flush();
+            }
 
 
         }
