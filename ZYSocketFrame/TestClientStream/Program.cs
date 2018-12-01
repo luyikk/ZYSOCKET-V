@@ -15,7 +15,7 @@ namespace TestClient
     {
         static SocketClient client;
 
-        static X509Certificate certificate = new X509Certificate(Environment.CurrentDirectory + "/client.pfx", "testPassword");
+        static X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/client.pfx", "testPassword");
 
         static void Main(string[] args)
         {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ZYSocket.FiberStream
 {
-    public class FiberRw<T> : IFiberRw<T> where T:class
+    public class FiberRw<T> : IDisposable,IFiberRw<T> where T:class
     {
         private readonly MemoryPool<byte> memoryPool;
         public  MemoryPool<byte> MemoryPool { get => memoryPool; }
@@ -63,6 +63,12 @@ namespace ZYSocket.FiberStream
             read_Numericbytes = fiberReadStream.Numericbytes;
             write_Numericbytes = fiberWriteStream.Numericbytes;
             isinit = true;
+        }
+
+        public void Dispose()
+        {
+            streamReadFormat?.Dispose();
+            streamWriteFormat?.Dispose();
         }
 
 
@@ -805,7 +811,8 @@ namespace ZYSocket.FiberStream
             return await FiberWriteStream.AwaitFlush();
         }
 
-  
+      
+
         #endregion
     }
 

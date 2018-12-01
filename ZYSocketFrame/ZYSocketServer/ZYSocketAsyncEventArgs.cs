@@ -27,12 +27,16 @@ namespace ZYSocket.Server
         public  bool IsLittleEndian { get; private set; }
         public  Encoding Encoding { get; private set; }
         public ISend SendImplemented { get;  private set; }
-        public IAsyncSend AsyncSendImplemented { get; private set; }    
-
+        public IAsyncSend AsyncSendImplemented { get; private set; } 
 
         private int _check_thread = 0;
 
-     
+        private IDisposable fiberobj;
+        private IDisposable fiberT;
+        private IDisposable fibersslobj;
+        private IDisposable fibersslT;
+
+
 
         public int Add_check()
         {
@@ -65,11 +69,15 @@ namespace ZYSocket.Server
 
         public new event EventHandler<ZYSocketAsyncEventArgs> Completed;
 
+
+
         public async ValueTask<IFiberRw> GetFiberRw(Func<Stream, Stream, (Stream, Stream)> init = null)
         {
             if (await RStream.WaitStreamInit())
             {
-                return new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian,init:init);
+                var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian,init:init);
+                fiberobj = fiber;
+                return fiber;
             }
             else
                 return null;
@@ -79,7 +87,9 @@ namespace ZYSocket.Server
         {
             if (await RStream.WaitStreamInit())
             {
-                return new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init:init);
+                var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init:init);
+                fiberT = fiber;
+                return fiber;
             }
             else
                 return null;
@@ -101,7 +111,9 @@ namespace ZYSocket.Server
                     return null;
                 }
                 mergestream.IsSync = false;
-                return new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+                var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+                fibersslobj = fiber;
+                return fiber;
             }
             else
                 return null;
@@ -113,7 +125,7 @@ namespace ZYSocket.Server
             {
                 var mergestream = new MergeStream(RStream, WStream);
                 mergestream.IsSync = true;
-                var sslstream = new SslStream(mergestream, false);
+                var sslstream = new SslStream(mergestream, true);
                 try
                 {
                     await sslstream.AuthenticateAsServerAsync(certificate);
@@ -124,11 +136,15 @@ namespace ZYSocket.Server
                 }
 
                 mergestream.IsSync = false;
-                return new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+                var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+                fibersslT = fiber;
+                return fiber;
             }
             else
                 return null;
         }
+
+
 
 
         public void StreamInit()
@@ -150,6 +166,16 @@ namespace ZYSocket.Server
 
         public void Reset()
         {
+            fiberobj?.Dispose();
+            fiberT?.Dispose();
+            fibersslobj?.Dispose();
+            fibersslT?.Dispose();
+
+            fiberobj = null;
+            fiberT = null;
+            fibersslobj = null;
+            fibersslT = null;
+
             base.SetBuffer(null, 0, 0);
             IsInit = false;
             RStream.Reset();
