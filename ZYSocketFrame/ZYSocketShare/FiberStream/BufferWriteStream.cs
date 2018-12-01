@@ -76,7 +76,7 @@ namespace ZYSocket.FiberStream
 
         public override bool CanRead => false;
 
-        public override bool CanSeek => false;
+        public override bool CanSeek => true;
 
         public override bool CanWrite => true;
 
@@ -88,42 +88,49 @@ namespace ZYSocket.FiberStream
 
         public override int Read(byte[] buffer, int offset, int count) => throw new NotImplementedException();       
 
-        public override long Seek(long offset, SeekOrigin origin)=> throw new NotImplementedException();
+        public override long Seek(long offset, SeekOrigin origin)=> 
+            throw new NotImplementedException();
 
 
         public override void Flush()
         {
-            int isfull =(int)(_len % BufferBlockSize);
+            //if (_len == 0)
+            //    return;
 
-            int segment_ptr = (int)_len / BufferBlockSize;
+            //int isfull =(int)(_len % BufferBlockSize);
 
-            if (isfull == 0)
-                if (segment_ptr > 0)
-                    segment_ptr -= 1;
+            //int segment_ptr = (int)_len / BufferBlockSize;
 
-            for (int i = 0; i < segment_ptr; i++)
-            {
-                var data = DataSegment[i];
-                Send.Send(data);
-            }
+            //if (isfull == 0)
+            //    if (segment_ptr > 0)
+            //        segment_ptr -= 1;
 
-            if (isfull != 0)
-            {
-                var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray();
-                Send.Send(array);
-            }
-            else
-            {
-                var data = DataSegment[segment_ptr];
-                Send.Send(data);
-            }          
+            //for (int i = 0; i < segment_ptr; i++)
+            //{
+            //    var data = DataSegment[i];
+            //    Send.Send(data);
+            //}
+
+            //if (isfull != 0)
+            //{
+            //    var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray();
+            //    Send.Send(array);
+            //}
+            //else
+            //{
+            //    var data = DataSegment[segment_ptr];
+            //    Send.Send(data);
+            //}          
 
 
-            Reset();
+            //Reset();
         }
 
         public async ValueTask<int> AwaitFlush()
         {
+            if (_len == 0)
+                return 0;
+
             int isfull = (int)(_len % BufferBlockSize);
 
             int segment_ptr = (int)_len / BufferBlockSize;

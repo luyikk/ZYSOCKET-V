@@ -84,6 +84,11 @@ namespace ZYSocket.FiberStream
 
         public async ValueTask<long> NextMove(long offset)
         {
+
+            if (!streamReadFormat.CanSeek)
+                return 0;
+
+
             long offset_next = offset;
 
             do
@@ -137,12 +142,17 @@ namespace ZYSocket.FiberStream
             int offset_next = offset;
             do
             {
-                await fiberReadStream.Check();
+
                 var res = streamReadFormat.Read(data, offset_next, needcount);
 
                 if (res == 0)
                 {
-                    return count - needcount;
+                    await fiberReadStream.Check();
+
+                    res = streamReadFormat.Read(data, offset_next, needcount);
+                    if (res == 0)
+                        return count - needcount;
+
                 }
 
                 needcount -= res;
@@ -165,17 +175,21 @@ namespace ZYSocket.FiberStream
             int offset_next = offset;
             do
             {
-                await fiberReadStream.Check();
+
                 var res = await streamReadFormat.ReadAsync(data, offset_next, needcount);
 
                 if (res == 0)
                 {
-                    return count - needcount;
+                    await fiberReadStream.Check();
+
+                    res = await streamReadFormat.ReadAsync(data, offset_next, needcount);
+                    if (res == 0)
+                        return count - needcount;
+
                 }
 
                 needcount -= res;
                 offset_next += res;
-
 
 
             } while (needcount > 0);
@@ -194,12 +208,15 @@ namespace ZYSocket.FiberStream
             int offset_next = offset;
             do
             {
-                await fiberReadStream.Check();
+              
                 var res = await streamReadFormat.ReadAsync(data, offset_next, needcount);
 
                 if (res == 0)
                 {
-                    return count - needcount;
+                    await fiberReadStream.Check();
+                    res = await streamReadFormat.ReadAsync(data, offset_next, needcount);
+                    if(res==0)
+                        return count - needcount;                   
                 }
 
                 needcount -= res;

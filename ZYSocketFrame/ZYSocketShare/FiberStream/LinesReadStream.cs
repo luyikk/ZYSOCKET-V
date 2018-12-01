@@ -120,7 +120,7 @@ namespace ZYSocket.FiberStream
 
         public override bool CanRead => true;
 
-        public override bool CanSeek => false;
+        public override bool CanSeek => true;
 
         public override bool CanWrite => false;
 
@@ -181,14 +181,16 @@ namespace ZYSocket.FiberStream
                 if (is_canceled)
                     return 0;
 
+                var cpbytes = wrlen - position;
+                if (cpbytes == 0)
+                    return 0;
+
                 fixed (byte* source = &data[this.offset + position])
                 fixed (byte* target = &buffer[offset])
                 {
-                    var cpbytes = wrlen - position;
-                    if (cpbytes > count)
-                    {
-                        cpbytes = count;
-                    }
+                   
+                    if (cpbytes > count)                    
+                        cpbytes = count;                    
 
                     Buffer.MemoryCopy(source, target, count, cpbytes);
                     position += cpbytes;

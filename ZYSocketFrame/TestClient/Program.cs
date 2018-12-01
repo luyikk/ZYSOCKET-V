@@ -41,7 +41,7 @@ namespace TestClient
         }
 
 
-        private static async ValueTask SendTest(IFiberRw fiberRw)
+        private static void SendTest(IFiberRw fiberRw)
         {
             WriteBytes writeBytes = new WriteBytes(fiberRw);
             writeBytes.WriteLen();
@@ -62,7 +62,7 @@ namespace TestClient
                 guids.Add(Guid.NewGuid());
             }
             writeBytes.Write(guids);
-            await writeBytes.AwaitFlush();
+            writeBytes.Flush();
         }
 
 
@@ -73,7 +73,7 @@ namespace TestClient
                 return (input, output);
             });
 
-            await SendTest(fiberRw);
+            SendTest(fiberRw);
 
             while (true)
             {
@@ -86,7 +86,8 @@ namespace TestClient
                     //await writeBytes.AwaitFlush();
 
                     await DataOnByLine(fiberRw);
-                  
+
+                    Console.WriteLine("OK");
                 }
                 catch
                 {
