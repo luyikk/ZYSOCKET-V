@@ -7,6 +7,9 @@ using ZYSocket.Server.Builder;
 using Autofac;
 using ZYSocket;
 using System.IO.Compression;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 
 namespace TestServer
 {
@@ -14,7 +17,7 @@ namespace TestServer
     {
 
 
-        // static byte[] httpRespone;
+        static X509Certificate certificate = new X509Certificate(Environment.CurrentDirectory + "/server.pfx", "testPassword");
 
         //程序入口
         static void Main(string[] args)
@@ -43,12 +46,12 @@ namespace TestServer
                 };
 
             })
-          
-            .ConfigServer(p => 
+
+            .ConfigServer(p =>
             {
                 p.Host = "ipv6any";
                 p.Port = 1001;
-             })
+            })
             .Bulid();
             server2.Start(); //启动服务器 所有IPV6 1001端口
 
@@ -56,18 +59,18 @@ namespace TestServer
 
             ContainerBuilder containerBuilder = new ContainerBuilder();
             new SockServBuilder(containerBuilder, p =>
-             {
-                 return new ZYSocketSuper(p)
-                 {
-                     BinaryInput = new BinaryInputHandler(BinaryInputHandler),
-                     Connetions = new ConnectionFilter(ConnectionFilter),
-                     MessageInput = new DisconnectHandler(DisconnectHandler)
-                 };
-             })
+            {
+                return new ZYSocketSuper(p)
+                {
+                    BinaryInput = new BinaryInputHandler(BinaryInputHandler),
+                    Connetions = new ConnectionFilter(ConnectionFilter),
+                    MessageInput = new DisconnectHandler(DisconnectHandler)
+                };
+            })
              .ConfigServer(p => {
                  p.Port = 1002;
                  p.MaxBufferSize = 8192;
-                 });
+             });
 
             var build = containerBuilder.Build();
 
@@ -103,24 +106,37 @@ namespace TestServer
         static bool ConnectionFilter(ISockAsyncEvent socketAsync)
         {
             Console.WriteLine("UserConn {0}", socketAsync.AcceptSocket.RemoteEndPoint.ToString());
-           
+
             return true;
         }
 
 
-       
+
 
         /// <summary>
         /// 数据包输入
         /// </summary>
         /// <param name="data">输入数据</param>
         /// <param name="socketAsync">该数据包的通讯SOCKET</param>
-        static async void BinaryInputHandler(ISockAsyncEvent socketAsync)
+        static async void BinaryInputHandler(ISockAsyncEventAsServer socketAsync)
         {
 
-            var fiberRw = await socketAsync.GetFiberRw<string>();
 
-            fiberRw.UserToken = "my is ttk";            
+            //USE SSL+GZIP
+            var fiberRw = await socketAsync.GetFiberRwSSL<string>(certificate,(input, output) =>
+            {
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
+                var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
+                return (gzip_input, gzip_output); //return gzip mode
+            });
+
+            if (fiberRw is null)
+            {
+                socketAsync?.AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+                return;
+            }
+
+            fiberRw.UserToken = "my is ttk";
 
             for (; ; )
             {
@@ -145,7 +161,7 @@ namespace TestServer
                     break;
                 }
 
-              
+
 
             }
 
@@ -189,9 +205,9 @@ namespace TestServer
 
         }
 
-        static void  DataOn(ref ReadBytes read, IFiberRw<string> fiberRw)
-        {          
-                        
+        static void DataOn(ref ReadBytes read, IFiberRw<string> fiberRw)
+        {
+
             var cmd = read.ReadInt32();
             var p1 = read.ReadInt32();
             var p2 = read.ReadInt64();

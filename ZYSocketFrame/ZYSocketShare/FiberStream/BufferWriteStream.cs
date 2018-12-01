@@ -94,36 +94,34 @@ namespace ZYSocket.FiberStream
 
         public override void Flush()
         {
-            //if (_len == 0)
-            //    return;
+            if (_len == 0)
+                return;
 
-            //int isfull =(int)(_len % BufferBlockSize);
+            int isfull = (int)(_len % BufferBlockSize);
 
-            //int segment_ptr = (int)_len / BufferBlockSize;
+            int segment_ptr = (int)_len / BufferBlockSize;
 
-            //if (isfull == 0)
-            //    if (segment_ptr > 0)
-            //        segment_ptr -= 1;
+            if (isfull == 0)
+                if (segment_ptr > 0)
+                    segment_ptr -= 1;
 
-            //for (int i = 0; i < segment_ptr; i++)
-            //{
-            //    var data = DataSegment[i];
-            //    Send.Send(data);
-            //}
+            for (int i = 0; i < segment_ptr; i++)
+            {
+                var data = DataSegment[i];
+                Send.Send(data);
+            }
 
-            //if (isfull != 0)
-            //{
-            //    var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray();
-            //    Send.Send(array);
-            //}
-            //else
-            //{
-            //    var data = DataSegment[segment_ptr];
-            //    Send.Send(data);
-            //}          
-
-
-            //Reset();
+            if (isfull != 0)
+            {
+                var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray();
+                Send.Send(array);
+            }
+            else
+            {
+                var data = DataSegment[segment_ptr];
+                Send.Send(data);
+            }
+            Reset();
         }
 
         public async ValueTask<int> AwaitFlush()

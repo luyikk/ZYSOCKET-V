@@ -7,11 +7,13 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ZYSocket.FiberStream;
 using ZYSocket.Share;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace ZYSocket.Client
 {
 
-    public class ZYSocketAsyncEventArgs : SocketAsyncEventArgs, ISockAsyncEvent
+    public class ZYSocketAsyncEventArgs : SocketAsyncEventArgs, ISockAsyncEventAsClient
     {
       
 
@@ -66,7 +68,7 @@ namespace ZYSocket.Client
         {
             if (await RStream.WaitStreamInit())
             {
-                return new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init);
+                return new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init: init);
             }
             else
                 return null;
@@ -76,12 +78,59 @@ namespace ZYSocket.Client
         {
             if (await RStream.WaitStreamInit())
             {
-                return new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init);
+                return new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian,init:init);
             }
             else
                 return null;
         }
 
+        public async ValueTask<IFiberRw> GetFiberRwSSL(X509Certificate certificate_client,string targethost, Func<Stream, Stream, (Stream, Stream)> init = null)
+        {
+            if (await RStream.WaitStreamInit())
+            {
+                var mergestream = new MergeStream(RStream, WStream);
+                mergestream.IsSync = true;
+                var sslstream = new SslStream(mergestream, false, (sender, certificate, chain, errors) => true,
+                (sender, host, certificates, certificate, issuers) => certificate_client);
+
+                try
+                {
+                    await sslstream.AuthenticateAsClientAsync(targethost);
+                }
+                catch
+                {
+                    return null;
+                }
+
+                mergestream.IsSync = false;
+                return new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+            }
+            else
+                return null;
+        }
+
+        public async ValueTask<IFiberRw<T>> GetFiberRwSSL<T>(X509Certificate certificate_client, string targethost, Func<Stream, Stream, (Stream, Stream)> init = null) where T : class
+        {
+            if (await RStream.WaitStreamInit())
+            {
+                var mergestream = new MergeStream(RStream, WStream);
+                mergestream.IsSync = true;
+                var sslstream = new SslStream(mergestream, false, (sender, certificate, chain, errors) => true,
+                (sender, host, certificates, certificate, issuers) => certificate_client);
+                try
+                {
+                    await sslstream.AuthenticateAsClientAsync(targethost);
+                }
+                catch
+                {
+                    return null;
+                }
+                mergestream.IsSync = false;
+                return new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+            }
+            else
+                return null;
+        }
 
 
         public void StreamInit()

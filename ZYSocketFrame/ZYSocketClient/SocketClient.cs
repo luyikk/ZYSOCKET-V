@@ -16,7 +16,7 @@ namespace ZYSocket.Client
     /// </summary>
     /// <param name="data">输入包</param>
     /// <param name="socketAsync"></param>
-    public delegate void BinaryInputHandler(ISocketClient client,ISockAsyncEvent socketAsync);
+    public delegate void BinaryInputHandler(ISocketClient client,ISockAsyncEventAsClient socketAsync);
 
 
     /// <summary>
@@ -25,7 +25,7 @@ namespace ZYSocket.Client
     /// <param name="message">消息</param>
     /// <param name="socketAsync"></param>
     /// <param name="erorr">错误代码</param>
-    public delegate void DisconnectHandler(ISocketClient client,ISockAsyncEvent socketAsync, string msg);
+    public delegate void DisconnectHandler(ISocketClient client, ISockAsyncEventAsClient socketAsync, string msg);
 
 
     public class SocketClient : IDisposable, ISocketClient

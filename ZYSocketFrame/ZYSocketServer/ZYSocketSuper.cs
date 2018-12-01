@@ -27,14 +27,14 @@ namespace ZYSocket.Server
     /// 连接的代理
     /// </summary>
     /// <param name="socketAsync"></param>
-    public delegate bool ConnectionFilter(ISockAsyncEvent socketAsync);
+    public delegate bool ConnectionFilter(ISockAsyncEventAsServer socketAsync);
 
     /// <summary>
     /// 数据包输入代理
     /// </summary>
     /// <param name="data">输入包</param>
     /// <param name="socketAsync"></param>
-    public delegate void BinaryInputHandler(ISockAsyncEvent socketAsync);
+    public delegate void BinaryInputHandler(ISockAsyncEventAsServer socketAsync);
 
 
     /// <summary>
@@ -43,7 +43,7 @@ namespace ZYSocket.Server
     /// <param name="message">消息</param>
     /// <param name="socketAsync"></param>
     /// <param name="erorr">错误代码</param>
-    public delegate void DisconnectHandler(string message, ISockAsyncEvent socketAsync, int erorr);
+    public delegate void DisconnectHandler(string message, ISockAsyncEventAsServer socketAsync, int erorr);
 
     /// <summary>
     /// ZYSOCKET框架 服务器端

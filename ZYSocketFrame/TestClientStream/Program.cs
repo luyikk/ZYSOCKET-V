@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using ZYSocket;
 using ZYSocket.Client;
@@ -11,6 +14,8 @@ namespace TestClient
     class Program
     {
         static SocketClient client;
+
+        static X509Certificate certificate = new X509Certificate(Environment.CurrentDirectory + "/client.pfx", "testPassword");
 
         static void Main(string[] args)
         {
@@ -31,9 +36,9 @@ namespace TestClient
         }
 
         static async void connect()
-        { 
+        {
             var (IsSuccess, Msg) = await client.ConnectAsync("127.0.0.1", 1002);
-            Console.WriteLine(IsSuccess+":"+Msg);
+            Console.WriteLine(IsSuccess + ":" + Msg);
         }
 
         private static void Client_Disconnect(ISocketClient client, ISockAsyncEvent socketAsync, string msg)
@@ -69,9 +74,27 @@ namespace TestClient
         }
 
 
-        private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEvent socketAsync)
+        
+
+        private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
-            var fiberRw = await socketAsync.GetFiberRw();
+
+            //USE SSL+GZIP
+            var fiberRw = await socketAsync.GetFiberRwSSL<string>(certificate,"localhost",(input, output) =>
+            {
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
+                var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
+                return (gzip_input, gzip_output); //return gzip mode          
+
+            });
+
+            if (fiberRw is null)
+            {
+                client.ShutdownBoth();
+                return;
+            }
+
+
 
             SendTest(fiberRw);
 
@@ -87,7 +110,7 @@ namespace TestClient
 
                     await DataOnByLine(fiberRw);
 
-                   // Console.WriteLine("OK");
+                     Console.WriteLine("OK");
                 }
                 catch
                 {
@@ -99,7 +122,7 @@ namespace TestClient
             client.ShutdownBoth();
         }
 
-       
+
 
         static async ValueTask DataOnByLine(IFiberRw fiberRw)
         {
@@ -135,7 +158,7 @@ namespace TestClient
             }
 
 
-           
+
         }
 
 
