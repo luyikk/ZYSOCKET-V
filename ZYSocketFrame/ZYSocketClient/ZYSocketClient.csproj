@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>ZYSocket.Client</RootNamespace>
+    <PackageId>ZYSocketClientV</PackageId>
+    <Authors>luyikk</Authors>
+    <Copyright>luyikk</Copyright>
+    <PackageLicenseUrl>https://github.com/luyikk/ZYSOCKET-V/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/luyikk/ZYSOCKET-V</PackageProjectUrl>
+    <Description>ZYSOCKET CLIENT</Description>
   </PropertyGroup>
 
   <ItemGroup>

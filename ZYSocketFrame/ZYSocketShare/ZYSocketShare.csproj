@@ -5,6 +5,12 @@
     <LangVersion>7.1</LangVersion>
     <PackageId>ZYSocketShareV</PackageId>
     <RootNamespace>ZYSocket.Share</RootNamespace>
+    <Authors>luyikk</Authors>
+    <Copyright>luyikk</Copyright>
+    <PackageProjectUrl>https://github.com/luyikk/ZYSOCKET-V</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/luyikk/ZYSOCKET-V</RepositoryUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseUrl>https://github.com/luyikk/ZYSOCKET-V/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

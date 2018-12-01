@@ -4,6 +4,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>ZYSocket.Server</RootNamespace>
     <LangVersion>7.3</LangVersion>
+    <PackageId>ZYSocketServerV</PackageId>
+    <Authors>luyikk</Authors>
+    <Description>ZYSOCKET SERVER</Description>
+    <Copyright>luyikk</Copyright>
+    <PackageLicenseUrl>https://github.com/luyikk/ZYSOCKET-V/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/luyikk/ZYSOCKET-V</PackageProjectUrl>
+    <PackageReleaseNotes>ZYSOCKET SERVER</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
