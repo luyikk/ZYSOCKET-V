@@ -139,13 +139,7 @@ namespace TestServer
             fiberRw.UserToken = "my is ttk";
 
             for (; ; )
-            {
-                // 读取 发送 测试
-                //var data = await fiberRw.ReadToBlockArrayEnd();
-                //WriteBytes writeBytes = new WriteBytes(fiberRw);
-                //writeBytes.Write(data);
-                //await writeBytes.AwaitFlush();
-
+            {                
                 try
                 {
                     //提供2种数据 读取写入方式
@@ -154,18 +148,17 @@ namespace TestServer
 
                     await DataOnByLine(fiberRw);
 
+                   
                 }
                 catch (Exception er)
                 {
                     Console.WriteLine(er.ToString());
                     break;
-                }
-
-
+                }          
 
             }
 
-            fiberRw.Disconnect();
+           fiberRw.Disconnect();
 
         }
 

@@ -72,9 +72,7 @@ namespace TestClient
                 writeBytes.Flush();
             }
         }
-
-
-        
+                       
 
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
@@ -103,14 +101,10 @@ namespace TestClient
                 try
                 {
 
-                    //var data = await fiberRw.ReadToBlockArrayEnd();
-                    //WriteBytes writeBytes = new WriteBytes(fiberRw);
-                    //writeBytes.Write(data);
-                    //await writeBytes.AwaitFlush();
-
                     await DataOnByLine(fiberRw);
 
-                     Console.WriteLine("OK");
+                    Console.WriteLine("OK");
+
                 }
                 catch
                 {
@@ -118,8 +112,8 @@ namespace TestClient
                 }
             }
 
+            fiberRw.Disconnect();
 
-            client.ShutdownBoth();
         }
 
 
