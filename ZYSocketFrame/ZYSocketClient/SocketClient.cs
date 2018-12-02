@@ -51,6 +51,8 @@ namespace ZYSocket.Client
 
         private System.Threading.AutoResetEvent wait = new System.Threading.AutoResetEvent(false);
 
+        private TaskCompletionSource<IFiberRw> completionSource;
+
         private string errorMsg;
         public string ErrorMsg { get => errorMsg; set => errorMsg = value; }
 
@@ -98,6 +100,8 @@ namespace ZYSocket.Client
             if (IsConnect)
                 throw new System.IO.IOException("the socket status is connect already,please Dispose it.");
 
+            completionSource = new TaskCompletionSource<IFiberRw>(TaskCreationOptions.RunContinuationsAsynchronously);
+
             errorMsg = null;
             IPEndPoint myEnd = null;
 
@@ -122,6 +126,7 @@ namespace ZYSocket.Client
             Sock = new Socket(myEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             ZYSocketAsyncEventArgs e = new ZYSocketAsyncEventArgs(
+                    completionSource,
                     new LinesReadStream(),
                     new BufferWriteStream(memoryPool, syncsend, asyncsend),
                     syncsend,
@@ -159,7 +164,10 @@ namespace ZYSocket.Client
             }
         }
 
-
+        public async Task<IFiberRw> GetFiberRw()
+        {
+            return await completionSource.Task; 
+        }
 
         private void E_Completed(object sender, ZYSocketAsyncEventArgs e)
         {

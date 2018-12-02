@@ -30,6 +30,7 @@ namespace ZYSocket.Client
         public ISend SendImplemented { get;  private set; }
         public IAsyncSend AsyncSendImplemented { get; private set; }
 
+        private TaskCompletionSource<IFiberRw> taskCompletionSource;
         private IDisposable fiberobj;
         private IDisposable fiberT;
         private IDisposable fibersslobj;
@@ -49,8 +50,9 @@ namespace ZYSocket.Client
             _check_thread = 0;
         }
 
-        public ZYSocketAsyncEventArgs(IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, bool isLittleEndian=false)
+        public ZYSocketAsyncEventArgs(TaskCompletionSource<IFiberRw> completionSource ,IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, bool isLittleEndian=false)
         {
+            this.taskCompletionSource = completionSource;
             this.MemoryPool = memoryPool;
             this.RStream = r_stream;
             this.WStream = w_stream;
@@ -75,6 +77,7 @@ namespace ZYSocket.Client
             {
                 var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init: init);
                 fiberobj = fiber;
+                taskCompletionSource?.TrySetResult(fiber);
                 return fiber;
             }
             else
@@ -87,6 +90,7 @@ namespace ZYSocket.Client
             {
                 var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian,init:init);
                 fiberobj = fiber;
+                taskCompletionSource?.TrySetResult(fiber);
                 return fiber;
             }
             else
@@ -114,6 +118,7 @@ namespace ZYSocket.Client
                 mergestream.IsSync = false;
                 var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslobj = fiber;
+                taskCompletionSource?.TrySetResult(fiber);
                 return fiber;
             }
             else
@@ -139,6 +144,7 @@ namespace ZYSocket.Client
                 mergestream.IsSync = false;
                 var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslT = fiber;
+                taskCompletionSource?.TrySetResult(fiber);
                 return fiber;
             }
             else

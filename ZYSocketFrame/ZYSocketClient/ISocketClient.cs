@@ -1,4 +1,6 @@
 ﻿using System.Net.Sockets;
+using System.Threading.Tasks;
+using ZYSocket.FiberStream;
 
 namespace ZYSocket.Client
 {
@@ -12,7 +14,8 @@ namespace ZYSocket.Client
         event BinaryInputHandler BinaryInput;
         event DisconnectHandler Disconnect;
 
-        System.Threading.Tasks.Task<(bool IsSuccess, string Msg)> ConnectAsync(string host, int port, int connectTimeout = 6000);
+        Task<(bool IsSuccess, string Msg)> ConnectAsync(string host, int port, int connectTimeout = 6000);
+        Task<IFiberRw> GetFiberRw();
         void ShutdownBoth();
         void Dispose();
     }
