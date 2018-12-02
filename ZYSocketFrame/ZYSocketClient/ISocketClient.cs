@@ -16,7 +16,7 @@ namespace ZYSocket.Client
 
         Task<(bool IsSuccess, string Msg)> ConnectAsync(string host, int port, int connectTimeout = 6000);
         Task<IFiberRw> GetFiberRw();
-        void ShutdownBoth();
+        void ShutdownBoth(bool events=false);
         void Dispose();
     }
 }

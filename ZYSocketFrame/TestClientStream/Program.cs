@@ -37,7 +37,7 @@ namespace TestClient
 
         static async void connect()
         {
-            var (IsSuccess, Msg) = await client.ConnectAsync("127.0.0.1", 1002);         
+            var (IsSuccess, Msg) = client.Connect("127.0.0.1", 1002);         
 
             Console.WriteLine(IsSuccess + ":" + Msg);
 
@@ -84,7 +84,7 @@ namespace TestClient
         {
 
             //USE SSL+GZIP
-            var fiberRw = await socketAsync.GetFiberRwSSL<string>(certificate,"localhost",(input, output) =>
+            var (fiberRw,errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate,"localhost",(input, output) =>
             {
                 var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
                 var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
@@ -94,9 +94,12 @@ namespace TestClient
 
             if (fiberRw is null)
             {
-                client.ShutdownBoth();
+                Console.WriteLine(errMsg);
+                client.ShutdownBoth(true);
                 return;
             }
+
+         
 
             while (true)
             {

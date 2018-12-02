@@ -41,6 +41,7 @@ namespace ZYSocket.Client
 
         private readonly int bufferSize;
 
+   
 
         public Socket Sock { get; private set; }     
 
@@ -101,7 +102,7 @@ namespace ZYSocket.Client
                 throw new System.IO.IOException("the socket status is connect already,please Dispose it.");
 
             completionSource = new TaskCompletionSource<IFiberRw>(TaskCreationOptions.RunContinuationsAsynchronously);
-
+          
             errorMsg = null;
             IPEndPoint myEnd = null;
 
@@ -187,9 +188,9 @@ namespace ZYSocket.Client
         {
             if (e.SocketError == SocketError.Success)
             {
-                IsConnect = true;
-                wait?.Set();
+                IsConnect = true;                ;
                 errorMsg = "connect success";
+                wait?.Set();
                 BinaryInput?.Invoke(this,e);
 
                 syncsend.SetConnect(e);
@@ -197,6 +198,7 @@ namespace ZYSocket.Client
 
                 e.SetBuffer(bufferSize);
 
+               
                 try
                 {
                     if (!Sock.ReceiveAsync(e))
@@ -215,9 +217,9 @@ namespace ZYSocket.Client
             }
             else
             {
-                IsConnect = false;
-                wait?.Set();
+                IsConnect = false;               
                 errorMsg = new SocketException((int)e.SocketError).Message;
+                wait?.Set();
             }
         }
 
@@ -234,6 +236,7 @@ namespace ZYSocket.Client
 
                 try
                 {
+                    
                     if (!Sock.ReceiveAsync(e))
                     {
                         if (e.Add_check() > 512)
@@ -273,12 +276,15 @@ namespace ZYSocket.Client
 
 
 
-        public void ShutdownBoth()
+        public void ShutdownBoth(bool events=false)
         {
             if (IsConnect)
             {
                 Sock?.Shutdown(SocketShutdown.Both);
-                this.Dispose();
+                if (!events)
+                    this.Dispose();
+                else
+                    Diconnect_It(AsynEvent);
             }
         }
 

@@ -17,8 +17,7 @@ namespace ZYSocket.FiberStream
             inputStream = input;
             outputStream = output;
         }
-
-        public bool IsSync { get; set; }
+     
 
         public override bool CanRead => true;
 
@@ -37,23 +36,65 @@ namespace ZYSocket.FiberStream
 
         public override int Read(byte[] buffer, int offset, int count)
         {
+            return inputStream.Read(buffer, offset, count);
+        }
 
-            if (IsSync)
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            int r = inputStream.Read(buffer, offset, count);
+            if (r == 0)
             {
-                int r = inputStream.Read(buffer, offset, count);
-
-                if (r == 0)
-                {
-                    inputStream.Check().Wait();
-                    r = inputStream.Read(buffer, offset, count);
-                }
-                return r;
-            }else
+                await inputStream.Check();
                 return inputStream.Read(buffer, offset, count);
+            }
+
+            return r;
+        }
+
+
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            outputStream.Write(buffer, offset, count);
+            await outputStream.AwaitFlush();
+        }
+
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        {
+            var task = Task.Run<int>(async () =>
+              {
+                  int r = inputStream.Read(buffer, offset, count);
+                  if (r == 0)
+                  {
+                      await inputStream.Check();
+                      return inputStream.Read(buffer, offset, count);
+                  }
+                  return r;
+              });
+
+            return TaskToApm.Begin(task, callback, state);
 
         }
 
-       
+        public override int EndRead(IAsyncResult asyncResult)
+        {
+            return TaskToApm.End<int>(asyncResult);
+        }
+
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        {
+            var task = Task.Run(async () =>
+            {
+                outputStream.Write(buffer, offset, count);
+                await outputStream.AwaitFlush();
+            });
+
+            return TaskToApm.Begin(task, callback, state);
+
+        }
+        public override void EndWrite(IAsyncResult asyncResult)
+        {
+             TaskToApm.End(asyncResult);
+        }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
@@ -67,12 +108,39 @@ namespace ZYSocket.FiberStream
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (IsSync)
-            {
-                outputStream.Write(buffer, offset, count);
-                outputStream.Flush();
-            }else
-                outputStream.Write(buffer, offset, count);
+            outputStream.Write(buffer, offset, count);
         }
     }
+
+    public class MergeStreamAsyncResult : IAsyncResult
+    {
+        private readonly object asyncState;
+        public object AsyncState => asyncState;
+
+        private readonly EventWaitHandle eventWait;
+        public WaitHandle AsyncWaitHandle => eventWait;
+
+        private bool completedSynchronously;
+        public bool CompletedSynchronously => completedSynchronously;
+
+        private bool isCompleted;
+        public bool IsCompleted => isCompleted;
+
+        public MergeStreamAsyncResult(object asyncState)
+        {
+            eventWait = new EventWaitHandle(true, EventResetMode.ManualReset);
+        }
+
+        public void Completed()
+        {
+            isCompleted = true;
+            eventWait.Set();           
+        }
+
+        public void Synchronously()
+        {
+            completedSynchronously = true;
+        }
+    }
+
 }

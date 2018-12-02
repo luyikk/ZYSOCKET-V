@@ -14,20 +14,21 @@ namespace Server
 
         static void Main(string[] args)
         {
-            var build = new SockServBuilder(p =>
-              {
-                  return new ZYSocket.Server.ZYSocketSuper(p)
-                  {
-                      BinaryInput = new ZYSocket.Server.BinaryInputHandler(BinaryInputHandler),
-                      MessageInput = new ZYSocket.Server.DisconnectHandler(DisconnectHandler),
-                      Connetions = new ZYSocket.Server.ConnectionFilter(ConnectionFilter)
-                  };
-              }).ConfigServer(p => p.Port = 3000);
+            using (var build = new SockServBuilder(p =>
+             {
+                   return new ZYSocket.Server.ZYSocketSuper(p)
+                   {
+                       BinaryInput = new ZYSocket.Server.BinaryInputHandler(BinaryInputHandler),
+                       MessageInput = new ZYSocket.Server.DisconnectHandler(DisconnectHandler),
+                       Connetions = new ZYSocket.Server.ConnectionFilter(ConnectionFilter)
+                   };
 
-            build.Bulid().Start();          
+             }).ConfigServer(p => p.Port = 3000))
+            {
+                build.Bulid().Start();
+                Console.ReadLine();
+            }
 
-            Console.ReadLine();
-            build.Dispose();
         }
 
         static bool ConnectionFilter(ISockAsyncEventAsServer socketAsync)
@@ -46,10 +47,10 @@ namespace Server
 
         static async void BinaryInputHandler(ISockAsyncEventAsServer socketAsync)
         {
-            var fiberW = await socketAsync.GetFiberRwSSL<UserInfo>(certificate,(input,output)=> //在GZIP的基础上在通过SSL 加密
+            var (fiberW,errMsg) = await socketAsync.GetFiberRwSSL<UserInfo>(certificate,(input,output)=> //在GZIP的基础上在通过SSL 加密
             {
-                var gzip_input = new GZipStream(input, CompressionMode.Decompress);
-                var gzip_output = new GZipStream(output, CompressionMode.Compress);
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress,true); //注意第三个参数
+                var gzip_output = new GZipStream(output, CompressionMode.Compress,true);
                 return (gzip_input, gzip_output);
 
             });  //我们在这地方使用SSL加密
@@ -57,6 +58,7 @@ namespace Server
 
             if (fiberW is null) //如果获取失败 那么断开连接
             {
+                Console.WriteLine(errMsg);
                 socketAsync?.AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
                 return;
             }

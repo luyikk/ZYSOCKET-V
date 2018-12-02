@@ -67,8 +67,17 @@ namespace ZYSocket.FiberStream
 
         public void Dispose()
         {
-            streamReadFormat?.Dispose();
-            streamWriteFormat?.Dispose();
+            try
+            {
+                streamReadFormat?.Dispose();
+            }
+            catch (ObjectDisposedException) { }
+            
+            try
+            {
+                streamWriteFormat?.Dispose();
+            }
+            catch (ObjectDisposedException) { }
         }
 
 

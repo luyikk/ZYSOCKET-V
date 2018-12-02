@@ -123,7 +123,7 @@ namespace TestServer
 
 
             //USE SSL+GZIP
-            var fiberRw = await socketAsync.GetFiberRwSSL<string>(certificate,(input, output) =>
+            var (fiberRw,errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate,(input, output) =>
             {
                 var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
                 var gzip_output = new GZipStream(output, CompressionMode.Compress, true);

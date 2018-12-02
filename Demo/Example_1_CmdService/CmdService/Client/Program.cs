@@ -73,7 +73,7 @@ namespace Client
 
             if(fiberRw==null)
             {
-                client.ShutdownBoth();
+                client.ShutdownBoth(true);
                 return;
             }
 

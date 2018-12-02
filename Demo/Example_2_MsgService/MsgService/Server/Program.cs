@@ -63,10 +63,11 @@ namespace Server
 
         static async void BinaryInputHandler(ISockAsyncEventAsServer socketAsync)
         {
-            var fiberW = await socketAsync.GetFiberRwSSL<UserInfo>(certificate); //获取一个异步基础流
+            var (fiberW,errMsg) = await socketAsync.GetFiberRwSSL<UserInfo>(certificate); //获取一个异步基础流
 
             if (fiberW is null) //如果获取失败 那么断开连接
             {
+                Console.WriteLine(errMsg);
                 socketAsync?.AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
                 return;
             }

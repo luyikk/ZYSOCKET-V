@@ -71,11 +71,12 @@ namespace Client
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
 
-            var fiberRw = await socketAsync.GetFiberRwSSL(null, "");  //我们在这地方使用SSL加密
+            var (fiberRw,errMsg) = await socketAsync.GetFiberRwSSL(null, "");  //我们在这地方使用SSL加密
 
             if (fiberRw==null)
             {
-                client.ShutdownBoth();
+                Console.WriteLine(errMsg);
+                client.ShutdownBoth(true);
                 return;
             }
 

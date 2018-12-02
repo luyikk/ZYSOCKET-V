@@ -73,15 +73,15 @@ namespace Client
 
             var fiberRw = await socketAsync.GetFiberRw((input,output) =>  //我们在这地方使用GZIP 压缩发送流 解压读取流
             {
-                var gzip_input = new GZipStream(input, CompressionMode.Decompress);//将读取流解压
-                var gzip_output = new GZipStream(output, CompressionMode.Compress);//将输出流压缩
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress,false);//将读取流解压
+                var gzip_output = new GZipStream(output, CompressionMode.Compress, false);//将输出流压缩
                 return (gzip_input, gzip_output); //这里顺序不要搞反 (input,output)的顺序
 
             }); 
 
             if(fiberRw==null)
             {
-                client.ShutdownBoth();
+                client.ShutdownBoth(true);
                 return;
             }
 

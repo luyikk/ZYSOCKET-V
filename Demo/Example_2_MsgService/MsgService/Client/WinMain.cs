@@ -30,18 +30,23 @@ namespace Client
 
         private void Client_Disconnect(ISocketClient client, ZYSocket.ISockAsyncEventAsClient socketAsync, string msg)
         {
-            MessageBox.Show(msg);
+            this.BeginInvoke(new EventHandler((a, b) =>
+                {
+                    MessageBox.Show(msg);
+                    this.Close();
+                }));
 
-            this.Close();
         }
 
         private async void Client_BinaryInput(ISocketClient client, ZYSocket.ISockAsyncEventAsClient socketAsync)
         {
-            var fiberRw = await socketAsync.GetFiberRwSSL(null,"");
+            var (fiberRw,errMsg) = await socketAsync.GetFiberRwSSL(null,"");
 
             if(fiberRw==null)
             {
-                client.ShutdownBoth();
+                MessageBox.Show(errMsg);
+                client.ShutdownBoth(true);
+                return;
             }
 
 
@@ -82,8 +87,11 @@ namespace Client
                         }
                         else
                         {
-                            MessageBox.Show(await fiberRw.ReadString());
-                            this.BeginInvoke(new EventHandler((a, b) => LogOn()));                           
+                            string msg = await fiberRw.ReadString();
+                           
+                            this.BeginInvoke(new EventHandler((a, b) => {
+                                MessageBox.Show(msg);
+                                LogOn(); }));                           
                         }
                     }
                     break;

@@ -71,17 +71,18 @@ namespace Client
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
 
-            var fiberRw = await socketAsync.GetFiberRwSSL(null, "",(input, output) => //在GZIP的基础上在通过SSL 加密
+            var (fiberRw,errMsg) = await socketAsync.GetFiberRwSSL(null, "",(input, output) => //在GZIP的基础上在通过SSL 加密
             {
-                var gzip_input = new GZipStream(input, CompressionMode.Decompress);
-                var gzip_output = new GZipStream(output, CompressionMode.Compress);
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress,true);
+                var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
                 return (gzip_input, gzip_output);
 
             });  //我们在这地方使用SSL加密
 
             if (fiberRw==null)
             {
-                client.ShutdownBoth();
+                Console.WriteLine(errMsg);
+                client.ShutdownBoth(true);
                 return;
             }
 

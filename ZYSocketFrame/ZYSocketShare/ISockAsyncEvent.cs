@@ -28,16 +28,16 @@ namespace ZYSocket
     public interface ISockAsyncEventAsClient : ISockAsyncEvent
     {      
 
-        ValueTask<IFiberRw> GetFiberRwSSL(X509Certificate certificate, string targethost, Func<Stream, Stream, (Stream, Stream)> init = null);
+        ValueTask<(IFiberRw,string)> GetFiberRwSSL(X509Certificate certificate, string targethost, Func<Stream, Stream, (Stream, Stream)> init = null);
 
-        ValueTask<IFiberRw<T>> GetFiberRwSSL<T>(X509Certificate certificate_client, string targethost, Func<Stream, Stream, (Stream, Stream)> init = null) where T : class;
+        ValueTask<(IFiberRw<T>,string)> GetFiberRwSSL<T>(X509Certificate certificate_client, string targethost, Func<Stream, Stream, (Stream, Stream)> init = null) where T : class;
     }
 
     public interface ISockAsyncEventAsServer : ISockAsyncEvent
     {
        
-        ValueTask<IFiberRw> GetFiberRwSSL(X509Certificate certificate, Func<Stream, Stream, (Stream, Stream)> init = null);
+        ValueTask<(IFiberRw,string)> GetFiberRwSSL(X509Certificate certificate, Func<Stream, Stream, (Stream, Stream)> init = null);
 
-        ValueTask<IFiberRw<T>> GetFiberRwSSL<T>(X509Certificate certificate, Func<Stream, Stream, (Stream, Stream)> init = null) where T : class;
+        ValueTask<(IFiberRw<T>,string)> GetFiberRwSSL<T>(X509Certificate certificate, Func<Stream, Stream, (Stream, Stream)> init = null) where T : class;
     }
 }

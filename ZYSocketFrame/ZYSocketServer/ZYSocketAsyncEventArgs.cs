@@ -95,53 +95,49 @@ namespace ZYSocket.Server
                 return null;
         }
 
-        public async ValueTask<IFiberRw> GetFiberRwSSL(X509Certificate certificate, Func<Stream, Stream, (Stream, Stream)> init = null)
+        public async ValueTask<(IFiberRw,string)> GetFiberRwSSL(X509Certificate certificate, Func<Stream, Stream, (Stream, Stream)> init = null)
         {
             if (await RStream.WaitStreamInit())
             {
-                var mergestream = new MergeStream(RStream, WStream);
-                mergestream.IsSync = true;
+                var mergestream = new MergeStream(RStream, WStream);              
                 var sslstream = new SslStream(mergestream, false);
                 try
                 {
                     await sslstream.AuthenticateAsServerAsync(certificate);
                 }
-                catch
+                catch(Exception er)
                 {
-                    return null;
-                }
-                mergestream.IsSync = false;
+                    return (null,er.Message);
+                }             
                 var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslobj = fiber;
-                return fiber;
+                return (fiber,null);
             }
             else
-                return null;
+                return (null,"not install");
         }
 
-        public async ValueTask<IFiberRw<T>> GetFiberRwSSL<T>(X509Certificate certificate, Func<Stream, Stream, (Stream, Stream)> init = null) where T : class
+        public async ValueTask<(IFiberRw<T>,string)> GetFiberRwSSL<T>(X509Certificate certificate, Func<Stream, Stream, (Stream, Stream)> init = null) where T : class
         {
             if (await RStream.WaitStreamInit())
             {
-                var mergestream = new MergeStream(RStream, WStream);
-                mergestream.IsSync = true;
-                var sslstream = new SslStream(mergestream, true);
+                var mergestream = new MergeStream(RStream, WStream);               
+                var sslstream = new SslStream(mergestream, false);
                 try
                 {
                     await sslstream.AuthenticateAsServerAsync(certificate);
                 }
-                catch
+                catch(Exception er)
                 {
-                    return null;
+                    return (null,er.Message);
                 }
-
-                mergestream.IsSync = false;
+               
                 var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslT = fiber;
-                return fiber;
+                return (fiber,null);
             }
             else
-                return null;
+                return (null,"not install");
         }
 
 
