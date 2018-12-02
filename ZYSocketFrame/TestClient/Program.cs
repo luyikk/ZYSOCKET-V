@@ -34,6 +34,10 @@ namespace TestClient
         { 
             var (IsSuccess, Msg) = await client.ConnectAsync("127.0.0.1", 1002);
             Console.WriteLine(IsSuccess+":"+Msg);
+
+            var fiberRw = await client.GetFiberRw();
+
+            SendTest(fiberRw);
         }
 
         private static void Client_Disconnect(ISocketClient client, ISockAsyncEvent socketAsync, string msg)
@@ -73,7 +77,7 @@ namespace TestClient
         {
             var fiberRw = await socketAsync.GetFiberRw();
 
-            SendTest(fiberRw);
+          
 
             while (true)
             {
@@ -87,7 +91,7 @@ namespace TestClient
 
                     await DataOnByLine(fiberRw);
 
-                   // Console.WriteLine("OK");
+                    Console.WriteLine("OK");
                 }
                 catch
                 {
