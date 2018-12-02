@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO.Compression;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using ZYSocket;
 using ZYSocket.FiberStream;
@@ -8,23 +10,24 @@ namespace Server
 {
     class Program
     {
+        static X509Certificate certificate = new X509Certificate2("server.pfx", "testPassword");
+
         static void Main(string[] args)
         {
-            using (var build = new SockServBuilder(p =>
-            {
-                return new ZYSocket.Server.ZYSocketSuper(p)
-                {
-                    BinaryInput = new ZYSocket.Server.BinaryInputHandler(BinaryInputHandler),
-                    MessageInput = new ZYSocket.Server.DisconnectHandler(DisconnectHandler),
-                    Connetions = new ZYSocket.Server.ConnectionFilter(ConnectionFilter)
-                };
+            var build = new SockServBuilder(p =>
+              {
+                  return new ZYSocket.Server.ZYSocketSuper(p)
+                  {
+                      BinaryInput = new ZYSocket.Server.BinaryInputHandler(BinaryInputHandler),
+                      MessageInput = new ZYSocket.Server.DisconnectHandler(DisconnectHandler),
+                      Connetions = new ZYSocket.Server.ConnectionFilter(ConnectionFilter)
+                  };
+              }).ConfigServer(p => p.Port = 3000);
 
-            })
-             .ConfigServer(p => p.Port = 3000)) //监听所有IPV4 的3000端口
-            {
-                build.Bulid().Start();
-                Console.ReadLine();
-            }
+            build.Bulid().Start();          
+
+            Console.ReadLine();
+            build.Dispose();
         }
 
         static bool ConnectionFilter(ISockAsyncEventAsServer socketAsync)
@@ -43,7 +46,14 @@ namespace Server
 
         static async void BinaryInputHandler(ISockAsyncEventAsServer socketAsync)
         {
-            var fiberW = await socketAsync.GetFiberRw<UserInfo>(); //获取一个异步基础流
+            var fiberW = await socketAsync.GetFiberRwSSL<UserInfo>(certificate,(input,output)=> //在GZIP的基础上在通过SSL 加密
+            {
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress);
+                var gzip_output = new GZipStream(output, CompressionMode.Compress);
+                return (gzip_input, gzip_output);
+
+            });  //我们在这地方使用SSL加密
+           
 
             if (fiberW is null) //如果获取失败 那么断开连接
             {

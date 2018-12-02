@@ -5,7 +5,7 @@ using ZYSocket.Share;
 
 namespace ZYSocket.Server.Builder
 {
-    public interface ISockServBuilder
+    public interface ISockServBuilder:IDisposable
     {
         ISocketServer Bulid();
         ISockServBuilder ConfigEncode(Func<Encoding> func = null);

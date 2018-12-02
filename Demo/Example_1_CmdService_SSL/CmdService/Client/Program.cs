@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.Compression;
 using System.Threading.Tasks;
 using ZYSocket;
 using ZYSocket.Client;
@@ -69,9 +70,10 @@ namespace Client
 
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
-            var fiberRw = await socketAsync.GetFiberRw();
 
-            if(fiberRw==null)
+            var fiberRw = await socketAsync.GetFiberRwSSL(null, "");  //我们在这地方使用SSL加密
+
+            if (fiberRw==null)
             {
                 client.ShutdownBoth();
                 return;

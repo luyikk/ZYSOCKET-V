@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.Compression;
 using System.Threading.Tasks;
 using ZYSocket;
 using ZYSocket.Client;
@@ -69,7 +70,14 @@ namespace Client
 
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
-            var fiberRw = await socketAsync.GetFiberRw();
+
+            var fiberRw = await socketAsync.GetFiberRw((input,output) =>  //我们在这地方使用GZIP 压缩发送流 解压读取流
+            {
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress);//将读取流解压
+                var gzip_output = new GZipStream(output, CompressionMode.Compress);//将输出流压缩
+                return (gzip_input, gzip_output); //这里顺序不要搞反 (input,output)的顺序
+
+            }); 
 
             if(fiberRw==null)
             {

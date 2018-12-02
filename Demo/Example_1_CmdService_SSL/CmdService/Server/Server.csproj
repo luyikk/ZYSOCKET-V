@@ -13,4 +13,10 @@
     <ProjectReference Include="..\TestLib\TestLib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="server.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

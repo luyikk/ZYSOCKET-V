@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.Compression;
 using System.Threading.Tasks;
 using ZYSocket;
 using ZYSocket.FiberStream;
@@ -43,7 +44,13 @@ namespace Server
 
         static async void BinaryInputHandler(ISockAsyncEventAsServer socketAsync)
         {
-            var fiberW = await socketAsync.GetFiberRw<UserInfo>(); //获取一个异步基础流
+            var fiberW = await socketAsync.GetFiberRw<UserInfo>((input, output) =>  //我们在这地方使用GZIP 压缩发送流 解压读取流
+            {
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress);//将读取流解压
+                var gzip_output = new GZipStream(output, CompressionMode.Compress);//将输出流压缩
+                return (gzip_input, gzip_output); //这里顺序不要搞反 (input,output)的顺序
+
+            });
 
             if (fiberW is null) //如果获取失败 那么断开连接
             {
