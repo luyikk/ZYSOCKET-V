@@ -487,24 +487,24 @@ namespace ZYSocket.Server
                 if (this.Connetions != null)
                     if (!this.Connetions(e))
                     {
+                        try
+                        {
+                            e.AcceptSocket?.Shutdown(SocketShutdown.Both);
+                        }
+                        catch { }
+
                         e.AcceptSocket = null;
                         Accept(e);
                         return;
                     }
 
-
                 e.SetBuffer(MaxBufferSize);
-
                 BinaryInput?.Invoke(e);
 
-                if (!e.AcceptSocket.ReceiveAsync(e))
-                {
-                    BeginReceive(e);
-                   
-                }
+                if (!e.AcceptSocket.ReceiveAsync(e))                
+                    BeginReceive(e); 
 
                 e.StreamInit();
-
 
             }
             else
@@ -519,7 +519,7 @@ namespace ZYSocket.Server
 
         async void BeginReceive(ZYSocketAsyncEventArgs e)
         {
-          
+
 
             if (e.SocketError == SocketError.Success && e.BytesTransferred > 0)
             {
@@ -529,8 +529,9 @@ namespace ZYSocket.Server
                 if (!e.AcceptSocket.ReceiveAsync(e))
                 {
                     if (e.Add_check() > 512)
-                        ThreadPool.QueueUserWorkItem(obj => {                            
-                                BeginReceive(obj as ZYSocketAsyncEventArgs);                         
+                        ThreadPool.QueueUserWorkItem(obj =>
+                        {
+                            BeginReceive(obj as ZYSocketAsyncEventArgs);
                         }, e);
                     else
                         BeginReceive(e);
@@ -540,7 +541,7 @@ namespace ZYSocket.Server
 
             }
             else
-            {              
+            {
                 if (MessageInput != null && e.AcceptSocket != null && e.AcceptSocket.RemoteEndPoint != null)
                 {
 

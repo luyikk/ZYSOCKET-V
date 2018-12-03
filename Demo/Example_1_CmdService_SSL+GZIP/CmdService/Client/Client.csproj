@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ZYSocketClientV" Version="1.0.4" />
+    <PackageReference Include="ZYSocketClientV-Portable" Version="1.0.6" />
   </ItemGroup>
 
   <ItemGroup>

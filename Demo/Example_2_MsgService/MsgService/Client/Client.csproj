@@ -65,10 +65,10 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="ZYSocketClient, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ZYSocketClientV.1.0.4\lib\netstandard2.0\ZYSocketClient.dll</HintPath>
+      <HintPath>..\packages\ZYSocketClientV.1.0.5\lib\netstandard2.0\ZYSocketClient.dll</HintPath>
     </Reference>
-    <Reference Include="ZYSocketShare, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ZYSocketShareV.1.0.4\lib\netstandard2.0\ZYSocketShare.dll</HintPath>
+    <Reference Include="ZYSocketShare, Version=1.0.0.5, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZYSocketShareV.1.0.5\lib\netstandard2.0\ZYSocketShare.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

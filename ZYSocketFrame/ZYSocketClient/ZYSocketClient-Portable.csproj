@@ -2,38 +2,34 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>ZYSocket.Server</RootNamespace>
-    <LangVersion>7.3</LangVersion>
-    <PackageId>ZYSocketServerV</PackageId>
+    <RootNamespace>ZYSocket.Client</RootNamespace>
+    <PackageId>ZYSocketClientV-Portable</PackageId>
     <Authors>luyikk</Authors>
-    <Description>ZYSOCKET SERVER</Description>
     <Copyright>luyikk</Copyright>
     <PackageLicenseUrl>https://github.com/luyikk/ZYSOCKET-V/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/luyikk/ZYSOCKET-V</PackageProjectUrl>
-    <PackageReleaseNotes>ZYSOCKET SERVER</PackageReleaseNotes>
-    <Version>1.0.5</Version>
+    <Description>ZYSOCKET CLIENT</Description>
+    <Version>1.0.6</Version>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
-    <RepositoryUrl>https://github.com/luyikk/ZYSOCKET-V</RepositoryUrl>
-    <PackageTags>ZYSocket,Socket,socketsuper</PackageTags>
-    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Portable\Debug\netstandard2.0\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Portable\Release\netstandard2.0\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.8.1" />
+    <ProjectReference Include="..\ZYSocketShare\ZYSocketShare-Portable.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ZYSocketShare\ZYSocketShare.csproj" />
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.threading.tasks.extensions\4.5.1\ref\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

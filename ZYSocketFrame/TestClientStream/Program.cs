@@ -117,7 +117,7 @@ namespace TestClient
                 }
             }
 
-            fiberRw.Disconnect();
+            client.ShutdownBoth(true);
 
         }
 

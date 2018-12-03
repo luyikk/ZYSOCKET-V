@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZYSocketShare-Portable", "ZYSocketShare\ZYSocketShare-Portable.csproj", "{CF8D74E5-5310-4683-B6D5-F63109F34D24}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZYSocketServer-Portable", "ZYSocketServer\ZYSocketServer-Portable.csproj", "{3CDAF812-7C62-4351-8165-1A7EC03684BA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZYSocketClient-Portable", "ZYSocketClient\ZYSocketClient-Portable.csproj", "{6EA81204-8368-48F7-A0F7-CC081A5A84BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CF8D74E5-5310-4683-B6D5-F63109F34D24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF8D74E5-5310-4683-B6D5-F63109F34D24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF8D74E5-5310-4683-B6D5-F63109F34D24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF8D74E5-5310-4683-B6D5-F63109F34D24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CDAF812-7C62-4351-8165-1A7EC03684BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CDAF812-7C62-4351-8165-1A7EC03684BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CDAF812-7C62-4351-8165-1A7EC03684BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CDAF812-7C62-4351-8165-1A7EC03684BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EA81204-8368-48F7-A0F7-CC081A5A84BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EA81204-8368-48F7-A0F7-CC081A5A84BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EA81204-8368-48F7-A0F7-CC081A5A84BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EA81204-8368-48F7-A0F7-CC081A5A84BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AB715CF6-49C0-4BA5-921B-C96910B6337C}
+	EndGlobalSection
+EndGlobal

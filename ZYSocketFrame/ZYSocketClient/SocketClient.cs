@@ -191,21 +191,16 @@ namespace ZYSocket.Client
                 IsConnect = true;                ;
                 errorMsg = "connect success";
                 wait?.Set();
-                BinaryInput?.Invoke(this,e);
 
+                BinaryInput?.Invoke(this,e);
                 syncsend.SetConnect(e);
                 asyncsend.SetConnect(e);
-
                 e.SetBuffer(bufferSize);
-
                
                 try
                 {
-                    if (!Sock.ReceiveAsync(e))
-                    {
-                        BeginReceive(e);
-
-                    }
+                    if (!Sock.ReceiveAsync(e))                    
+                        BeginReceive(e);                    
                 }
                 catch (ObjectDisposedException)
                 {
@@ -281,10 +276,13 @@ namespace ZYSocket.Client
             if (IsConnect)
             {
                 Sock?.Shutdown(SocketShutdown.Both);
-                if (!events)
-                    this.Dispose();
-                else
-                    Diconnect_It(AsynEvent);
+                this.Dispose();
+            }
+
+            if (events)
+            {
+                errorMsg = "Disconnect";
+                Disconnect?.Invoke(this, AsynEvent, errorMsg);
             }
         }
 

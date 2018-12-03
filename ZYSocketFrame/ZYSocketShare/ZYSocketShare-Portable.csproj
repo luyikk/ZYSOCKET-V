@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>7.1</LangVersion>
-    <PackageId>ZYSocketShareV</PackageId>
+    <PackageId>ZYSocketShareV-Portable</PackageId>
     <RootNamespace>ZYSocket.Share</RootNamespace>
     <Authors>luyikk</Authors>
     <Copyright>luyikk</Copyright>
@@ -11,28 +11,26 @@
     <RepositoryUrl>https://github.com/luyikk/ZYSOCKET-V</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl>https://github.com/luyikk/ZYSOCKET-V/blob/master/LICENSE</PackageLicenseUrl>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
-    <Description>ZYSocket Share lib</Description>
-    <PackageReleaseNotes>ZYSocket Share lib</PackageReleaseNotes>
-    <PackageTags>ZYSocket,Socket,socketsuper</PackageTags>
-    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Portable\Debug\netstandard2.0\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Portable\Release\netstandard2.0</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.1" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.1" />
-    <PackageReference Include="ZYSOCKET-protobuf-net" Version="4.3.2" />
+    <PackageReference Include="ZYSOCKET-Protobuf-Net-Portable" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

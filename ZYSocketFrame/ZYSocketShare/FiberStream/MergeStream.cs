@@ -111,36 +111,6 @@ namespace ZYSocket.FiberStream
             outputStream.Write(buffer, offset, count);
         }
     }
-
-    public class MergeStreamAsyncResult : IAsyncResult
-    {
-        private readonly object asyncState;
-        public object AsyncState => asyncState;
-
-        private readonly EventWaitHandle eventWait;
-        public WaitHandle AsyncWaitHandle => eventWait;
-
-        private bool completedSynchronously;
-        public bool CompletedSynchronously => completedSynchronously;
-
-        private bool isCompleted;
-        public bool IsCompleted => isCompleted;
-
-        public MergeStreamAsyncResult(object asyncState)
-        {
-            eventWait = new EventWaitHandle(true, EventResetMode.ManualReset);
-        }
-
-        public void Completed()
-        {
-            isCompleted = true;
-            eventWait.Set();           
-        }
-
-        public void Synchronously()
-        {
-            completedSynchronously = true;
-        }
-    }
+   
 
 }

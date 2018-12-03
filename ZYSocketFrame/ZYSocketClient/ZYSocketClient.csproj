@@ -9,9 +9,12 @@
     <PackageLicenseUrl>https://github.com/luyikk/ZYSOCKET-V/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/luyikk/ZYSOCKET-V</PackageProjectUrl>
     <Description>ZYSOCKET CLIENT</Description>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <AssemblyVersion>1.0.0.4</AssemblyVersion>
-    <FileVersion>1.0.0.3</FileVersion>
+    <FileVersion>1.0.0.5</FileVersion>
+    <PackageTags>ZYSocket,Socket,socketsuper</PackageTags>
+    <RepositoryUrl>https://github.com/luyikk/ZYSOCKET-V</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>

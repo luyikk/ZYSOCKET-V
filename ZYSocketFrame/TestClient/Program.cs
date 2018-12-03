@@ -100,7 +100,7 @@ namespace TestClient
             }
 
 
-            client.ShutdownBoth();
+            client.ShutdownBoth(true);
         }
 
        

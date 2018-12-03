@@ -94,7 +94,7 @@ namespace Client
                 }
             }
 
-            fiberRw.Disconnect();
+            client.ShutdownBoth(true);
 
         }
 
