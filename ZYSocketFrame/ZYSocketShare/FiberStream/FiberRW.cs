@@ -531,7 +531,7 @@ namespace ZYSocket.FiberStream
 
         #region read memory block
 
-        public async ValueTask<Result<Memory<byte>>> ReadMemory(int count)
+        public async ValueTask<ResultByMemoryOwner<Memory<byte>>> ReadMemory(int count)
         {
             var imo = GetMemory(count);
 
@@ -545,11 +545,11 @@ namespace ZYSocket.FiberStream
 
             var slice_mem= memory.Slice(0, len);
 
-            return new Result<Memory<byte>>(imo, slice_mem);
+            return new ResultByMemoryOwner<Memory<byte>>(imo, slice_mem);
 
         }
 
-        public async ValueTask<Result<Memory<byte>>> ReadMemory()
+        public async ValueTask<ResultByMemoryOwner<Memory<byte>>> ReadMemory()
         {
             int? len = await ReadInt32();
 

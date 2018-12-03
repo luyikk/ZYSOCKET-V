@@ -5,14 +5,14 @@ using System.Text;
 
 namespace ZYSocket.FiberStream
 {
-    public struct Result<T>:IDisposable 
+    public struct ResultByMemoryOwner<T>:IDisposable 
     {
         public bool IsInit { get; private set; }
         public T Value { get; private set; }
 
         public IMemoryOwner<byte> MemoryOwner { get; private set; }
 
-        public Result(IMemoryOwner<byte> memoryOwner,T value)
+        public ResultByMemoryOwner(IMemoryOwner<byte> memoryOwner,T value)
         {
             MemoryOwner = memoryOwner;
             Value = value;
