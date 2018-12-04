@@ -124,11 +124,10 @@ namespace TestServer
 
             for (; ; )
             {
-                // 读取 发送 测试
+                //读取 发送 测试
                 //var data = await fiberRw.ReadToBlockArrayEnd();
-                //WriteBytes writeBytes = new WriteBytes(fiberRw);
-                //writeBytes.Write(data);
-                //await writeBytes.AwaitFlush();
+                //fiberRw.Write(data);
+                //await fiberRw.Flush();
 
                 try
                 {
@@ -145,7 +144,7 @@ namespace TestServer
                     break;
                 }
 
-              
+
 
             }
 
