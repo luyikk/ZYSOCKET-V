@@ -23,9 +23,7 @@ namespace ZYSocket.FiberStream
         ValueTask<long> NextMove(long offset);
         ValueTask<int> Read(byte[] data, int offset, int count);
         ValueTask<byte[]> ReadArray();
-        ValueTask<byte[]> ReadArray(int count);
-        ValueTask<int> ReadAsync(byte[] data, int offset, int count);
-        ValueTask<int> ReadAsync(byte[] data, int offset, int count, CancellationToken cancellationToken);
+        ValueTask<byte[]> ReadArray(int count);   
         ValueTask<bool?> ReadBoolean();
         ValueTask<byte?> ReadByte();
         ValueTask<double?> ReadDouble();
@@ -58,6 +56,16 @@ namespace ZYSocket.FiberStream
         void Write(ulong data);
         void Write(double data);
         void Write(float data);
+        void Write(bool? data);
+        void Write(byte? data);
+        void Write(short? data);
+        void Write(int? data);
+        void Write(long? data);
+        void Write(ushort? data);
+        void Write(uint? data);
+        void Write(ulong? data);
+        void Write(double? data);
+        void Write(float? data);
         void Write(bool data);
         void Write(object obj);
         ValueTask<int> Flush();

@@ -6,10 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 
+
 namespace ZYSocket.FiberStream
 {
     public class LinesReadStream : Stream, IFiberReadStream
     {
+        private readonly object lockobj = new object();
 
         private readonly Pipes Pipes;
 
@@ -27,7 +29,8 @@ namespace ZYSocket.FiberStream
 
         private StreamInitAwaiter InitAwaiter;
 
-
+        private bool is_sync;
+        public bool IsSync { get => is_sync; set => is_sync = value; }
         private readonly byte[] numericbytes = new byte[8];
 
         public byte[]  Numericbytes { get => numericbytes; }
@@ -37,6 +40,7 @@ namespace ZYSocket.FiberStream
             Pipes = new Pipes();
             data = new byte[length];
             len = length;
+            is_sync = false;
         }
 
 
@@ -78,11 +82,11 @@ namespace ZYSocket.FiberStream
         {
             if (position == wrlen)
             {
-
+                
                 for (; ; )
                 {
                     var res = await Pipes.Need(0);
-
+                  
                     if (res.IsCanceled)
                     {
                         is_canceled = true;
@@ -200,7 +204,47 @@ namespace ZYSocket.FiberStream
             }
         }
 
-      
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken=default)
+        {
+            if (is_sync)
+            {
+                lock (lockobj)
+                {
+                    int size = Read(buffer, offset, count);
+                    if (size == 0)
+                    {
+                        Check().Wait();
+                        size = Read(buffer, offset, count);
+                    }
+                    return size;
+                }
+            }
+            else
+            {
+
+                int size = Read(buffer, offset, count);
+                if (size == 0)
+                {
+                    await Check();
+                    size = Read(buffer, offset, count);
+                }
+                return size;
+            }
+        }
+
+
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        {        
+            var task = ReadAsync(buffer, offset, count);
+            return TaskToApm.Begin(task, callback, state);
+        }
+
+        public override int EndRead(IAsyncResult asyncResult)
+        {
+            return TaskToApm.End<int>(asyncResult);
+        }
+
+
 
         public  Memory<byte> ReadToBlockEnd()
         {

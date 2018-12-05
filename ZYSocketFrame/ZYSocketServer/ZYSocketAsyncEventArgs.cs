@@ -99,7 +99,7 @@ namespace ZYSocket.Server
         {
             if (await RStream.WaitStreamInit())
             {
-                var mergestream = new MergeStream(RStream, WStream);              
+                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);              
                 var sslstream = new SslStream(mergestream, false);
                 try
                 {
@@ -121,7 +121,7 @@ namespace ZYSocket.Server
         {
             if (await RStream.WaitStreamInit())
             {
-                var mergestream = new MergeStream(RStream, WStream);               
+                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);               
                 var sslstream = new SslStream(mergestream, false);
                 try
                 {

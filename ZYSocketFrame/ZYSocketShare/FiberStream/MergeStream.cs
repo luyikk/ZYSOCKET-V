@@ -9,15 +9,16 @@ namespace ZYSocket.FiberStream
 {
     public class MergeStream : Stream
     {
-        private readonly IFiberReadStream inputStream;
-        private readonly IFiberWriteStream outputStream;
+        private readonly Stream inputStream;
+        private readonly Stream outputStream;
 
-        public MergeStream(IFiberReadStream input,IFiberWriteStream output)
+        public MergeStream(Stream input, Stream output)
         {
             inputStream = input;
             outputStream = output;
         }
-     
+
+        public bool IsSync { get; set; }
 
         public override bool CanRead => true;
 
@@ -39,61 +40,39 @@ namespace ZYSocket.FiberStream
             return inputStream.Read(buffer, offset, count);
         }
 
-        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
-            int r = inputStream.Read(buffer, offset, count);
-            if (r == 0)
-            {
-                await inputStream.Check();
-                return inputStream.Read(buffer, offset, count);
-            }
 
-            return r;
+            var x = inputStream.ReadAsync(buffer, offset, count, cancellationToken);
+            return x;
+
         }
 
 
-        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            outputStream.Write(buffer, offset, count);
-            await outputStream.AwaitFlush();
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
+        {         
+            await outputStream.WriteAsync(buffer, offset, count);         
+
         }
 
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
-            var task = Task.Run<int>(async () =>
-              {
-                  int r = inputStream.Read(buffer, offset, count);
-                  if (r == 0)
-                  {
-                      await inputStream.Check();
-                      return inputStream.Read(buffer, offset, count);
-                  }
-                  return r;
-              });
-
-            return TaskToApm.Begin(task, callback, state);
-
+            return inputStream.BeginRead(buffer, offset, count, callback, state);
         }
 
         public override int EndRead(IAsyncResult asyncResult)
         {
-            return TaskToApm.End<int>(asyncResult);
+            return inputStream.EndRead(asyncResult);
         }
 
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
-            var task = Task.Run(async () =>
-            {
-                outputStream.Write(buffer, offset, count);
-                await outputStream.AwaitFlush();
-            });
-
-            return TaskToApm.Begin(task, callback, state);
+            return outputStream.BeginWrite(buffer, offset, count, callback, state);            
 
         }
         public override void EndWrite(IAsyncResult asyncResult)
         {
-             TaskToApm.End(asyncResult);
+            outputStream.EndWrite(asyncResult);
         }
 
         public override long Seek(long offset, SeekOrigin origin)

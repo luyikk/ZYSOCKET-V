@@ -101,19 +101,24 @@ namespace ZYSocket.Client
         {
             if (await RStream.WaitStreamInit())
             {
-                var mergestream = new MergeStream(RStream, WStream);               
+                RStream.IsSync = true;
+                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);                
                 var sslstream = new SslStream(mergestream, false, (sender, certificate, chain, errors) => true,
                 (sender, host, certificates, certificate, issuers) => certificate_client);
 
                 try
-                {                    
-                    await sslstream.AuthenticateAsClientAsync(targethost);
-
-                }
-                catch(Exception er)
                 {
-                    return (null,er.Message);
-                }               
+                    await sslstream.AuthenticateAsClientAsync(targethost);                   
+                }
+                catch (Exception er)
+                {
+                    return (null, er.Message);
+                }
+                finally
+                {
+                    RStream.IsSync = false;
+                }
+
                 var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
@@ -127,24 +132,30 @@ namespace ZYSocket.Client
         {
             if (await RStream.WaitStreamInit())
             {
-                var mergestream = new MergeStream(RStream, WStream);             
+                RStream.IsSync = true;
+                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);
                 var sslstream = new SslStream(mergestream, false, (sender, certificate, chain, errors) => true,
                 (sender, host, certificates, certificate, issuers) => certificate_client);
                 try
                 {
-                    await sslstream.AuthenticateAsClientAsync(targethost);
+                   await  sslstream.AuthenticateAsClientAsync(targethost);
+                 
                 }
-                catch(Exception er)
+                catch (Exception er)
                 {
-                    return (null,er.Message);
-                }              
-                var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+                    return (null, er.Message);
+                }
+                finally
+                {
+                    RStream.IsSync = false;
+                }
+                var fiber = new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslT = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
-                return (fiber,null);
+                return (fiber, null);
             }
             else
-                return (null,"not install");
+                return (null, "not install");
         }
 
 

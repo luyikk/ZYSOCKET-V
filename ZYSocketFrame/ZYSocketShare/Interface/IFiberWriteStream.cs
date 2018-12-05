@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZYSocket.FiberStream
 {
@@ -10,9 +12,12 @@ namespace ZYSocket.FiberStream
         long Length { get; }
         long Position { get; set; }
         void Flush();
-        ValueTask<int> AwaitFlush();
+        ValueTask<int> AwaitFlush();      
         void SetLength(long value);
         void Write(byte[] buffer, int offset, int count);
+        Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default);
+        IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state);
+        void EndWrite(IAsyncResult asyncResult);
         void Close();
 
     }

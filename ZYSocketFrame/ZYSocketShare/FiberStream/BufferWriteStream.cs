@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using ZYSocket.Share;
 
@@ -125,9 +126,9 @@ namespace ZYSocket.FiberStream
         }
 
         public async ValueTask<int> AwaitFlush()
-        {
+        {           
             if (_len == 0)
-                return 0;
+                return 0;          
 
             int isfull = (int)(_len % BufferBlockSize);
 
@@ -148,7 +149,7 @@ namespace ZYSocket.FiberStream
             if (isfull != 0)
             {
                 var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray();
-                sendlen += await AsyncSend.SendAsync(array);
+                sendlen += await AsyncSend.SendAsync(array);               
             }
             else
             {
@@ -160,6 +161,11 @@ namespace ZYSocket.FiberStream
             Reset();
 
             return sendlen;
+        }
+
+        public override async Task FlushAsync(CancellationToken cancellationToken=default)
+        { 
+            await AwaitFlush();
         }
 
 
@@ -213,8 +219,41 @@ namespace ZYSocket.FiberStream
 
                 countp -= w;
                 offsetp += w;
-            }
+            }         
         }
+
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken=default)
+        {
+           
+            int countp = count;
+            int offsetp = offset;
+
+            while (countp > 0)
+            {
+                int w = copy_to_block(buffer, offsetp, countp);
+                countp -= w;
+                offsetp += w;
+
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+            }
+          
+            await AwaitFlush();
+        }
+
+
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        {
+            var task = WriteAsync(buffer, offset, count);
+            return  TaskToApm.Begin(task, callback, state);
+        }
+
+        public override void EndWrite(IAsyncResult asyncResult)
+        {
+            TaskToApm.End(asyncResult);
+        }
+
+
 
         private unsafe int copy_to_block(byte[] buffer,int offset,int count)
         {
