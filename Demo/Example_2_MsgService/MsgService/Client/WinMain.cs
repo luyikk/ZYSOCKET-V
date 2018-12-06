@@ -20,12 +20,12 @@ namespace Client
             InitializeComponent();
         }
 
-        private async void WinMain_Load(object sender, EventArgs e)
+        private  void WinMain_Load(object sender, EventArgs e)
         {
             client = new SocketClient();
             client.BinaryInput += Client_BinaryInput;
             client.Disconnect += Client_Disconnect;
-            await Connect("127.0.0.1",3000);
+             Connect("127.0.0.1",3000);
         }
 
         private void Client_Disconnect(ISocketClient client, ZYSocket.ISockAsyncEventAsClient socketAsync, string msg)
@@ -164,9 +164,9 @@ namespace Client
 
 
 
-        private async Task Connect(string host,int port)
+        private  void Connect(string host,int port)
         {
-           var (isOK,Msg)=await client.ConnectAsync(host,port);
+           var (isOK,Msg)= client.Connect(host,port);
 
             if(!isOK)
             {

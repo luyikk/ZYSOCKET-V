@@ -14,6 +14,8 @@ namespace ZYSocket.FiberStream
 
         private PipeResult fiberResult;
 
+        public bool IsNull => Continuation == null;
+
         public PipeFilberAwaiter(bool iscompleted=false)
         {
             this.iscompleted = iscompleted;

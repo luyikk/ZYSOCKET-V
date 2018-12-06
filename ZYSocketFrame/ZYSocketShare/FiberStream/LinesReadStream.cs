@@ -213,7 +213,8 @@ namespace ZYSocket.FiberStream
                     int size = Read(buffer, offset, count);
                     if (size == 0)
                     {
-                        Check().Wait();
+                        if (!Check().Wait(100))
+                            position = 0;
                         size = Read(buffer, offset, count);
                     }
                     return size;

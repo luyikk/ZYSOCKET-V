@@ -97,12 +97,13 @@ namespace ZYSocket.Client
                 return null;
         }
 
-        public async ValueTask<(IFiberRw,string)> GetFiberRwSSL(X509Certificate certificate_client,string targethost, Func<Stream, Stream, (Stream, Stream)> init = null)
+        public async ValueTask<(IFiberRw, string)> GetFiberRwSSL(X509Certificate certificate_client, string targethost, Func<Stream, Stream, (Stream, Stream)> init = null)
         {
             if (await RStream.WaitStreamInit())
             {
+
                 RStream.IsSync = true;
-                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);                
+                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);
                 var sslstream = new SslStream(mergestream, false, (sender, certificate, chain, errors) => true,
                 (sender, host, certificates, certificate, issuers) => certificate_client);
 
@@ -119,27 +120,30 @@ namespace ZYSocket.Client
                     RStream.IsSync = false;
                 }
 
-                var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+                var fiber = new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
-                return (fiber,null);
+                return (fiber, null);
+
             }
             else
-                return (null,"not install");
+                return (null, "not install");
+
         }
 
-        public async ValueTask<(IFiberRw<T>,string)> GetFiberRwSSL<T>(X509Certificate certificate_client, string targethost, Func<Stream, Stream, (Stream, Stream)> init = null) where T : class
+        public async ValueTask<(IFiberRw<T>, string)> GetFiberRwSSL<T>(X509Certificate certificate_client, string targethost, Func<Stream, Stream, (Stream, Stream)> init = null) where T : class
         {
             if (await RStream.WaitStreamInit())
             {
+
+
                 RStream.IsSync = true;
                 var mergestream = new MergeStream(RStream as Stream, WStream as Stream);
                 var sslstream = new SslStream(mergestream, false, (sender, certificate, chain, errors) => true,
                 (sender, host, certificates, certificate, issuers) => certificate_client);
                 try
                 {
-                   await  sslstream.AuthenticateAsClientAsync(targethost);
-                 
+                    await sslstream.AuthenticateAsClientAsync(targethost);
                 }
                 catch (Exception er)
                 {
@@ -153,6 +157,8 @@ namespace ZYSocket.Client
                 fibersslT = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
                 return (fiber, null);
+
+
             }
             else
                 return (null, "not install");

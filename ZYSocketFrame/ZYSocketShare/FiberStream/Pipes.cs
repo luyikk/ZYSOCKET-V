@@ -49,10 +49,9 @@ namespace ZYSocket.FiberStream
 
             if (!read.IsCompleted)
             {
-                read.SetResult(new PipeResult(cancellationTokenSource.IsCancellationRequested, wl));
+                read.SetResult(new PipeResult(cancellationTokenSource.IsCancellationRequested, wl));             
                 read.Completed();
-               
-            }
+            } 
 
             return  write;
 
@@ -62,9 +61,7 @@ namespace ZYSocket.FiberStream
         {
 
             rl = len;
-
-            read.Reset();
-         
+            read.Reset();         
             if (!write.IsCompleted)
             {             
                 write.SetResult(new PipeResult(cancellationTokenSource.IsCancellationRequested, rl));
@@ -84,7 +81,7 @@ namespace ZYSocket.FiberStream
                 write.SetResult(new PipeResult(true, 0));
                 write.Completed();
                 
-            }
+            }           
 
             return read;
         }
