@@ -187,11 +187,7 @@ namespace ZYSocket.Client
         private void Connect(ZYSocketAsyncEventArgs e)
         {
             if (e.SocketError == SocketError.Success)
-            {
-                IsConnect = true;                ;
-                errorMsg = "connect success";
-                wait?.Set();
-
+            {              
                 BinaryInput?.Invoke(this,e);
                 syncsend.SetConnect(e);
                 asyncsend.SetConnect(e);
@@ -216,6 +212,13 @@ namespace ZYSocket.Client
                 errorMsg = new SocketException((int)e.SocketError).Message;
                 wait?.Set();
             }
+        }
+
+        public void SetConnect()
+        {
+            IsConnect = true;
+            errorMsg = "connect success";
+            wait?.Set();
         }
 
 

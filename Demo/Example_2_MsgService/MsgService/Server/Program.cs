@@ -111,6 +111,8 @@ namespace Server
 
                         if (CheckLogOn(username,password))
                         {
+                            Console.WriteLine(username + " 登入");
+
                             fiberRw.UserToken = new UserInfo()
                             {
                                 UserName = username,

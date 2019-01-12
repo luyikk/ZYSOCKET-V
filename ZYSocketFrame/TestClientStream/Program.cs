@@ -99,7 +99,9 @@ namespace TestClient
                 return;
             }
 
-         
+            client.SetConnect();
+
+
 
             while (true)
             {
