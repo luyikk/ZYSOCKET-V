@@ -160,6 +160,7 @@ namespace ZYSocket.Client
             }
             else
             {
+                wait.Reset();
                 this.Dispose();
                 return (false, "connect time out");
             }
