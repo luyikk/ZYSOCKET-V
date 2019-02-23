@@ -11,7 +11,7 @@ namespace Client
     {
         static SocketClient client;
 
-       
+
 
         static void Main(string[] args)
         {
@@ -30,20 +30,20 @@ namespace Client
                 Console.ReadLine();
             }
         }
-     
+
         //链接服务器
         static async void connect()
         {
-            var result =  client.Connect("127.0.0.1", 3000); //同步链接
-           // var (IsSuccess, Msg) = await client.ConnectAsync("127.0.0.1", 3000); //异步链接
+            var result = client.Connect("127.0.0.1", 3000,6000); //同步链接
+                                                                      // var (IsSuccess, Msg) = await client.ConnectAsync("127.0.0.1", 3000); //异步链接
             Console.WriteLine(result);
 
-            var fiberRw = await client.GetFiberRw(); 
+            var fiberRw = await client.GetFiberRw();
 
             fiberRw.Write(1000); //登入
             fiberRw.Write("test");
             fiberRw.Write("password");
-            await  fiberRw.Flush();
+            await fiberRw.Flush();
 
 
             //for (; ; ) //我们也可以在这里处理数据
@@ -71,16 +71,11 @@ namespace Client
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
 
-            var fiberRw = await socketAsync.GetFiberRw((input,output) =>  //我们在这地方使用GZIP 压缩发送流 解压读取流
-            {
-                var gzip_input = new GZipStream(input, CompressionMode.Decompress,false);//将读取流解压
-                var gzip_output = new GZipStream(output, CompressionMode.Compress, false);//将输出流压缩
-                return new GetFiberRwResult(gzip_input, gzip_output); //这里顺序不要搞反 (input,output)的顺序
+            var res = await socketAsync.GetFiberRwSSL(null, "localhost");  //我们在这地方使用SSL加密
 
-            }); 
-
-            if(fiberRw==null)
+            if (res.IsError)
             {
+                Console.WriteLine(res.ErrMsg);
                 client.ShutdownBoth(true);
                 return;
             }
@@ -92,7 +87,7 @@ namespace Client
             {
                 try
                 {
-                    await ReadCommand(fiberRw);
+                    await ReadCommand(res.FiberRw);
                 }
                 catch (Exception er)
                 {
@@ -109,7 +104,7 @@ namespace Client
         {
             var cmd = await fiberRw.ReadInt32();
 
-            switch(cmd)
+            switch (cmd)
             {
                 case 1001:
                     {
@@ -119,7 +114,7 @@ namespace Client
 
                         if (isSuccess.Value)
                         {
-                            TestLib.Data data = new TestLib.Data()
+                            Data data = new Data()
                             {
                                 Id = Guid.NewGuid(),
                                 Time = DateTime.Now
@@ -133,7 +128,7 @@ namespace Client
                             fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
                             await fiberRw.Flush();
                         }
-                      
+
                     }
                     break;
                 case 3001:
@@ -143,5 +138,11 @@ namespace Client
                     break;
             }
         }
+    }
+
+    public class Data
+    {
+        public Guid Id { get; set; }
+        public DateTime Time { get; set; }
     }
 }

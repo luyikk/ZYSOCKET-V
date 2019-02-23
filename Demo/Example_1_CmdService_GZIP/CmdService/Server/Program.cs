@@ -48,7 +48,7 @@ namespace Server
             {
                 var gzip_input = new GZipStream(input, CompressionMode.Decompress);//将读取流解压
                 var gzip_output = new GZipStream(output, CompressionMode.Compress);//将输出流压缩
-                return (gzip_input, gzip_output); //这里顺序不要搞反 (input,output)的顺序
+                return new GetFiberRwResult(gzip_input, gzip_output); //这里顺序不要搞反 (input,output)的顺序
 
             });
 

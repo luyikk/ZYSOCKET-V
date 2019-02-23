@@ -7,8 +7,11 @@ namespace ZYSocket.FiberStream
 {
     public interface IFiberReadStream
     {
-        bool IsCanceled { get; }
-        bool IsSync { get; set; }
+        Func<byte[], int, int, AsyncCallback, object, IAsyncResult> BeginReadFunc { get; set; }
+        Func<IAsyncResult,int> EndBeginReadFunc { get; set; }
+        Action Receive { get; set; }
+
+        bool IsCanceled { get; }   
         byte[] Numericbytes { get; }
         PipeFilberAwaiter Advance(int len, CancellationToken cancellationTokenSource = default);
         ArraySegment<byte> GetArray(int inithnit);

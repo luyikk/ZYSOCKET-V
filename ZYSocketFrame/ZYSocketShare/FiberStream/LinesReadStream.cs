@@ -25,13 +25,18 @@ namespace ZYSocket.FiberStream
 
         private long position;
 
+        private bool isstartReveice;
+
         private bool is_canceled;
+   
 
-        private StreamInitAwaiter InitAwaiter;
-
-        private bool is_sync;
-        public bool IsSync { get => is_sync; set => is_sync = value; }
+        private StreamInitAwaiter InitAwaiter;    
+        
         private readonly byte[] numericbytes = new byte[8];
+
+        public Func<byte[], int, int, AsyncCallback,object, IAsyncResult> BeginReadFunc { get; set; }
+        public Func<IAsyncResult,int> EndBeginReadFunc { get; set; }
+        public Action Receive { get; set; }
 
         public byte[]  Numericbytes { get => numericbytes; }
 
@@ -40,7 +45,7 @@ namespace ZYSocket.FiberStream
             Pipes = new Pipes();
             data = new byte[length];
             len = length;
-            is_sync = false;
+          
         }
 
 
@@ -80,6 +85,8 @@ namespace ZYSocket.FiberStream
 
         public async Task Check()
         {
+           
+
             if (position == wrlen)
             {
                 
@@ -204,45 +211,49 @@ namespace ZYSocket.FiberStream
             }
         }
 
-        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken=default)
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
-            if (is_sync)
+            if (!isstartReveice)
             {
-                lock (lockobj)
-                {
-                    int size = Read(buffer, offset, count);
-                    if (size == 0)
-                    {
-                        if (!Check().Wait(100))
-                            position = 0;
-                        size = Read(buffer, offset, count);
-                    }
-                    return size;
-                }
+                isstartReveice = true;
+                Receive?.Invoke();
             }
-            else
-            {
 
-                int size = Read(buffer, offset, count);
-                if (size == 0)
-                {
-                    await Check();
-                    size = Read(buffer, offset, count);
-                }
-                return size;
+            int size = Read(buffer, offset, count);
+            if (size == 0)
+            {
+                await Check();
+                size = Read(buffer, offset, count);
             }
+            return size;
+
         }
 
 
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-        {        
-            var task = ReadAsync(buffer, offset, count);
-            return TaskToApm.Begin(task, callback, state);
+        {
+            if (BeginReadFunc != null)
+            {
+               return BeginReadFunc(buffer, offset, count,callback,state);
+              
+            }
+            else
+            {
+                var task = ReadAsync(buffer, offset, count);
+                return TaskToApm.Begin(task, callback, state);
+            }
         }
 
         public override int EndRead(IAsyncResult asyncResult)
         {
-            return TaskToApm.End<int>(asyncResult);
+            if (EndBeginReadFunc != null)
+            {
+                return EndBeginReadFunc(asyncResult);
+            }
+            else
+            {
+                return TaskToApm.End<int>(asyncResult);
+            }
         }
 
 

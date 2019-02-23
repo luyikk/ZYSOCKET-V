@@ -33,9 +33,9 @@ namespace Client
         //链接服务器
         static async void connect()
         {
-            var (IsSuccess, Msg) =  client.Connect("127.0.0.1", 3000); //同步链接
+            var result =  client.Connect("127.0.0.1", 3000); //同步链接
            // var (IsSuccess, Msg) = await client.ConnectAsync("127.0.0.1", 3000); //异步链接
-            Console.WriteLine(IsSuccess + ":" + Msg);
+            Console.WriteLine(result);
 
             var fiberRw = await client.GetFiberRw(); 
 

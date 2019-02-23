@@ -51,7 +51,7 @@ namespace Server
             {
                 var gzip_input = new GZipStream(input, CompressionMode.Decompress,true); //注意第三个参数
                 var gzip_output = new GZipStream(output, CompressionMode.Compress,true);
-                return (gzip_input, gzip_output);
+                return new GetFiberRwResult(gzip_input, gzip_output);
 
             });  //我们在这地方使用SSL加密
            

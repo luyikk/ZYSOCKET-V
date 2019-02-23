@@ -41,22 +41,23 @@ namespace Client
 
         private async void Client_BinaryInput(ISocketClient client, ZYSocket.ISockAsyncEventAsClient socketAsync)
         {
-             var (fiberRw,errMsg) = await socketAsync.GetFiberRwSSL(null,"");
+            var res = await socketAsync.GetFiberRwSSL(null, "localhost");  //我们在这地方使用SSL加密
 
 
-            if (fiberRw==null)
+            if (res.IsError)
             {
-                //MessageBox.Show(errMsg);
+                MessageBox.Show(res.ErrMsg);
                 client.ShutdownBoth(true);
                 return;
             }
+
             client.SetConnect();
 
             for(; ; )
             {
                 try
                 {
-                    await ReadCommand(fiberRw);
+                    await ReadCommand(res.FiberRw);
                 }
                 catch(Exception er)
                 {
@@ -168,11 +169,11 @@ namespace Client
 
         private  void Connect(string host,int port)
         {
-           var (isOK,Msg)= client.Connect(host,port);
+           var result= client.Connect(host,port,6000);
 
-            if(!isOK)
+            if(!result.IsSuccess)
             {
-                MessageBox.Show(Msg);
+                MessageBox.Show(result.Msg);
                 this.Close();
             }
             else

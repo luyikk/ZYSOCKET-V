@@ -37,9 +37,9 @@ namespace TestClient
 
         static async void connect()
         {
-            var (IsSuccess, Msg) = client.Connect("127.0.0.1", 1002);         
+            var result = client.Connect("127.0.0.1", 1002,60000);         
 
-            Console.WriteLine(IsSuccess + ":" + Msg);
+            Console.WriteLine(result);
 
             var fiber = await client.GetFiberRw();          
 
@@ -84,20 +84,22 @@ namespace TestClient
         {
 
             //USE SSL+GZIP
-            var (fiberRw,errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate,"localhost",(input, output) =>
-            {
-                var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
-                var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
-                return (gzip_input, gzip_output); //return gzip mode          
+            var res = await socketAsync.GetFiberRwSSL<string>(certificate, "localhost", (input, output) =>
+               {
+                   var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
+                   var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
+                   return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode          
 
-            });
+               });
 
-            if (fiberRw is null)
+            if (res.IsError)
             {
-                Console.WriteLine(errMsg);
+                Console.WriteLine(res.ErrMsg);
                 client.ShutdownBoth(true);
                 return;
             }
+
+            var fiberRw = res.FiberRw;
 
             client.SetConnect();
 

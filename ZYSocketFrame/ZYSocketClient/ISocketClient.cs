@@ -14,9 +14,9 @@ namespace ZYSocket.Client
         event BinaryInputHandler BinaryInput;
         event DisconnectHandler Disconnect;
 
-        void SetConnect();
-
-        Task<(bool IsSuccess, string Msg)> ConnectAsync(string host, int port, int connectTimeout = 6000);
+        void SetConnect(bool isSuccess = true, string err = null);
+        Task<ConnectResult> ConnectAsync(string host, int port, int connectTimeout = 6000);
+        ConnectResult Connect(string host, int port, int connectTimeout = 6000);
         Task<IFiberRw> GetFiberRw();
         void ShutdownBoth(bool events=false);
         void Dispose();

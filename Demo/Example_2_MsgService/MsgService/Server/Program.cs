@@ -6,6 +6,7 @@ using ZYSocket;
 using ZYSocket.FiberStream;
 using ZYSocket.Server.Builder;
 using System.Security.Cryptography.X509Certificates;
+using System.IO.Compression;
 
 namespace Server
 {
@@ -63,7 +64,9 @@ namespace Server
 
         static async void BinaryInputHandler(ISockAsyncEventAsServer socketAsync)
         {
-            var (fiberW,errMsg) = await socketAsync.GetFiberRwSSL<UserInfo>(certificate); //获取一个异步基础流
+            var (fiberW, errMsg) = await socketAsync.GetFiberRwSSL<UserInfo>(certificate); //获取一个异步基础流
+
+
 
             if (fiberW is null) //如果获取失败 那么断开连接
             {

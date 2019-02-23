@@ -58,7 +58,7 @@ namespace ZYSocket.Server
             base.Completed += ZYSocketAsyncEventArgs_Completed;
             IsLittleEndian = isLittleEndian;
             SendImplemented = send;
-            AsyncSendImplemented = asyncsend;
+            AsyncSendImplemented = asyncsend;            
         }
 
         private void ZYSocketAsyncEventArgs_Completed(object sender, SocketAsyncEventArgs e)
@@ -71,7 +71,7 @@ namespace ZYSocket.Server
 
 
 
-        public async ValueTask<IFiberRw> GetFiberRw(Func<Stream, Stream, (Stream, Stream)> init = null)
+        public async ValueTask<IFiberRw> GetFiberRw(Func<Stream, Stream, GetFiberRwResult> init = null)
         {
             if (await RStream.WaitStreamInit())
             {
@@ -83,7 +83,7 @@ namespace ZYSocket.Server
                 return null;
         }
 
-        public async ValueTask<IFiberRw<T>> GetFiberRw<T>(Func<Stream, Stream, (Stream, Stream)> init = null) where T:class
+        public async ValueTask<IFiberRw<T>> GetFiberRw<T>(Func<Stream, Stream, GetFiberRwResult> init = null) where T:class
         {
             if (await RStream.WaitStreamInit())
             {
@@ -95,7 +95,7 @@ namespace ZYSocket.Server
                 return null;
         }
 
-        public async ValueTask<(IFiberRw,string)> GetFiberRwSSL(X509Certificate certificate, Func<Stream, Stream, (Stream, Stream)> init = null)
+        public async ValueTask<(IFiberRw,string)> GetFiberRwSSL(X509Certificate certificate, Func<Stream, Stream, GetFiberRwResult> init = null)
         {
             if (await RStream.WaitStreamInit())
             {
@@ -117,7 +117,7 @@ namespace ZYSocket.Server
                 return (null,"not install");
         }
 
-        public async ValueTask<(IFiberRw<T>,string)> GetFiberRwSSL<T>(X509Certificate certificate, Func<Stream, Stream, (Stream, Stream)> init = null) where T : class
+        public async ValueTask<(IFiberRw<T>,string)> GetFiberRwSSL<T>(X509Certificate certificate, Func<Stream, Stream, GetFiberRwResult> init = null) where T : class
         {
             if (await RStream.WaitStreamInit())
             {

@@ -87,16 +87,16 @@ namespace ZYSocket.Client
 
 
 
-        public async Task<(bool IsSuccess, string Msg)> ConnectAsync(string host, int port,int connectTimeout=6000)
+        public async Task<ConnectResult> ConnectAsync(string host, int port,int connectTimeout=6000)
         {
 
-            return await Task.Run<(bool, string)>(() =>
+            return await Task.Run<ConnectResult>(() =>
                 {
                     return Connect(host, port, connectTimeout);
                 });
         }
 
-        public (bool IsSuccess, string Msg) Connect(string host, int port, int connectTimeout = 6000)
+        public ConnectResult Connect(string host, int port, int connectTimeout = 6000)
         {
             if (IsConnect)
                 throw new System.IO.IOException("the socket status is connect already,please Dispose it.");
@@ -138,7 +138,7 @@ namespace ZYSocket.Client
                 RemoteEndPoint = myEnd
             };
 
-
+            e.Receive = StartReceive;
             e.Completed += E_Completed;
             AsynEvent = e;
 
@@ -156,13 +156,13 @@ namespace ZYSocket.Client
                     this.Dispose();
                 }
 
-                return (IsConnect, errorMsg);
+                return  new ConnectResult(IsConnect, errorMsg);
             }
             else
             {
                 wait.Reset();
                 this.Dispose();
-                return (false, "connect time out");
+                return new ConnectResult(false, "connect time out");
             }
         }
 
@@ -193,19 +193,7 @@ namespace ZYSocket.Client
                 syncsend.SetConnect(e);
                 asyncsend.SetConnect(e);
                 e.SetBuffer(bufferSize);
-               
-                try
-                {
-                    if (!Sock.ReceiveAsync(e))                    
-                        BeginReceive(e);                    
-                }
-                catch (ObjectDisposedException)
-                {
-                    Diconnect_It(e);
-                }
-
                 e.StreamInit();
-
             }
             else
             {
@@ -215,10 +203,43 @@ namespace ZYSocket.Client
             }
         }
 
-        public void SetConnect()
+        private void StartReceive()
         {
-            IsConnect = true;
-            errorMsg = "connect success";
+            if (!AsynEvent.IsStartReceive)
+            {
+                try
+                {
+                    if (!Sock.ReceiveAsync(AsynEvent))
+                        BeginReceive(AsynEvent);
+
+                    AsynEvent.IsStartReceive = true;
+                    IsConnect = true;
+                    errorMsg = "connect success";
+                }
+                catch (ObjectDisposedException)
+                {
+                    Diconnect_It(AsynEvent);
+                }
+            }
+        }
+
+        public void SetConnect(bool isSuccess=true,string err=null)
+        {
+            if (isSuccess)
+            {
+                StartReceive();               
+            }
+            else
+            {
+                Diconnect_It(AsynEvent);
+
+                IsConnect = false;
+                if (string.IsNullOrEmpty(err))
+                    errorMsg = "set connect faill";
+                else
+                    ErrorMsg = err;
+            }
+
             wait?.Set();
         }
 

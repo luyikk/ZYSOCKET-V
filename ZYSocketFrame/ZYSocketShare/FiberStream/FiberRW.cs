@@ -40,12 +40,24 @@ namespace ZYSocket.FiberStream
         private readonly byte[] read_Numericbytes;
         private readonly byte[] write_Numericbytes;
 
-        public FiberRw(ISockAsyncEvent async,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,bool isLittleEndian=false, Stream inputStream=null,Stream outputStream=null, Func<Stream,Stream,(Stream,Stream)> init=null)
+        public FiberRw(ISockAsyncEvent async,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,bool isLittleEndian=false, Stream inputStream=null,Stream outputStream=null, Func<Stream,Stream,GetFiberRwResult> init=null)
         {
            
             if (init != null)
             {
-                (streamReadFormat, streamWriteFormat) = init(inputStream==null?fiberRStream as Stream:inputStream, outputStream==null? fiberWStream as Stream:outputStream);
+                var result = init(inputStream==null?fiberRStream as Stream:inputStream, outputStream==null? fiberWStream as Stream:outputStream);
+
+                if(result!= null)
+                {
+                    streamReadFormat = result.Input;
+                    streamWriteFormat = result.Output;
+
+                }
+                else
+                {
+                    streamReadFormat = inputStream == null ? fiberRStream as Stream : inputStream;
+                    streamWriteFormat = outputStream == null ? fiberWStream as Stream : outputStream;
+                }
             }
             else
             {

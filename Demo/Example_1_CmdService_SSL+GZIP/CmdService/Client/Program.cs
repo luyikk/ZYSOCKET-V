@@ -34,9 +34,9 @@ namespace Client
         //链接服务器
         static async void connect()
         {
-            var (IsSuccess, Msg) =  client.Connect("127.0.0.1", 3000); //同步链接
+            var result =  client.Connect("127.0.0.1", 3000); //同步链接
            // var (IsSuccess, Msg) = await client.ConnectAsync("127.0.0.1", 3000); //异步链接
-            Console.WriteLine(IsSuccess + ":" + Msg);
+            Console.WriteLine(result);
 
             var fiberRw = await client.GetFiberRw(); 
 
@@ -71,17 +71,17 @@ namespace Client
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
 
-            var (fiberRw,errMsg) = await socketAsync.GetFiberRwSSL(null, "",(input, output) => //在GZIP的基础上在通过SSL 加密
+            var res = await socketAsync.GetFiberRwSSL(null, "",(input, output) => //在GZIP的基础上在通过SSL 加密
             {
                 var gzip_input = new GZipStream(input, CompressionMode.Decompress,true);
                 var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
-                return (gzip_input, gzip_output);
+                return  new GetFiberRwResult(gzip_input, gzip_output);
 
             });  //我们在这地方使用SSL加密
 
-            if (fiberRw==null)
+            if (res.IsError)
             {
-                Console.WriteLine(errMsg);
+                Console.WriteLine(res.ErrMsg);
                 client.ShutdownBoth(true);
                 return;
             }
@@ -92,7 +92,7 @@ namespace Client
             {
                 try
                 {
-                    await ReadCommand(fiberRw);
+                    await ReadCommand(res.FiberRw);
                 }
                 catch (Exception er)
                 {
@@ -101,7 +101,7 @@ namespace Client
                 }
             }
 
-            fiberRw.Disconnect();
+            res.FiberRw.Disconnect();
 
         }
 

@@ -18,8 +18,6 @@ namespace ZYSocket.FiberStream
             outputStream = output;
         }
 
-        public bool IsSync { get; set; }
-
         public override bool CanRead => true;
 
         public override bool CanSeek => false;
@@ -43,8 +41,7 @@ namespace ZYSocket.FiberStream
         public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
 
-            var x = inputStream.ReadAsync(buffer, offset, count, cancellationToken);
-            return x;
+           return inputStream.ReadAsync(buffer, offset, count, cancellationToken);           
 
         }
 

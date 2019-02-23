@@ -32,8 +32,8 @@ namespace TestClient
 
         static async void connect()
         { 
-            var (IsSuccess, Msg) = await client.ConnectAsync("127.0.0.1", 1002);
-            Console.WriteLine(IsSuccess+":"+Msg);
+            var result = await client.ConnectAsync("127.0.0.1", 1002,60000);
+            Console.WriteLine(result);
 
             var fiberRw = await client.GetFiberRw();
 
