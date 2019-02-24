@@ -436,6 +436,8 @@ namespace ZYSocket.Server
                     config.IsLittleEndian
                    );
 
+                socketasyn.StartReceiveAction= StartReceive;
+
                 poolSend.SetAccpet(socketasyn);
                 poolAsyncSend.SetAccpet(socketasyn);
 
@@ -501,9 +503,6 @@ namespace ZYSocket.Server
                 e.SetBuffer(MaxBufferSize);
                 BinaryInput?.Invoke(e);
 
-                if (!e.AcceptSocket.ReceiveAsync(e))                
-                    BeginReceive(e); 
-
                 e.StreamInit();
 
             }
@@ -513,6 +512,12 @@ namespace ZYSocket.Server
             }
 
 
+        }
+
+        private void StartReceive(ZYSocketAsyncEventArgs e)
+        {
+            if (!e.AcceptSocket.ReceiveAsync(e))
+                BeginReceive(e);
         }
 
 

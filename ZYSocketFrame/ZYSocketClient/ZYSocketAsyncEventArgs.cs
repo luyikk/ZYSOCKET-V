@@ -64,7 +64,8 @@ namespace ZYSocket.Client
             SendImplemented = send;
             AsyncSendImplemented = asyncsend;
             RStream.BeginReadFunc = BeginRead;
-            RStream.EndBeginReadFunc = EndBeginRead;            
+            RStream.EndBeginReadFunc = EndBeginRead;
+            
         }
 
         public Action Receive { get => RStream.Receive;set { RStream.Receive = value; } }
@@ -73,7 +74,7 @@ namespace ZYSocket.Client
 
         private IAsyncResult BeginRead(byte[] data, int offset, int count, AsyncCallback callback, object state)
         {
-            return this.ConnectSocket.BeginReceive(data, offset, count, SocketFlags.None, callback, state);
+            return this.ConnectSocket?.BeginReceive(data, offset, count, SocketFlags.None, callback, state);
 
         }
 
@@ -198,6 +199,7 @@ namespace ZYSocket.Client
 
         public void Reset()
         {
+            IsStartReceive = false;
             fiberobj?.Dispose();
             fiberT?.Dispose();
             fibersslobj?.Dispose();

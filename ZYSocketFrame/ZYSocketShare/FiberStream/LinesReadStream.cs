@@ -24,8 +24,7 @@ namespace ZYSocket.FiberStream
         private long wrlen;
 
         private long position;
-
-        private bool isstartReveice;
+    
 
         private bool is_canceled;
    
@@ -213,12 +212,8 @@ namespace ZYSocket.FiberStream
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
-            if (!isstartReveice)
-            {
-                isstartReveice = true;
-                Receive?.Invoke();
-            }
 
+            Receive?.Invoke();
             int size = Read(buffer, offset, count);
             if (size == 0)
             {
