@@ -512,8 +512,7 @@ namespace ZYSocket.FiberStream
         }
 
         public async ValueTask<byte[]> ReadArray(int size)
-        {
-            var memory = GetMemory(size);
+        {            
 
             byte[] array = new byte[size];
 
