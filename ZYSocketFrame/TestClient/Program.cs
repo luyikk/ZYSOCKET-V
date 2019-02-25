@@ -91,7 +91,7 @@ namespace TestClient
 
                     await DataOnByLine(fiberRw);
 
-                    Console.WriteLine("OK");
+                    //Console.WriteLine("OK");
                 }
                 catch
                 {

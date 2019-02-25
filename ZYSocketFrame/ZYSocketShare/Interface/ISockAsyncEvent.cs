@@ -19,7 +19,8 @@ namespace ZYSocket
         Encoding Encoding { get; }
         bool IsLittleEndian { get; }
         object UserToken { get; set; }
-     
+        void Disconnect();
+
         ValueTask<IFiberRw> GetFiberRw(System.Func<Stream, Stream, GetFiberRwResult> init = null);
         ValueTask<IFiberRw<T>> GetFiberRw<T>(System.Func<Stream, Stream, GetFiberRwResult> init = null) where T : class;     
        

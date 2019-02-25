@@ -11,7 +11,7 @@
     <PackageLicenseUrl>https://github.com/luyikk/ZYSOCKET-V/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/luyikk/ZYSOCKET-V</PackageProjectUrl>
     <PackageReleaseNotes>ZYSOCKET SERVER</PackageReleaseNotes>
-    <Version>1.1.8</Version>
+    <Version>1.2.0</Version>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
   </PropertyGroup>

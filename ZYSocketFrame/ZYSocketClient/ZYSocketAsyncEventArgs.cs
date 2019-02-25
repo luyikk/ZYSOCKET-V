@@ -36,8 +36,13 @@ namespace ZYSocket.Client
         private IDisposable fibersslobj;
         private IDisposable fibersslT;
 
+        public Action Receive { get => RStream.Receive; set { RStream.Receive = value; } }
 
-        private int _check_thread = 0;     
+        public Action<ZYSocketAsyncEventArgs> DisconnectIt { get; set; }
+
+
+        private int _check_thread = 0; 
+
 
         public int Add_check()
         {
@@ -67,9 +72,6 @@ namespace ZYSocket.Client
             RStream.EndBeginReadFunc = EndBeginRead;
             
         }
-
-        public Action Receive { get => RStream.Receive;set { RStream.Receive = value; } }
-        
 
 
         private IAsyncResult BeginRead(byte[] data, int offset, int count, AsyncCallback callback, object state)
@@ -195,6 +197,25 @@ namespace ZYSocket.Client
         {           
             var mem = RStream.GetArray(inthint);
             base.SetBuffer(mem.Array, mem.Offset, mem.Count);
+        }
+
+        public void Disconnect()
+        {
+            try
+            {
+                if (IsInit)
+                {
+                    ConnectSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+                    DisconnectIt?.Invoke(this);
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
         public void Reset()

@@ -18,8 +18,7 @@ namespace ZYSocket.FiberStream
         bool IsLittleEndian { get; }    
         Stream StreamReadFormat { get; }
         Stream StreamWriteFormat { get; }
-        IMemoryOwner<byte> GetMemory(int inithint);
-        void Disconnect();
+        IMemoryOwner<byte> GetMemory(int inithint);     
         ValueTask<long> NextMove(long offset);
         ValueTask<int> Read(byte[] data, int offset, int count);
         ValueTask<byte[]> ReadArray();

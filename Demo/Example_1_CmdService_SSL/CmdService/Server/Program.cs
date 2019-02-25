@@ -24,7 +24,10 @@ namespace Server
                  };
 
              })
-             .ConfigServer(p => p.Port = 3000))
+             .ConfigServer(p => {
+                 p.MaxConnectCout = 1;
+                 p.Port = 3000;
+                 }))
             {
                 build.Bulid().Start();
                 Console.ReadLine();
@@ -54,7 +57,7 @@ namespace Server
             if (fiberW is null) //如果获取失败 那么断开连接
             {
                 Console.WriteLine(errMsg);
-                socketAsync?.AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+                socketAsync.Disconnect();
                 return;
             }
 
@@ -62,7 +65,8 @@ namespace Server
             {
                 try
                 {
-                    await ReadCommand(fiberW);
+                    if (await ReadCommand(fiberW))
+                        break;
                 }
                 catch (Exception er)
                 {
@@ -71,10 +75,10 @@ namespace Server
                 }
             }
 
-            fiberW.Disconnect();
+            socketAsync.Disconnect();
         }
 
-        static async Task ReadCommand(IFiberRw<UserInfo> fiberRw)
+        static async Task<bool> ReadCommand(IFiberRw<UserInfo> fiberRw)
         {
             int? cmd = await fiberRw.ReadInt32();
 
@@ -116,7 +120,7 @@ namespace Server
                             fiberRw.UserToken.Data = await fiberRw.ReadObject<TestLib.Data>();
                         }
                         else
-                            fiberRw.Disconnect();
+                            fiberRw.Async.Disconnect();
                     }
                     break;
                 case 3000: //在屏幕上显示消息 然后告诉客户端显示成功
@@ -127,10 +131,15 @@ namespace Server
                         fiberRw.Write(3001);
                         fiberRw.Write("msg show");
                         await fiberRw.Flush();
+
+                        return true;
                     }
-                    break;
+                    
 
             }
+
+            return false;
+            
         }
 
 

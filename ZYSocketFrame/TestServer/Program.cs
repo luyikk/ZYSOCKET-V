@@ -120,8 +120,9 @@ namespace TestServer
 
             var fiberRw = await socketAsync.GetFiberRw<string>();
 
-            fiberRw.UserToken = "my is ttk";            
+            fiberRw.UserToken = "my is ttk";       
 
+         
             for (; ; )
             {
                 //读取 发送 测试
@@ -135,25 +136,26 @@ namespace TestServer
                     ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
                     DataOn(ref readBytes, fiberRw);
 
+
                     await DataOnByLine(fiberRw);
 
+                
                 }
                 catch (Exception er)
                 {
                     Console.WriteLine(er.ToString());
                     break;
-                }
-
-
+                }                
 
             }
 
-            fiberRw.Disconnect();
+            socketAsync.Disconnect();
 
         }
 
         static async ValueTask DataOnByLine(IFiberRw<string> fiberRw)
         {
+        
             var len = await fiberRw.ReadInt32();
             var cmd = await fiberRw.ReadInt32();
             var p1 = await fiberRw.ReadInt32();
@@ -162,7 +164,7 @@ namespace TestServer
             var p4 = await fiberRw.ReadSingle();
             var p5 = await fiberRw.ReadBoolean();
             var p6 = await fiberRw.ReadBoolean();
-            var p7 = await fiberRw.ReadString();
+            var p7 = await fiberRw.ReadString();         
 
             using (var p8 = await fiberRw.ReadMemory())
             {
@@ -189,8 +191,8 @@ namespace TestServer
         }
 
         static void  DataOn(ref ReadBytes read, IFiberRw<string> fiberRw)
-        {          
-                        
+        {
+           
             var cmd = read.ReadInt32();
             var p1 = read.ReadInt32();
             var p2 = read.ReadInt64();
@@ -200,9 +202,12 @@ namespace TestServer
             var p6 = read.ReadBoolean();
             var p7 = read.ReadString();
             var p8 = read.ReadMemory();
-            var p9 = read.ReadInt16();
+            var p9 = read.ReadInt16();      
+
+
             var p10 = read.ReadObject<List<Guid>>();
             read.Dispose();
+          
 
             using (WriteBytes writeBytes = new WriteBytes(fiberRw))
             {

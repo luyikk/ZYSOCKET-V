@@ -137,7 +137,7 @@ namespace ZYSocket.Client
             {
                 RemoteEndPoint = myEnd
             };
-
+            e.DisconnectIt = Diconnect_It;
             e.Receive = StartReceive;
             e.Completed += E_Completed;
             AsynEvent = e;

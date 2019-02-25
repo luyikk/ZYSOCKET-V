@@ -36,9 +36,18 @@ namespace ZYSocket.Server
         private IDisposable fibersslobj;
         private IDisposable fibersslT;
 
+        public Action<ZYSocketAsyncEventArgs> DisconnectIt { get; set; }
+
         private bool IsStartReceive = false;
 
         public Action<ZYSocketAsyncEventArgs> StartReceiveAction { get; set; }
+
+             
+        public void ResetRecevice()
+        {
+            IsStartReceive = false;
+        }
+
 
         public void StartReceive()
         {
@@ -48,8 +57,6 @@ namespace ZYSocket.Server
                 StartReceiveAction?.Invoke(this);
             }
         }
-
-
 
         public int Add_check()
         {
@@ -194,7 +201,7 @@ namespace ZYSocket.Server
 
         public void Reset()
         {
-            IsStartReceive = false;
+           // IsStartReceive = false;
             fiberobj?.Dispose();
             fiberT?.Dispose();
             fibersslobj?.Dispose();
@@ -210,6 +217,27 @@ namespace ZYSocket.Server
             RStream.Reset();
             WStream.Close();
             this.AcceptSocket = null;
+            this.Reset_check();
+            
+        }
+
+        public void Disconnect()
+        {
+            try
+            {
+                if (IsInit)
+                {
+                    AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);                  
+                    DisconnectIt?.Invoke(this);
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
         public PipeFilberAwaiter Advance(int bytesTransferred)

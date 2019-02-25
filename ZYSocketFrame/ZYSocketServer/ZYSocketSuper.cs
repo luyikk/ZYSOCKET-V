@@ -315,6 +315,9 @@ namespace ZYSocket.Server
                     Encoding.UTF8
                    );
 
+                socketasyn.DisconnectIt = Disconnect_It;
+                socketasyn.StartReceiveAction = StartReceive;
+  
                 poolSend.SetAccpet(socketasyn);
                 socketasyn.Completed += new EventHandler<ZYSocketAsyncEventArgs>(Asyn_Completed);
                 Accept(socketasyn);
@@ -437,6 +440,7 @@ namespace ZYSocket.Server
                    );
 
                 socketasyn.StartReceiveAction= StartReceive;
+                socketasyn.DisconnectIt = Disconnect_It;
 
                 poolSend.SetAccpet(socketasyn);
                 poolAsyncSend.SetAccpet(socketasyn);
@@ -502,7 +506,6 @@ namespace ZYSocket.Server
 
                 e.SetBuffer(MaxBufferSize);
                 BinaryInput?.Invoke(e);
-
                 e.StreamInit();
 
             }
@@ -547,35 +550,42 @@ namespace ZYSocket.Server
             }
             else
             {
-                if (MessageInput != null && e.AcceptSocket != null && e.AcceptSocket.RemoteEndPoint != null)
-                {
-
-                    string message;
-
-                    try
-                    {
-                        message = string.Format("User Disconnect :{0}", e.AcceptSocket.RemoteEndPoint.ToString());
-                    }
-                    catch (System.NullReferenceException)
-                    {
-                        message = "User Disconect";
-                    }
-
-
-                    MessageInput.Invoke(message, e, 0);
-
-                }
-                else
-                {
-                    MessageInput?.Invoke("User disconnect but cannot get Ipaddress", e, 0);
-                }
-
-                e.AcceptSocket = null;
-                Accept(e);
+                e.ResetRecevice();
+                Disconnect_It(e);
             }
 
         }
 
+
+        void Disconnect_It(ZYSocketAsyncEventArgs e)
+        {
+
+            if (MessageInput != null && e.AcceptSocket != null && e.AcceptSocket.RemoteEndPoint != null)
+            {
+
+                string message;
+
+                try
+                {
+                    message = string.Format("User Disconnect :{0}", e.AcceptSocket.RemoteEndPoint.ToString());
+                }
+                catch (System.NullReferenceException)
+                {
+                    message = "User Disconect";
+                }
+
+
+                MessageInput.Invoke(message, e, 0);
+
+            }
+            else
+            {
+                MessageInput?.Invoke("User disconnect but cannot get Ipaddress", e, 0);
+            }
+
+            e.AcceptSocket = null;
+            Accept(e);
+        }
 
 
 

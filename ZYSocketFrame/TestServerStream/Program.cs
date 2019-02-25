@@ -158,7 +158,7 @@ namespace TestServer
 
             }
 
-           fiberRw.Disconnect();
+            socketAsync.Disconnect();
 
         }
 

@@ -150,8 +150,8 @@ namespace ZYSocket
                 {
                     unsafe
                     {
-                        var v = BinaryPrimitives.ReverseEndianness(*((ushort*)&value));
-                        return *((short*)&v);
+                        var v = BinaryPrimitives.ReverseEndianness(*(ushort*)&value);
+                        return *(short*)&v;
                     }
                 }
                 else
@@ -189,8 +189,8 @@ namespace ZYSocket
                 {
                     unsafe
                     {
-                        var v = BinaryPrimitives.ReverseEndianness(*((uint*)&value));
-                        return *((int*)&v);
+                        var v = BinaryPrimitives.ReverseEndianness(*(uint*)&value);
+                        return *(int*)&v;
                     }
                 }
                 else
@@ -260,7 +260,7 @@ namespace ZYSocket
 
                     uint p = IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
 
-                    return *(((float*)&p));
+                    return *(float*)&p;
                 }
             }
             else
@@ -279,7 +279,7 @@ namespace ZYSocket
 
                     ulong p = IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
 
-                    return *(((double*)&p));
+                    return *(double*)&p;
                 }
             }
             else
