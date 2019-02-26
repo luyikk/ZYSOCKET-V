@@ -80,6 +80,8 @@ namespace Client
                 return;
             }
 
+            
+
             client.SetConnect();
 
 

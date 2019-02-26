@@ -315,9 +315,9 @@ namespace ZYSocket.Server
                     Encoding.UTF8
                    );
 
-                socketasyn.DisconnectIt = Disconnect_It;
+               
                 socketasyn.StartReceiveAction = StartReceive;
-  
+                socketasyn.DisconnectIt = Disconnect_It;
                 poolSend.SetAccpet(socketasyn);
                 socketasyn.Completed += new EventHandler<ZYSocketAsyncEventArgs>(Asyn_Completed);
                 Accept(socketasyn);
@@ -441,7 +441,6 @@ namespace ZYSocket.Server
 
                 socketasyn.StartReceiveAction= StartReceive;
                 socketasyn.DisconnectIt = Disconnect_It;
-
                 poolSend.SetAccpet(socketasyn);
                 poolAsyncSend.SetAccpet(socketasyn);
 
@@ -518,7 +517,7 @@ namespace ZYSocket.Server
         }
 
         private void StartReceive(ZYSocketAsyncEventArgs e)
-        {
+        {          
             if (!e.AcceptSocket.ReceiveAsync(e))
                 BeginReceive(e);
         }
@@ -531,9 +530,9 @@ namespace ZYSocket.Server
 
             if (e.SocketError == SocketError.Success && e.BytesTransferred > 0)
             {
-
+               
                 await e.Advance();
-
+                
                 if (!e.AcceptSocket.ReceiveAsync(e))
                 {
                     if (e.Add_check() > 512)
@@ -549,8 +548,7 @@ namespace ZYSocket.Server
 
             }
             else
-            {
-                e.ResetRecevice();
+            {             
                 Disconnect_It(e);
             }
 
@@ -560,7 +558,7 @@ namespace ZYSocket.Server
         void Disconnect_It(ZYSocketAsyncEventArgs e)
         {
 
-            if (MessageInput != null && e.AcceptSocket != null && e.AcceptSocket.RemoteEndPoint != null)
+            if (MessageInput != null && e.AcceptSocket != null)
             {
 
                 string message;
@@ -568,6 +566,10 @@ namespace ZYSocket.Server
                 try
                 {
                     message = string.Format("User Disconnect :{0}", e.AcceptSocket.RemoteEndPoint.ToString());
+                }
+                catch (System.ObjectDisposedException)
+                {
+                    message = "User Disconect";
                 }
                 catch (System.NullReferenceException)
                 {
@@ -584,7 +586,9 @@ namespace ZYSocket.Server
             }
 
             e.AcceptSocket = null;
-            Accept(e);
+            
+            if(e.IsInit)
+                Accept(e);
         }
 
 

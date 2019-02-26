@@ -8,7 +8,7 @@ namespace ZYSocket.FiberStream
 
     public class PipeFilberAwaiter : ICriticalNotifyCompletion, INotifyCompletion
     {
-
+        private bool is_can_set = false;
 
         private Action Continuation;
 
@@ -30,9 +30,24 @@ namespace ZYSocket.FiberStream
 
         }
 
+        internal void Init()
+        {
+            is_can_set = true;
+        }
+
+        internal void Close()
+        {
+            is_can_set = false;
+            this.iscompleted = false;
+            Continuation = null;
+            fiberResult = default;
+        }
+
+      
 
         internal void Reset()
         {
+            
             this.iscompleted = false;
             Continuation = null;
             fiberResult = default;
@@ -49,13 +64,14 @@ namespace ZYSocket.FiberStream
 
         public void OnCompleted(Action continuation)
         {
-            this.Continuation = continuation;
+            if (is_can_set)
+                this.Continuation = continuation;
         }
 
         public void UnsafeOnCompleted(Action continuation)
         {
-
-            this.Continuation = continuation;
+            if (is_can_set)
+                this.Continuation = continuation;
         }
 
         public PipeFilberAwaiter GetAwaiter() => this;

@@ -21,7 +21,8 @@ namespace ZYSocket.Client
 
         private readonly IFiberWriteStream WStream;
       
-        private bool IsInit = false;
+        private bool isInit = false;
+        public bool IsInit => isInit;
 
         private readonly MemoryPool<byte> MemoryPool;
 
@@ -184,9 +185,9 @@ namespace ZYSocket.Client
 
         public void StreamInit()
         {
-            if (!IsInit)
+            if (!isInit)
             {
-                IsInit = true;
+                isInit = true;
                 RStream.StreamInit();
             }
         }
@@ -199,14 +200,16 @@ namespace ZYSocket.Client
             base.SetBuffer(mem.Array, mem.Offset, mem.Count);
         }
 
-        public void Disconnect()
+        public void Disconnect(bool dispose=false)
         {
             try
             {
-                if (IsInit)
+                if (isInit)
                 {
                     ConnectSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
-                    DisconnectIt?.Invoke(this);
+
+                    if(dispose)
+                        DisconnectIt?.Invoke(this);
                 }
             }
             catch (ObjectDisposedException)
@@ -232,7 +235,7 @@ namespace ZYSocket.Client
             fibersslT = null;
 
             base.SetBuffer(null, 0, 0);
-            IsInit = false;
+            isInit = false;
             RStream.Reset();
             WStream.Close();
             this.AcceptSocket = null;            

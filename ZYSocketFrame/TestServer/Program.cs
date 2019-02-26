@@ -67,6 +67,7 @@ namespace TestServer
              .ConfigServer(p => {
                  p.Port = 1002;
                  p.MaxBufferSize = 8192;
+                 p.MaxConnectCout = 1;
                  });
 
             var build = containerBuilder.Build();
@@ -139,6 +140,7 @@ namespace TestServer
 
                     await DataOnByLine(fiberRw);
 
+                    break;
                 
                 }
                 catch (Exception er)
@@ -149,7 +151,7 @@ namespace TestServer
 
             }
 
-            socketAsync.Disconnect();
+           
 
         }
 
@@ -170,7 +172,7 @@ namespace TestServer
             {
 
                 var p9 = await fiberRw.ReadInt16();
-                var p10 = await fiberRw.ReadObject<List<Guid>>();
+               // var p10 = await fiberRw.ReadObject<List<Guid>>();
 
                 fiberRw.Write(len.Value);
                 fiberRw.Write(cmd.Value);
@@ -183,7 +185,7 @@ namespace TestServer
                 fiberRw.Write(p7);
                 fiberRw.Write(p8.Value);
                 fiberRw.Write(p9.Value);
-                fiberRw.Write(p10);
+                //fiberRw.Write(p10);
                 await fiberRw.Flush();
             }
 
@@ -205,7 +207,7 @@ namespace TestServer
             var p9 = read.ReadInt16();      
 
 
-            var p10 = read.ReadObject<List<Guid>>();
+           // var p10 = read.ReadObject<List<Guid>>();
             read.Dispose();
           
 
@@ -222,7 +224,7 @@ namespace TestServer
                 writeBytes.Write(p7);
                 writeBytes.Write(p8);
                 writeBytes.Write(p9.Value);
-                writeBytes.Write(p10);
+                //writeBytes.Write(p10);
                 writeBytes.Flush();
             }
 

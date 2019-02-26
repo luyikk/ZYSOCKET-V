@@ -24,7 +24,10 @@ namespace Server
                 };
 
             })
-             .ConfigServer(p => p.Port = 3000))
+             .ConfigServer(p => {
+                 p.MaxConnectCout = 1;
+                 p.Port = 3000;
+             }))
             {
                 build.Bulid().Start();
                 Console.ReadLine();
@@ -54,9 +57,12 @@ namespace Server
             if (fiberW is null) //如果获取失败 那么断开连接
             {
                 Console.WriteLine(errMsg);
-                socketAsync.Disconnect();
+                socketAsync.Disconnect(true);
                 return;
             }
+
+            Console.WriteLine("ssl ok");
+
 
             for (; ; ) //循环读取处理数据表 类似于 协程
             {

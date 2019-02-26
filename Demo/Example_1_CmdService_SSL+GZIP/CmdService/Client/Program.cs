@@ -101,7 +101,7 @@ namespace Client
                 }
             }
 
-            res.FiberRw.Disconnect();
+            socketAsync.Disconnect();
 
         }
 

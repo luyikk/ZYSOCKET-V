@@ -37,7 +37,7 @@ namespace TestClient
 
         static async void connect()
         {
-            var result = client.Connect("127.0.0.1", 1002,60000);         
+            var result = client.Connect("127.0.0.1", 1002,6000);         
 
             Console.WriteLine(result);
 

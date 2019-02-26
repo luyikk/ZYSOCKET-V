@@ -71,7 +71,7 @@ namespace Server
             if (fiberW is null) //如果获取失败 那么断开连接
             {
                 Console.WriteLine(errMsg);
-                socketAsync?.AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+                socketAsync.Disconnect(true);
                 return;
             }
 
@@ -88,7 +88,7 @@ namespace Server
                 }
             }
 
-            fiberW.Disconnect();
+            socketAsync.Disconnect();
         }
 
         static bool CheckLogOn(string username,string password)

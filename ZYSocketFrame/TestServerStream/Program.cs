@@ -96,7 +96,7 @@ namespace TestServer
         {
             Console.WriteLine(message);
             socketAsync.UserToken = null;
-            socketAsync.AcceptSocket.Dispose();
+            socketAsync.AcceptSocket?.Dispose();
         }
         /// <summary>
         /// 用户连接的代理
@@ -132,7 +132,8 @@ namespace TestServer
 
             if (fiberRw is null)
             {
-                socketAsync?.AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+                Console.WriteLine(errMsg);
+                socketAsync.Disconnect(true);
                 return;
             }
 

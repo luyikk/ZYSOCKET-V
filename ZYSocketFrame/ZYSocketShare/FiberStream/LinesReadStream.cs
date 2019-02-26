@@ -43,15 +43,15 @@ namespace ZYSocket.FiberStream
         {
             Pipes = new Pipes();
             data = new byte[length];
-            len = length;
-          
+            len = length;          
         }
 
 
-        public  PipeFilberAwaiter Advance(int len, CancellationToken cancellationTokenSource = default)
+        public PipeFilberAwaiter Advance(int len, CancellationToken cancellationTokenSource = default)
         {
             wrlen = len;
-            return  Pipes.Advance(len, cancellationTokenSource);
+            position = 0;
+            return Pipes.Advance(len, cancellationTokenSource);
         }
 
         public PipeFilberAwaiter ReadCanceled()
@@ -85,14 +85,13 @@ namespace ZYSocket.FiberStream
         public async Task Check()
         {
            
-
             if (position == wrlen)
             {
-                
+
                 for (; ; )
                 {
                     var res = await Pipes.Need(0);
-                  
+
                     if (res.IsCanceled)
                     {
                         is_canceled = true;
@@ -103,8 +102,7 @@ namespace ZYSocket.FiberStream
                         if (res.ByteLength == 0)
                             continue;
                         else
-                        {
-                            position = 0;
+                        {                            
                             break;
                         }
                     }
@@ -118,11 +116,12 @@ namespace ZYSocket.FiberStream
         {
             if (InitAwaiter != null)
                 InitAwaiter.Reset();
+            Pipes.Close();
             position = 0;
             wrlen = 0;
             offset = 0;
             is_canceled = false;
-            Pipes.ResetFilber();
+           
         }
 
         public bool IsCanceled { get => is_canceled; }
@@ -149,6 +148,8 @@ namespace ZYSocket.FiberStream
 
         public StreamInitAwaiter WaitStreamInit()
         {
+          
+
             if (InitAwaiter != null)
                 return InitAwaiter;
             else
@@ -162,8 +163,9 @@ namespace ZYSocket.FiberStream
         {
             if (InitAwaiter != null)
             {
+                Pipes.Init();
                 InitAwaiter.SetResult(true);
-                InitAwaiter.Completed();
+                InitAwaiter.Completed();             
             }
             else
                 throw new Exception("Please call first  WaitStreamInit");
@@ -211,9 +213,8 @@ namespace ZYSocket.FiberStream
         }
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
-        {
-
-            Receive?.Invoke();
+        {           
+            Receive?.Invoke();           
             int size = Read(buffer, offset, count);
             if (size == 0)
             {

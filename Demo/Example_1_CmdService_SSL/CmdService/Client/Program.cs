@@ -82,7 +82,7 @@ namespace Client
 
             client.SetConnect();
 
-
+        
             for (; ; ) //我们可以在这里处理数据或者在上面
             {
                 try
@@ -102,6 +102,7 @@ namespace Client
 
         static async Task ReadCommand(IFiberRw fiberRw)
         {
+            
             var cmd = await fiberRw.ReadInt32();
 
             switch(cmd)

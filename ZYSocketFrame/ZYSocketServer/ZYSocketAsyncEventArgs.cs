@@ -20,7 +20,8 @@ namespace ZYSocket.Server
 
         private readonly IFiberWriteStream WStream;
       
-        private bool IsInit = false;
+        private bool isInit = false;
+        public bool IsInit => isInit;
 
         private readonly MemoryPool<byte> MemoryPool;
 
@@ -35,27 +36,20 @@ namespace ZYSocket.Server
         private IDisposable fiberT;
         private IDisposable fibersslobj;
         private IDisposable fibersslT;
-
         public Action<ZYSocketAsyncEventArgs> DisconnectIt { get; set; }
 
         private bool IsStartReceive = false;
 
-        public Action<ZYSocketAsyncEventArgs> StartReceiveAction { get; set; }
-
-             
-        public void ResetRecevice()
-        {
-            IsStartReceive = false;
-        }
-
+        public Action<ZYSocketAsyncEventArgs> StartReceiveAction { get; set; }             
+     
 
         public void StartReceive()
-        {
+        {          
             if (!IsStartReceive)
             {
                 IsStartReceive = true;
                 StartReceiveAction?.Invoke(this);
-            }
+            }          
         }
 
         public int Add_check()
@@ -86,7 +80,10 @@ namespace ZYSocket.Server
 
         private IAsyncResult BeginRead(byte[] data, int offset, int count, AsyncCallback callback, object state)
         {
-            return this.AcceptSocket?.BeginReceive(data, offset, count, SocketFlags.None, callback, state);
+            if (this.AcceptSocket != null)
+                return this.AcceptSocket.BeginReceive(data, offset, count, SocketFlags.None, callback, state);
+            else
+                throw new ObjectDisposedException("AcceptSocket is null");
 
         }
 
@@ -184,9 +181,9 @@ namespace ZYSocket.Server
 
         public void StreamInit()
         {
-            if (!IsInit)
+            if (!isInit)
             {
-                IsInit = true;
+                isInit = true;
                 RStream.StreamInit();
             }
         }
@@ -201,7 +198,7 @@ namespace ZYSocket.Server
 
         public void Reset()
         {
-           // IsStartReceive = false;
+            IsStartReceive = false;
             fiberobj?.Dispose();
             fiberT?.Dispose();
             fibersslobj?.Dispose();
@@ -213,7 +210,7 @@ namespace ZYSocket.Server
             fibersslT = null;
 
             base.SetBuffer(null, 0, 0);
-            IsInit = false;
+            isInit = false;
             RStream.Reset();
             WStream.Close();
             this.AcceptSocket = null;
@@ -221,14 +218,16 @@ namespace ZYSocket.Server
             
         }
 
-        public void Disconnect()
+        public void Disconnect(bool dispose=false)
         {
             try
             {
-                if (IsInit)
+                if (isInit)
                 {
-                    AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);                  
-                    DisconnectIt?.Invoke(this);
+                    AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+
+                    if(dispose)
+                        DisconnectIt?.Invoke(this);
                 }
             }
             catch (ObjectDisposedException)

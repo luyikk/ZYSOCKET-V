@@ -59,7 +59,7 @@ namespace Server
             if (fiberW is null) //如果获取失败 那么断开连接
             {
                 Console.WriteLine(errMsg);
-                socketAsync?.AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+                socketAsync.Disconnect(true);
                 return;
             }
 
@@ -76,7 +76,7 @@ namespace Server
                 }
             }
 
-            fiberW.Disconnect();
+            socketAsync.Disconnect();
         }
 
         static async Task ReadCommand(IFiberRw<UserInfo> fiberRw)
@@ -121,7 +121,7 @@ namespace Server
                             fiberRw.UserToken.Data = await fiberRw.ReadObject<TestLib.Data>();
                         }
                         else
-                            fiberRw.Disconnect();
+                            fiberRw.Async.Disconnect();
                     }
                     break;
                 case 3000: //在屏幕上显示消息 然后告诉客户端显示成功

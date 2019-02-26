@@ -14,12 +14,13 @@ namespace ZYSocket
 
     public interface ISockAsyncEvent
     {
+        bool IsInit { get; }
         Socket ConnectSocket { get; }
         Socket AcceptSocket { get; }
         Encoding Encoding { get; }
         bool IsLittleEndian { get; }
         object UserToken { get; set; }
-        void Disconnect();
+        void Disconnect(bool dispose = false);
 
         ValueTask<IFiberRw> GetFiberRw(System.Func<Stream, Stream, GetFiberRwResult> init = null);
         ValueTask<IFiberRw<T>> GetFiberRw<T>(System.Func<Stream, Stream, GetFiberRwResult> init = null) where T : class;     
@@ -29,9 +30,9 @@ namespace ZYSocket
     public interface ISockAsyncEventAsClient : ISockAsyncEvent
     {      
 
-        ValueTask<GetFiberRwSSLResult> GetFiberRwSSL(X509Certificate certificate, string targethost, Func<Stream, Stream, GetFiberRwResult> init = null);
+        ValueTask<GetFiberRwSSLResult> GetFiberRwSSL(X509Certificate certificate, string targethost = "localhost", Func<Stream, Stream, GetFiberRwResult> init = null);
 
-        ValueTask<GetFiberRwSSLResult<T>> GetFiberRwSSL<T>(X509Certificate certificate_client, string targethost, Func<Stream, Stream, GetFiberRwResult> init = null) where T : class;
+        ValueTask<GetFiberRwSSLResult<T>> GetFiberRwSSL<T>(X509Certificate certificate_client, string targethost = "localhost", Func<Stream, Stream, GetFiberRwResult> init = null) where T : class;
     }
 
     public interface ISockAsyncEventAsServer : ISockAsyncEvent

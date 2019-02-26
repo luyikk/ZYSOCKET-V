@@ -14,15 +14,19 @@ namespace ZYSocket.FiberStream
         private int rl;   
 
 
-        public void ResetFilber()
+        public void Close()
         {
-
-
-            write.Reset();
-            read.Reset();
-
+            write.Close();
+            read.Close();
+          
             wl = 0;
             rl = 0;
+        }
+
+        public void Init()
+        {
+            write.Init();
+            read.Init();
         }
 
 
@@ -40,34 +44,37 @@ namespace ZYSocket.FiberStream
             return write;
         }
 
-        public  PipeFilberAwaiter Advance(int len, CancellationToken cancellationTokenSource = default)
+        public PipeFilberAwaiter Advance(int len, CancellationToken cancellationTokenSource = default)
         {
+          
             wl = len;
-
-            write.Reset();
-
+           // write.Reset();
 
             if (!read.IsCompleted)
             {
-                read.SetResult(new PipeResult(cancellationTokenSource.IsCancellationRequested, wl));             
+                read.SetResult(new PipeResult(cancellationTokenSource.IsCancellationRequested, wl));
                 read.Completed();
-            } 
+            }
 
-            return  write;
+         
+            return write;
+
 
         }
 
         public PipeFilberAwaiter Need(int len = 0, CancellationToken cancellationTokenSource = default)
         {
-
+            
             rl = len;
-            read.Reset();         
+            read.Reset();
+
             if (!write.IsCompleted)
-            {             
+            {
                 write.SetResult(new PipeResult(cancellationTokenSource.IsCancellationRequested, rl));
                 write.Completed();
             }
 
+           
             return read;
 
         }
