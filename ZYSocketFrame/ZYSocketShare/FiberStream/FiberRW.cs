@@ -127,7 +127,7 @@ namespace ZYSocket.FiberStream
             return offset - offset_next;
         }
 
-        public async ValueTask<Memory<byte>> ReadToBlockEnd()
+        public async Task<Memory<byte>> ReadToBlockEnd()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -137,13 +137,12 @@ namespace ZYSocket.FiberStream
             return fiberReadStream.ReadToBlockEnd();
         }
 
-        public async ValueTask<ArraySegment<byte>> ReadToBlockArrayEnd()
+        public async Task<ArraySegment<byte>> ReadToBlockArrayEnd()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
 
             await fiberReadStream.Check();
-
             return fiberReadStream.ReadToBlockArrayEnd();
         }
 

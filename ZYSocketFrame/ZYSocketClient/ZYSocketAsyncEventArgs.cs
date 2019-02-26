@@ -251,10 +251,7 @@ namespace ZYSocket.Client
             return RStream.Advance(BytesTransferred);
         }
 
-        public PipeFilberAwaiter ReadCanceled()
-        {
-            return RStream.ReadCanceled();
-        }
+   
 
      
     }

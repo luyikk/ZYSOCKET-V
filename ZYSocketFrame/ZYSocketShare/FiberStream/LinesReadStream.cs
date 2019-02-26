@@ -26,9 +26,6 @@ namespace ZYSocket.FiberStream
         private long position;
     
 
-        private bool is_canceled;
-   
-
         private StreamInitAwaiter InitAwaiter;    
         
         private readonly byte[] numericbytes = new byte[8];
@@ -47,17 +44,14 @@ namespace ZYSocket.FiberStream
         }
 
 
-        public PipeFilberAwaiter Advance(int len, CancellationToken cancellationTokenSource = default)
+        public PipeFilberAwaiter Advance(int len)
         {
             wrlen = len;
             position = 0;
-            return Pipes.Advance(len, cancellationTokenSource);
+            return Pipes.Advance(len);
         }
 
-        public PipeFilberAwaiter ReadCanceled()
-        {
-            return Pipes.ReadCanceled();
-        }
+    
 
 
         public Memory<byte> GetMemory(int inithnit)
@@ -84,32 +78,8 @@ namespace ZYSocket.FiberStream
 
         public async Task Check()
         {
-           
-            if (position == wrlen)
-            {
-
-                for (; ; )
-                {
-                    var res = await Pipes.Need(0);
-
-                    if (res.IsCanceled)
-                    {
-                        is_canceled = true;
-                        break;
-                    }
-                    else
-                    {
-                        if (res.ByteLength == 0)
-                            continue;
-                        else
-                        {                            
-                            break;
-                        }
-                    }
-                }
-
-            }
-
+            if (position == wrlen)         
+               await Pipes.Need();
         }
 
         public void Reset()
@@ -119,13 +89,9 @@ namespace ZYSocket.FiberStream
             Pipes.Close();
             position = 0;
             wrlen = 0;
-            offset = 0;
-            is_canceled = false;
+            offset = 0;           
            
         }
-
-        public bool IsCanceled { get => is_canceled; }
-
 
         public override bool CanRead => true;
 
@@ -189,9 +155,7 @@ namespace ZYSocket.FiberStream
         public override int Read(byte[] buffer, int offset, int count)
         {
             unsafe
-            {
-                if (is_canceled)
-                    return 0;
+            {              
 
                 var cpbytes = wrlen - position;
                 if (cpbytes == 0)
@@ -256,10 +220,7 @@ namespace ZYSocket.FiberStream
 
         public  Memory<byte> ReadToBlockEnd()
         {
-
-            if (is_canceled)
-                return Memory<byte>.Empty;
-
+          
             int count = (int)have_current_length();
             position = wrlen;
             return new Memory<byte>(data, offset, count);
@@ -268,13 +229,9 @@ namespace ZYSocket.FiberStream
 
         public ArraySegment<byte> ReadToBlockArrayEnd()
         {
-            if (is_canceled)
-                return default;
-
             int count = (int)have_current_length();
             position = wrlen;
             return new ArraySegment<byte>(data, offset, count);
-
         }
 
 

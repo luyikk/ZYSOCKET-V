@@ -38,8 +38,8 @@ namespace Server
         {
             Console.WriteLine($"{message}");
             socketAsync.UserToken = null; //在这里我们转换成userinfo 然后做一些用户断开后的操作
-            socketAsync.AcceptSocket.Close();
-            socketAsync.AcceptSocket.Dispose();
+            socketAsync.AcceptSocket?.Close();
+            socketAsync.AcceptSocket?.Dispose();
         }
 
         static async void BinaryInputHandler(ISockAsyncEventAsServer socketAsync)

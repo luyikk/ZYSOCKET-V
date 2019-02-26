@@ -34,8 +34,8 @@ namespace ZYSocket.FiberStream
         ValueTask<T> ReadObject<T>();
         ValueTask<float?> ReadSingle();
         ValueTask<string> ReadString();
-        ValueTask<ArraySegment<byte>> ReadToBlockArrayEnd();
-        ValueTask<Memory<byte>> ReadToBlockEnd();
+        Task<ArraySegment<byte>> ReadToBlockArrayEnd();
+        Task<Memory<byte>> ReadToBlockEnd();
         ValueTask<ushort?> ReadUInt16();
         ValueTask<uint?> ReadUInt32();
         ValueTask<ulong?> ReadUInt64();

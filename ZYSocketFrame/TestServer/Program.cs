@@ -7,6 +7,7 @@ using ZYSocket.Server.Builder;
 using Autofac;
 using ZYSocket;
 using System.IO.Compression;
+using System.Runtime;
 
 namespace TestServer
 {
@@ -43,12 +44,12 @@ namespace TestServer
                 };
 
             })
-          
-            .ConfigServer(p => 
+
+            .ConfigServer(p =>
             {
                 p.Host = "ipv6any";
                 p.Port = 1001;
-             })
+            })
             .Bulid();
             server2.Start(); //启动服务器 所有IPV6 1001端口
 
@@ -66,8 +67,7 @@ namespace TestServer
              })
              .ConfigServer(p => {
                  p.Port = 1002;
-                 p.MaxBufferSize = 8192;
-                 p.MaxConnectCout = 1;
+                 p.MaxBufferSize = 4096;                
                  });
 
             var build = containerBuilder.Build();
@@ -75,7 +75,7 @@ namespace TestServer
             var server3 = build.Resolve<ISocketServer>();
             server3.Start(); //启动服务器 1002端口 缓冲区为8KB 
 
-
+            
             Console.ReadLine();
             build.Dispose();
             Console.ReadLine();
@@ -127,9 +127,9 @@ namespace TestServer
             for (; ; )
             {
                 //读取 发送 测试
-                //var data = await fiberRw.ReadToBlockArrayEnd();
-                //fiberRw.Write(data);
-                //await fiberRw.Flush();
+                var data = await fiberRw.ReadToBlockArrayEnd();
+                fiberRw.Write(data);
+                await fiberRw.Flush();
 
                 try
                 {
@@ -141,13 +141,13 @@ namespace TestServer
                     await DataOnByLine(fiberRw);
 
                     break;
-                
+
                 }
                 catch (Exception er)
                 {
                     Console.WriteLine(er.ToString());
                     break;
-                }                
+                }
 
             }
 

@@ -12,7 +12,7 @@ namespace ZYSocket.FiberStream
 
         private Action Continuation;
 
-        private PipeResult fiberResult;
+        private int count;
 
         public bool IsNull => Continuation == null;
 
@@ -20,7 +20,7 @@ namespace ZYSocket.FiberStream
         {
             this.iscompleted = iscompleted;
             Continuation = null;
-            fiberResult = default;
+            count = 0;
         }
 
         internal void Completed()
@@ -40,7 +40,7 @@ namespace ZYSocket.FiberStream
             is_can_set = false;
             this.iscompleted = false;
             Continuation = null;
-            fiberResult = default;
+            count = 0;
         }
 
       
@@ -50,12 +50,12 @@ namespace ZYSocket.FiberStream
             
             this.iscompleted = false;
             Continuation = null;
-            fiberResult = default;
+            count = 0;
         }
 
-        internal void SetResult(PipeResult result)
+        internal void SetResult(int len)
         {
-            fiberResult = result;
+            count = len;
         }
 
         private bool iscompleted;
@@ -76,37 +76,16 @@ namespace ZYSocket.FiberStream
 
         public PipeFilberAwaiter GetAwaiter() => this;
 
-        public PipeResult GetResult()
+        public int GetResult()
         {
-            return fiberResult;
+            return count;
         }
 
 
 
     }
 
-    public struct PipeResult
-    {
-        public PipeResult(bool isCanceled,int byteLength)
-        {
-            this.IsCanceled = isCanceled;
-            this.ByteLength = byteLength;
-        }
-
-        public bool IsCanceled { get;  }
-
-        public int ByteLength { get;  }
-
-        public override bool Equals(object obj) =>
-         obj is PipeResult && Equals((PipeResult)obj);
-        public bool Equals(PipeResult other) => ByteLength == other.ByteLength && IsCanceled == other.IsCanceled;
-
-        public override int GetHashCode() => ByteLength.GetHashCode() + IsCanceled.GetHashCode();
-
-        public static bool operator == (PipeResult left, PipeResult right) =>left.Equals(right);
-
-        public static bool operator !=(PipeResult left, PipeResult right) => !left.Equals(right);
-    }
+  
 
 
     

@@ -30,8 +30,6 @@ namespace ZYSocket.Server
         public ISend SendImplemented { get;  private set; }
         public IAsyncSend AsyncSendImplemented { get; private set; } 
 
-        private int _check_thread = 0;
-
         private IDisposable fiberobj;
         private IDisposable fiberT;
         private IDisposable fibersslobj;
@@ -52,16 +50,6 @@ namespace ZYSocket.Server
             }          
         }
 
-        public int Add_check()
-        {
-            _check_thread++;
-            return _check_thread;
-        }
-
-        public void Reset_check()
-        {
-            _check_thread = 0;
-        }
 
         public ZYSocketAsyncEventArgs(IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, bool isLittleEndian=false)
         {
@@ -213,8 +201,7 @@ namespace ZYSocket.Server
             isInit = false;
             RStream.Reset();
             WStream.Close();
-            this.AcceptSocket = null;
-            this.Reset_check();
+            this.AcceptSocket = null;         
             
         }
 
@@ -249,10 +236,7 @@ namespace ZYSocket.Server
             return RStream.Advance(BytesTransferred);
         }
 
-        public PipeFilberAwaiter ReadCanceled()
-        {
-            return RStream.ReadCanceled();
-        }
+   
 
      
     }
