@@ -20,5 +20,5 @@
 
 支持传统的数据包格式 len+data
 
-或者await模式 直接read type
+或者await 即读即用模式 直接read data->user data->next read data...
 
