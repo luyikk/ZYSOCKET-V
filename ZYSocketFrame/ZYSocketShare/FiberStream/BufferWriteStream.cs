@@ -125,7 +125,7 @@ namespace ZYSocket.FiberStream
             Reset();
         }
 
-        public async ValueTask<int> AwaitFlush()
+        public async Task<int> AwaitFlush()
         {           
             if (_len == 0)
                 return 0;          

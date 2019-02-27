@@ -24,7 +24,7 @@ namespace TestClient
 
                 Console.ReadLine();
 
-              //  client.ShutdownBoth();
+                client.ShutdownBoth();
 
                 Console.ReadLine();
             }
@@ -91,7 +91,7 @@ namespace TestClient
 
                     await DataOnByLine(fiberRw);
 
-                    //Console.WriteLine("OK");
+                    Console.WriteLine("OK");
                 }
                 catch
                 {

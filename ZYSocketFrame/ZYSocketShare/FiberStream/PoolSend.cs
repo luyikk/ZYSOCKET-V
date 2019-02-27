@@ -145,7 +145,7 @@ namespace ZYSocket.Share
     }
 
 
-        public async ValueTask<int> SendAsync(ArraySegment<byte> data)
+        public async Task<int> SendAsync(ArraySegment<byte> data)
         {
             Socket socket = null;
 
@@ -175,7 +175,7 @@ namespace ZYSocket.Share
 
         }
 
-        public async ValueTask<int> SendAsync(byte[] data)
+        public async Task<int> SendAsync(byte[] data)
         {
             Socket socket = null;
 
@@ -204,7 +204,7 @@ namespace ZYSocket.Share
 
         }
 
-        public async ValueTask<int> SendAsync(IList<ArraySegment<byte>> data)
+        public async Task<int> SendAsync(IList<ArraySegment<byte>> data)
         {
             Socket socket = null;
 
@@ -233,7 +233,7 @@ namespace ZYSocket.Share
 
         }
 
-        public async ValueTask<int> SendAsync(ReadOnlyMemory<byte> data)
+        public async Task<int> SendAsync(ReadOnlyMemory<byte> data)
         {
             Socket socket = null;
 

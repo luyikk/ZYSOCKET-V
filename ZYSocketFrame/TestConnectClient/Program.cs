@@ -24,7 +24,7 @@ namespace TestClient
 
                 Console.ReadLine();
 
-               // client.ShutdownBoth();
+                client.ShutdownBoth();
 
                 Console.ReadLine();
             }

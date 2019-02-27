@@ -195,7 +195,7 @@ namespace ZYSocket.Share
     public class TaskSocketAsyncEventArgs<TResult> : SocketAsyncEventArgs
     {
       
-        public AsyncValueTaskMethodBuilder<TResult> _builder;
+        public AsyncTaskMethodBuilder<TResult> _builder;
 
         public new event EventHandler<TaskSocketAsyncEventArgs<TResult>> Completed;
 
@@ -211,7 +211,7 @@ namespace ZYSocket.Share
         }
 
         /// <summary>Gets the builder's task with appropriate synchronization.</summary>
-        public ref AsyncValueTaskMethodBuilder<TResult> GetCompletionResponsibility(out bool responsibleForReturningToPool)
+        public ref AsyncTaskMethodBuilder<TResult> GetCompletionResponsibility(out bool responsibleForReturningToPool)
         {
             lock (this)
             {
@@ -245,9 +245,9 @@ namespace ZYSocket.Share
             Completed?.Invoke(sender, this);
         }
 
-        public ValueTask<int> SendSync(Socket sock)
+        public Task<int> SendSync(Socket sock)
         {
-            ValueTask<int> t;
+            Task<int> t;
 
             if (sock.SendAsync(this))
             {
@@ -259,11 +259,11 @@ namespace ZYSocket.Share
             else
             {              
                 if (SocketError == SocketError.Success)
-                    return new ValueTask<int>(BytesTransferred);
+                    return Task.FromResult(BytesTransferred);
                 else if(SocketError!=SocketError.ConnectionReset && SocketError != SocketError.OperationAborted&&SocketError!= SocketError.ConnectionAborted)
-                    throw  GetException(SocketError);
+                    return Task.FromException<int>(GetException(SocketError));
                 else
-                    return new ValueTask<int>(0);
+                    return Task.FromResult(0);
             }
 
             return t;
@@ -312,7 +312,7 @@ namespace ZYSocket.Share
           
             SocketError error = saea.SocketError;
 
-            AsyncValueTaskMethodBuilder<int> builder = saea.GetCompletionResponsibility(out bool responsibleForReturningToPool);
+            AsyncTaskMethodBuilder<int> builder = saea.GetCompletionResponsibility(out bool responsibleForReturningToPool);
 
             if (responsibleForReturningToPool)
                 saea.Reset();

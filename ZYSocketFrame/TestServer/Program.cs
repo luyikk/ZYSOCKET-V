@@ -21,37 +21,37 @@ namespace TestServer
         static void Main(string[] args)
         {
 
-            var server = new SockServBuilder(p =>
-            {
-                return new ZYSocketSuper(p)
-                {
-                    BinaryInput = new BinaryInputHandler(BinaryInputHandler),
-                    Connetions = new ConnectionFilter(ConnectionFilter),
-                    MessageInput = new DisconnectHandler(DisconnectHandler)
-                };
+            //var server = new SockServBuilder(p =>
+            //{
+            //    return new ZYSocketSuper(p)
+            //    {
+            //        BinaryInput = new BinaryInputHandler(BinaryInputHandler),
+            //        Connetions = new ConnectionFilter(ConnectionFilter),
+            //        MessageInput = new DisconnectHandler(DisconnectHandler)
+            //    };
 
-            }).Bulid();
-            server.Start(); //启动服务器 1000端口
+            //}).Bulid();
+            //server.Start(); //启动服务器 1000端口
 
 
-            var server2 = new SockServBuilder(p =>
-            {
-                return new ZYSocketSuper(p)
-                {
-                    BinaryInput = new BinaryInputHandler(BinaryInputHandler),
-                    Connetions = new ConnectionFilter(ConnectionFilter),
-                    MessageInput = new DisconnectHandler(DisconnectHandler)
-                };
+            //var server2 = new SockServBuilder(p =>
+            //{
+            //    return new ZYSocketSuper(p)
+            //    {
+            //        BinaryInput = new BinaryInputHandler(BinaryInputHandler),
+            //        Connetions = new ConnectionFilter(ConnectionFilter),
+            //        MessageInput = new DisconnectHandler(DisconnectHandler)
+            //    };
 
-            })
+            //})
 
-            .ConfigServer(p =>
-            {
-                p.Host = "ipv6any";
-                p.Port = 1001;
-            })
-            .Bulid();
-            server2.Start(); //启动服务器 所有IPV6 1001端口
+            //.ConfigServer(p =>
+            //{
+            //    p.Host = "ipv6any";
+            //    p.Port = 1001;
+            //})
+            //.Bulid();
+            //server2.Start(); //启动服务器 所有IPV6 1001端口
 
 
 
@@ -127,9 +127,9 @@ namespace TestServer
             for (; ; )
             {
                 //读取 发送 测试
-                var data = await fiberRw.ReadToBlockArrayEnd();
-                fiberRw.Write(data);
-                await fiberRw.Flush();
+                //var data = await fiberRw.ReadToBlockArrayEnd();
+                //fiberRw.Write(data);
+                //await fiberRw.Flush();
 
                 try
                 {
@@ -140,7 +140,7 @@ namespace TestServer
 
                     await DataOnByLine(fiberRw);
 
-                    break;
+                    //break;
 
                 }
                 catch (Exception er)
@@ -151,7 +151,7 @@ namespace TestServer
 
             }
 
-           
+            socketAsync.Disconnect();
 
         }
 

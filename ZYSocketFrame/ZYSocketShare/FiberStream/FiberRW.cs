@@ -96,7 +96,7 @@ namespace ZYSocket.FiberStream
        
 
 
-        public async ValueTask<long> NextMove(long offset)
+        public async Task<long> NextMove(long offset)
         {
 
             if (!streamReadFormat.CanSeek)
@@ -757,8 +757,15 @@ namespace ZYSocket.FiberStream
 
         public async ValueTask<int> Flush()
         {
+
             StreamWriteFormat.Flush();
-            return await FiberWriteStream.AwaitFlush();
+
+            if (FiberWriteStream.Length > 0)
+            {
+                return await FiberWriteStream.AwaitFlush();
+            }
+            else
+                return 0;
         }
     }
 

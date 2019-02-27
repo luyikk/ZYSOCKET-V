@@ -47,7 +47,7 @@ namespace ZYSocket
             MemoryOwner = null;
         }
 
-        public async ValueTask<ReadBytes> Init()
+        public async Task<ReadBytes> Init()
         {
             switch (LenType)
             {
@@ -99,7 +99,7 @@ namespace ZYSocket
             return this;
         }
 
-        public ValueTask<long> NextMove(int offset)
+        public Task<long> NextMove(int offset)
         {
             return FiberRw.NextMove(offset);
         }

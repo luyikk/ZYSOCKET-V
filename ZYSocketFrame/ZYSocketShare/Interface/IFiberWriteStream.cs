@@ -12,7 +12,7 @@ namespace ZYSocket.FiberStream
         long Length { get; }
         long Position { get; set; }
         void Flush();
-        ValueTask<int> AwaitFlush();      
+        Task<int> AwaitFlush();      
         void SetLength(long value);
         void Write(byte[] buffer, int offset, int count);
         Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default);

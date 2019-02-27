@@ -292,7 +292,7 @@ namespace ZYSocket
 
             byte[] data = StreamWrite.ToArray();
             StreamWriteFormat.Write(data, 0, data.Length);
-            StreamWriteFormat.Flush();           
+            StreamWriteFormat.Flush();
             await FiberWriteStream.AwaitFlush();
         }
 
@@ -335,8 +335,11 @@ namespace ZYSocket
 
             byte[] data = StreamWrite.ToArray();
             StreamWriteFormat.Write(data, 0, data.Length);
-            StreamWriteFormat.Flush();           
-            return await FiberWriteStream.AwaitFlush();
+            StreamWriteFormat.Flush();
+            if (FiberWriteStream.Length > 0)
+                return await FiberWriteStream.AwaitFlush();
+            else
+                return 0;
         }
 
        
