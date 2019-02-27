@@ -101,9 +101,7 @@ namespace TestServer
             }
 
             fiberRw.UserToken = "my is ttk";
-
-           
-          
+                     
 
             for (; ; )
             {
@@ -111,11 +109,14 @@ namespace TestServer
 
                 try
                 {
-                    string a = await fiberRw.ReadString();
+                    using (var data = await fiberRw.ReadMemory())
+                    {
 
-                    fiberRw.Write(a + " ok");
-                    await fiberRw.Flush();
-                    Console.WriteLine(a);
+                        Console.WriteLine(data.Value.Length);
+
+                        fiberRw.Write("ok");
+                        await fiberRw.Flush();
+                    }
 
                     break;
 

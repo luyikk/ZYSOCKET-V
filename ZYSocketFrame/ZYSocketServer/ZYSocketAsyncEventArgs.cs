@@ -36,18 +36,21 @@ namespace ZYSocket.Server
         private IDisposable fibersslT;
         public Action<ZYSocketAsyncEventArgs> DisconnectIt { get; set; }
 
-        private bool IsStartReceive = false;
+       
 
-        public Action<ZYSocketAsyncEventArgs> StartReceiveAction { get; set; }             
-     
+        public Action<ZYSocketAsyncEventArgs> StartReceiveAction { get; set; }
+
+
+        int isStartReceive = 0;
 
         public void StartReceive()
-        {          
-            if (!IsStartReceive)
+        {
+          
+            if (System.Threading.Interlocked.Exchange(ref isStartReceive, 1)==0)           
             {
-                IsStartReceive = true;
+                isStartReceive = 1;
                 StartReceiveAction?.Invoke(this);
-            }          
+            }
         }
 
 
@@ -63,7 +66,7 @@ namespace ZYSocket.Server
             AsyncSendImplemented = asyncsend;
             RStream.BeginReadFunc = BeginRead;
             RStream.EndBeginReadFunc = EndBeginRead;
-            RStream.Receive = StartReceive;
+            RStream.ServerReceive = StartReceive;
         }
 
         private IAsyncResult BeginRead(byte[] data, int offset, int count, AsyncCallback callback, object state)
@@ -95,6 +98,7 @@ namespace ZYSocket.Server
         {
             if (await RStream.WaitStreamInit())
             {
+                RStream.IsBeginRaw = false;
                 StartReceive();
                 var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian,init:init);
                 fiberobj = fiber;
@@ -108,6 +112,7 @@ namespace ZYSocket.Server
         {
             if (await RStream.WaitStreamInit())
             {
+                RStream.IsBeginRaw = false;
                 StartReceive();
                 var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init:init);
                 fiberT = fiber;
@@ -131,7 +136,7 @@ namespace ZYSocket.Server
                 {
                     return (null,er.Message);
                 }
-
+                RStream.IsBeginRaw = false;
                 StartReceive();
                 var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslobj = fiber;
@@ -155,6 +160,7 @@ namespace ZYSocket.Server
                 {
                     return (null,er.Message);
                 }
+                RStream.IsBeginRaw = false;
                 StartReceive();
                 var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslT = fiber;
@@ -186,7 +192,7 @@ namespace ZYSocket.Server
 
         public void Reset()
         {
-            IsStartReceive = false;
+            System.Threading.Interlocked.Exchange(ref isStartReceive, 0);
             fiberobj?.Dispose();
             fiberT?.Dispose();
             fibersslobj?.Dispose();

@@ -53,6 +53,7 @@ namespace Server
         {
             var (fiberW, errMsg) = await socketAsync.GetFiberRwSSL<UserInfo>(certificate);  //我们在这地方使用SSL加密
 
+     
 
             if (fiberW is null) //如果获取失败 那么断开连接
             {
@@ -80,6 +81,7 @@ namespace Server
 
             socketAsync.Disconnect();
         }
+
 
         static async Task<bool> ReadCommand(IFiberRw<UserInfo> fiberRw)
         {
@@ -129,21 +131,28 @@ namespace Server
                 case 3000: //在屏幕上显示消息 然后告诉客户端显示成功
                     {
                         string msg = await fiberRw.ReadString();
-                        Console.WriteLine(msg);
+                        using (var data = await fiberRw.ReadMemory())
+                        {
+                            Console.WriteLine(msg);
+                            Console.WriteLine(data.Value.Length);
 
-                        fiberRw.Write(3001);
-                        fiberRw.Write("msg show");
-                        await fiberRw.Flush();
+                            fiberRw.Write(3001);
+                            fiberRw.Write("msg show");
+                            fiberRw.Write(data.Value);
+                            await fiberRw.Flush();
+                        }
 
-                        return true;
+
                     }
-                    
+                    break;
+
 
             }
 
-
             return false;
+
         }
+
 
 
 

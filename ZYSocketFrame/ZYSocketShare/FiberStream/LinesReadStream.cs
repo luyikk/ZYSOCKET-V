@@ -32,9 +32,17 @@ namespace ZYSocket.FiberStream
 
         public Func<byte[], int, int, AsyncCallback,object, IAsyncResult> BeginReadFunc { get; set; }
         public Func<IAsyncResult,int> EndBeginReadFunc { get; set; }
-        public Action Receive { get; set; }
+        public Action ServerReceive { get; set; }
 
         public byte[]  Numericbytes { get => numericbytes; }
+
+        public int Size => len;
+
+        bool isBeginRw = true;
+        /// <summary>
+        /// 此参数只是为了对.NET FX SSL问题进行修复,因为.net fx sslstream调用的是Begin方法
+        /// </summary>
+        public bool IsBeginRaw { get=>IsBeginRaw; set { isBeginRw = value; } }
 
         public LinesReadStream(int length = 4096)
         {
@@ -74,9 +82,16 @@ namespace ZYSocket.FiberStream
             return wrlen - position;
         }
 
+        public bool HaveData()
+        {
+            if (position < wrlen)
+                return true;
+            else
+                return false;
+        }
 
 
-        public async Task Check()
+        public async ValueTask Check()
         {
             if (position == wrlen)         
                await Pipes.Need();
@@ -89,8 +104,9 @@ namespace ZYSocket.FiberStream
             Pipes.Close();
             position = 0;
             wrlen = 0;
-            offset = 0;           
-           
+            offset = 0;
+            isBeginRw=true;
+          
         }
 
         public override bool CanRead => true;
@@ -177,25 +193,18 @@ namespace ZYSocket.FiberStream
         }
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
-        {           
-            Receive?.Invoke();           
-            int size = Read(buffer, offset, count);
-            if (size == 0)
-            {
-                await Check();
-                size = Read(buffer, offset, count);
-            }
-            return size;
-
+        {
+            ServerReceive();
+            await Check();
+            return  Read(buffer, offset, count);
         }
 
 
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
-            if (BeginReadFunc != null)
+            if (isBeginRw)
             {
-               return BeginReadFunc(buffer, offset, count,callback,state);
-              
+                return BeginReadFunc.Invoke(buffer, offset, count, callback, state);
             }
             else
             {
@@ -206,9 +215,9 @@ namespace ZYSocket.FiberStream
 
         public override int EndRead(IAsyncResult asyncResult)
         {
-            if (EndBeginReadFunc != null)
+            if (isBeginRw)
             {
-                return EndBeginReadFunc(asyncResult);
+                return EndBeginReadFunc.Invoke(asyncResult);
             }
             else
             {

@@ -6,10 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ZYSocketClientV" Version="1.2.4" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\ZYSocketFrame\ZYSocketClient\ZYSocketClient.csproj" />
+    <ProjectReference Include="..\..\..\..\ZYSocketFrame\ZYSocketShare\ZYSocketShare.csproj" />
     <ProjectReference Include="..\TestLib\TestLib.csproj" />
   </ItemGroup>
 

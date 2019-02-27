@@ -146,7 +146,7 @@ namespace ZYSocket.FiberStream
             return fiberReadStream.ReadToBlockArrayEnd();
         }
 
-        public async ValueTask<int> Read(byte[] data,int offset,int count)
+        public async Task<int> Read(byte[] data,int offset,int count)
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -155,17 +155,11 @@ namespace ZYSocket.FiberStream
             int offset_next = offset;
             do
             {
-
-                var res = streamReadFormat.Read(data, offset_next, needcount);
+               
+                var res = await streamReadFormat.ReadAsync(data, offset, needcount, CancellationToken.None).ConfigureAwait(false);
 
                 if (res == 0)
-                {                  
-                    await fiberReadStream.Check();                   
-                    res = streamReadFormat.Read(data, offset_next, needcount);
-                    if (res == 0)
-                        return count - needcount;
-
-                }
+                    return count - needcount;
 
                 needcount -= res;
                 offset_next += res;
@@ -186,7 +180,7 @@ namespace ZYSocket.FiberStream
 
 
         #region read integer
-        public async ValueTask<byte?> ReadByte()
+        public async Task<byte?> ReadByte()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -201,14 +195,14 @@ namespace ZYSocket.FiberStream
 
         }
 
-        public async ValueTask<bool?> ReadBoolean()
+        public async Task<bool?> ReadBoolean()
         {
             var b = await ReadByte();
 
             return b == 1 ? true : false;
         }
 
-        public async ValueTask<ushort?> ReadUInt16()
+        public async Task<ushort?> ReadUInt16()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -223,7 +217,7 @@ namespace ZYSocket.FiberStream
                 return null;
         }
 
-        public async ValueTask<short?> ReadInt16()
+        public async Task<short?> ReadInt16()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -253,7 +247,7 @@ namespace ZYSocket.FiberStream
             }
         }
                 
-        public async ValueTask<uint?> ReadUInt32()
+        public async Task<uint?> ReadUInt32()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -269,7 +263,7 @@ namespace ZYSocket.FiberStream
                 return null;
         }
 
-        public async ValueTask<int?> ReadInt32()
+        public async Task<int?> ReadInt32()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -300,7 +294,7 @@ namespace ZYSocket.FiberStream
             }
         }
         
-        public async ValueTask<ulong?> ReadUInt64()
+        public async Task<ulong?> ReadUInt64()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -315,7 +309,7 @@ namespace ZYSocket.FiberStream
                 return null;
         }
 
-        public async ValueTask<long?> ReadInt64()
+        public async Task<long?> ReadInt64()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -347,7 +341,7 @@ namespace ZYSocket.FiberStream
         }
 
 
-        public async ValueTask<double?> ReadDouble()
+        public async Task<double?> ReadDouble()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -378,7 +372,7 @@ namespace ZYSocket.FiberStream
             }
         }
 
-        public async ValueTask<float?> ReadSingle()
+        public async Task<float?> ReadSingle()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -414,7 +408,7 @@ namespace ZYSocket.FiberStream
 
         #region read memory block
 
-        public async ValueTask<ResultByMemoryOwner<Memory<byte>>> ReadMemory(int size)
+        public async Task<ResultByMemoryOwner<Memory<byte>>> ReadMemory(int size)
         {
             var imo = GetMemory(size);
 
@@ -432,7 +426,7 @@ namespace ZYSocket.FiberStream
 
         }
 
-        public async ValueTask<ResultByMemoryOwner<Memory<byte>>> ReadMemory()
+        public async Task<ResultByMemoryOwner<Memory<byte>>> ReadMemory()
         {
             int? len = await ReadInt32();
 
@@ -444,7 +438,7 @@ namespace ZYSocket.FiberStream
             }
         }
 
-        public async ValueTask<byte[]> ReadArray(int size)
+        public async Task<byte[]> ReadArray(int size)
         {            
 
             byte[] array = new byte[size];
@@ -459,7 +453,7 @@ namespace ZYSocket.FiberStream
    
 
 
-        public async ValueTask<byte[]> ReadArray()
+        public async Task<byte[]> ReadArray()
         {
             int? len = await ReadInt32();
 
@@ -472,7 +466,7 @@ namespace ZYSocket.FiberStream
         }
 
 
-        public async ValueTask<string> ReadString()
+        public async Task<string> ReadString()
         {
             int? len = await ReadInt32();
 
@@ -502,7 +496,7 @@ namespace ZYSocket.FiberStream
         #endregion
 
         #region read obj
-        public async ValueTask<S> ReadObject<S>()
+        public async Task<S> ReadObject<S>()
         {
             using (var mem = await ReadMemory())
             {

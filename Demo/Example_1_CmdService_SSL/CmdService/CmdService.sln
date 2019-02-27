@@ -13,6 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientFX", "Client_FX\Clien
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerFX", "ServerFX\ServerFX.csproj", "{2D6DDD48-414F-47E6-9925-8B4E860D0D79}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZYSocketShare", "..\..\..\ZYSocketFrame\ZYSocketShare\ZYSocketShare.csproj", "{C209A8EE-E932-40BA-903F-C80CEB63F3F7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZYSocketServer", "..\..\..\ZYSocketFrame\ZYSocketServer\ZYSocketServer.csproj", "{2641CCF2-9A68-429F-A80A-46EC5CDD8D09}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZYSocketClient", "..\..\..\ZYSocketFrame\ZYSocketClient\ZYSocketClient.csproj", "{30C8E864-3DD6-4F31-AF49-84CE52CB8D79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +45,18 @@ Global
 		{2D6DDD48-414F-47E6-9925-8B4E860D0D79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D6DDD48-414F-47E6-9925-8B4E860D0D79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D6DDD48-414F-47E6-9925-8B4E860D0D79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C209A8EE-E932-40BA-903F-C80CEB63F3F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C209A8EE-E932-40BA-903F-C80CEB63F3F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C209A8EE-E932-40BA-903F-C80CEB63F3F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C209A8EE-E932-40BA-903F-C80CEB63F3F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2641CCF2-9A68-429F-A80A-46EC5CDD8D09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2641CCF2-9A68-429F-A80A-46EC5CDD8D09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2641CCF2-9A68-429F-A80A-46EC5CDD8D09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2641CCF2-9A68-429F-A80A-46EC5CDD8D09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30C8E864-3DD6-4F31-AF49-84CE52CB8D79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30C8E864-3DD6-4F31-AF49-84CE52CB8D79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30C8E864-3DD6-4F31-AF49-84CE52CB8D79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30C8E864-3DD6-4F31-AF49-84CE52CB8D79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -121,10 +121,10 @@ namespace TestServer
 
             var fiberRw = await socketAsync.GetFiberRw<string>();
 
-            fiberRw.UserToken = "my is ttk";       
+            fiberRw.UserToken = "my is ttk";
 
          
-            for (; ; )
+            for (; ;)
             {
                 //读取 发送 测试
                 //var data = await fiberRw.ReadToBlockArrayEnd();
@@ -140,7 +140,7 @@ namespace TestServer
 
                     await DataOnByLine(fiberRw);
 
-                    //break;
+                 
 
                 }
                 catch (Exception er)
@@ -150,14 +150,15 @@ namespace TestServer
                 }
 
             }
-
+       
             socketAsync.Disconnect();
 
         }
 
         static async ValueTask DataOnByLine(IFiberRw<string> fiberRw)
         {
-        
+
+           
             var len = await fiberRw.ReadInt32();
             var cmd = await fiberRw.ReadInt32();
             var p1 = await fiberRw.ReadInt32();
@@ -165,13 +166,15 @@ namespace TestServer
             var p3 = await fiberRw.ReadDouble();
             var p4 = await fiberRw.ReadSingle();
             var p5 = await fiberRw.ReadBoolean();
-            var p6 = await fiberRw.ReadBoolean();
+            var p6 = await fiberRw.ReadBoolean();         
             var p7 = await fiberRw.ReadString();         
 
             using (var p8 = await fiberRw.ReadMemory())
             {
 
                 var p9 = await fiberRw.ReadInt16();
+
+             
                // var p10 = await fiberRw.ReadObject<List<Guid>>();
 
                 fiberRw.Write(len.Value);

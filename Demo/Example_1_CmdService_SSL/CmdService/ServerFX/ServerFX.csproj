@@ -63,12 +63,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="ZYSocketServer, Version=1.0.0.5, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ZYSocketServerV.1.2.3\lib\netstandard2.0\ZYSocketServer.dll</HintPath>
-    </Reference>
-    <Reference Include="ZYSocketShare, Version=1.0.0.5, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ZYSocketShareV.1.2.3\lib\netstandard2.0\ZYSocketShare.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -81,6 +75,16 @@
     <None Include="server.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\ZYSocketFrame\ZYSocketServer\ZYSocketServer.csproj">
+      <Project>{2641ccf2-9a68-429f-a80a-46ec5cdd8d09}</Project>
+      <Name>ZYSocketServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\ZYSocketFrame\ZYSocketShare\ZYSocketShare.csproj">
+      <Project>{c209a8ee-e932-40ba-903f-c80ceb63f3f7}</Project>
+      <Name>ZYSocketShare</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -7,9 +7,13 @@ namespace ZYSocket.FiberStream
 {
     public interface IFiberReadStream
     {
+        int Size { get; }
+        bool HaveData();
+
+        bool IsBeginRaw { get; set; }
         Func<byte[], int, int, AsyncCallback, object, IAsyncResult> BeginReadFunc { get; set; }
         Func<IAsyncResult,int> EndBeginReadFunc { get; set; }
-        Action Receive { get; set; }     
+        Action ServerReceive { get; set; }     
         byte[] Numericbytes { get; }
         PipeFilberAwaiter Advance(int len);
         ArraySegment<byte> GetArray(int inithnit);
@@ -25,6 +29,7 @@ namespace ZYSocket.FiberStream
         void SetLength(long value);
         void StreamInit();
         StreamInitAwaiter WaitStreamInit();
-        Task Check();
+        ValueTask Check();
+       
     }
 }

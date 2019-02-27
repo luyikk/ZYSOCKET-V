@@ -125,14 +125,20 @@ namespace Server
                 case 3000: //在屏幕上显示消息 然后告诉客户端显示成功
                     {
                         string msg = await fiberRw.ReadString();
-                        Console.WriteLine(msg);
+                        using (var data = await fiberRw.ReadMemory())
+                        {
+                            Console.WriteLine(msg);
+                            Console.WriteLine(data.Value.Length);
 
-                        fiberRw.Write(3001);
-                        fiberRw.Write("msg show");
-                        await fiberRw.Flush();
+                            fiberRw.Write(3001);
+                            fiberRw.Write("msg show");
+                            fiberRw.Write(data.Value);
+                            await fiberRw.Flush();
+                        }
 
-                        return true;
+                       
                     }
+                    break;
                     
 
             }

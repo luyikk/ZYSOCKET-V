@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO.Compression;
 using System.Threading.Tasks;
+using TestLib;
 using ZYSocket;
 using ZYSocket.Client;
 using ZYSocket.FiberStream;
@@ -102,10 +103,9 @@ namespace Client
 
         static async Task ReadCommand(IFiberRw fiberRw)
         {
-            
             var cmd = await fiberRw.ReadInt32();
 
-            switch(cmd)
+            switch (cmd)
             {
                 case 1001:
                     {
@@ -115,7 +115,7 @@ namespace Client
 
                         if (isSuccess.Value)
                         {
-                            TestLib.Data data = new TestLib.Data()
+                            Data data = new Data()
                             {
                                 Id = Guid.NewGuid(),
                                 Time = DateTime.Now
@@ -127,17 +127,28 @@ namespace Client
 
                             fiberRw.Write(3000); //发送消息                          
                             fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
+                            fiberRw.Write(new byte[102400]);
                             await fiberRw.Flush();
                         }
-                      
+
                     }
                     break;
                 case 3001:
                     {
                         Console.WriteLine(await fiberRw.ReadString());
+                        using (var data = await fiberRw.ReadMemory())
+                        {
+                            Console.WriteLine(data.Value.Length);
+
+                            fiberRw.Write(3000); //发送消息                          
+                            fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
+                            fiberRw.Write(data.Value);
+                            await fiberRw.Flush();
+                        }
                     }
                     break;
             }
         }
     }
+
 }

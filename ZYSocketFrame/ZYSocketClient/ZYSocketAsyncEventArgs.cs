@@ -37,7 +37,7 @@ namespace ZYSocket.Client
         private IDisposable fibersslobj;
         private IDisposable fibersslT;
 
-        public Action Receive { get => RStream.Receive; set { RStream.Receive = value; } }
+        public Action Receive { get => RStream.ServerReceive; set { RStream.ServerReceive = value; } }
 
         public Action<ZYSocketAsyncEventArgs> DisconnectIt { get; set; }
 
@@ -99,8 +99,7 @@ namespace ZYSocket.Client
         {
             if (await RStream.WaitStreamInit())
             {
-             
-
+                RStream.IsBeginRaw = false;
                 var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init: init);
                 fiberobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
@@ -114,6 +113,7 @@ namespace ZYSocket.Client
         {
             if (await RStream.WaitStreamInit())
             {
+                RStream.IsBeginRaw = false;
                 var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian,init: init);
                 fiberobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
@@ -140,7 +140,7 @@ namespace ZYSocket.Client
                 {
                     return new GetFiberRwSSLResult { IsError = true, FiberRw = null, ErrMsg = er.Message };                  
                 }
-
+                RStream.IsBeginRaw = false;
                 var fiber = new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
@@ -170,7 +170,7 @@ namespace ZYSocket.Client
                     return new GetFiberRwSSLResult<T> { IsError = true, FiberRw = null, ErrMsg = er.Message };
                   
                 }
-               
+                RStream.IsBeginRaw = false;
                 var fiber = new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslT = fiber;
                 taskCompletionSource?.TrySetResult(fiber);

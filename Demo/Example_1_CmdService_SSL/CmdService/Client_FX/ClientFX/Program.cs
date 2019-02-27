@@ -71,7 +71,8 @@ namespace Client
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
 
-            var res = await socketAsync.GetFiberRwSSL(null, "localhost");  //我们在这地方使用SSL加密
+             var res = await socketAsync.GetFiberRwSSL(null, "localhost");  //我们在这地方使用SSL加密
+
 
             if (res.IsError)
             {
@@ -128,6 +129,7 @@ namespace Client
 
                             fiberRw.Write(3000); //发送消息                          
                             fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
+                            fiberRw.Write(new byte[102400]);
                             await fiberRw.Flush();
                         }
 
@@ -136,6 +138,15 @@ namespace Client
                 case 3001:
                     {
                         Console.WriteLine(await fiberRw.ReadString());
+                        using (var data = await fiberRw.ReadMemory())
+                        {
+                            Console.WriteLine(data.Value.Length);
+
+                            fiberRw.Write(3000); //发送消息                          
+                            fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
+                            fiberRw.Write(data.Value);
+                            await fiberRw.Flush();
+                        }
                     }
                     break;
             }

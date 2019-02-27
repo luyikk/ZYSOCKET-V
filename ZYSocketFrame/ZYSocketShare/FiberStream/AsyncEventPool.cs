@@ -248,7 +248,7 @@ namespace ZYSocket.Share
         public Task<int> SendSync(Socket sock)
         {
             Task<int> t;
-
+            
             if (sock.SendAsync(this))
             {
                 t = GetCompletionResponsibility(out bool responsibleForReturningToPool).Task;
@@ -293,9 +293,7 @@ namespace ZYSocket.Share
 
           
             base.ReleaseObjectRunTime = (obj, pool) =>
-              {                 
-                 // obj.SetBuffer(null, 0, 0);
-                 // obj.BufferList = null;
+              {
                   obj.Reset();
                   return obj;
               };

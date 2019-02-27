@@ -37,7 +37,8 @@ namespace TestClient
 
             var fiberRw = await client.GetFiberRw();
 
-            fiberRw.Write("Test");
+            byte[] data = new byte[102400];
+            fiberRw.Write(data);
 
             await fiberRw.Flush();
         }
