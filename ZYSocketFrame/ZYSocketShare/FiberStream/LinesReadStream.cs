@@ -13,6 +13,8 @@ namespace ZYSocket.FiberStream
     {
         private readonly object lockobj = new object();
 
+        private readonly PipeFilberAwaiter check_completed = new PipeFilberAwaiter(true);
+
         private readonly Pipes Pipes;
 
         private readonly byte[] data;
@@ -91,10 +93,12 @@ namespace ZYSocket.FiberStream
         }
 
 
-        public async ValueTask Check()
+        public  PipeFilberAwaiter Check()
         {
-            if (position == wrlen)         
-               await Pipes.Need();
+            if (position == wrlen)
+                return Pipes.Need();
+            else            
+                return check_completed;            
         }
 
         public void Reset()

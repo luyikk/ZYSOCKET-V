@@ -29,7 +29,7 @@ namespace ZYSocket.FiberStream
         void SetLength(long value);
         void StreamInit();
         StreamInitAwaiter WaitStreamInit();
-        ValueTask Check();
+        PipeFilberAwaiter Check();
        
     }
 }

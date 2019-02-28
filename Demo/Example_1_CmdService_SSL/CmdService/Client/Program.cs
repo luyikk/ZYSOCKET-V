@@ -135,10 +135,10 @@ namespace Client
                     break;
                 case 3001:
                     {
-                        Console.WriteLine(await fiberRw.ReadString());
+                        using (var pdata = await fiberRw.ReadMemory())
                         using (var data = await fiberRw.ReadMemory())
                         {
-                            Console.WriteLine(data.Value.Length);
+                            //Console.WriteLine(data.Value.Length);
 
                             fiberRw.Write(3000); //发送消息                          
                             fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");

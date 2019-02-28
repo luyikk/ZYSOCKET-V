@@ -130,11 +130,11 @@ namespace Server
                     break;
                 case 3000: //在屏幕上显示消息 然后告诉客户端显示成功
                     {
-                        string msg = await fiberRw.ReadString();
+                        using (var pdata = await fiberRw.ReadMemory())
                         using (var data = await fiberRw.ReadMemory())
                         {
-                            Console.WriteLine(msg);
-                            Console.WriteLine(data.Value.Length);
+                          
+                            //Console.WriteLine(data.Value.Length);
 
                             fiberRw.Write(3001);
                             fiberRw.Write("msg show");

@@ -2,12 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\ZYSocketFrame\ZYSocketServer\ZYSocketServer.csproj" />
-    <ProjectReference Include="..\..\..\..\ZYSocketFrame\ZYSocketShare\ZYSocketShare.csproj" />
+    <PackageReference Include="ZYSocketServerV" Version="1.2.5" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TestLib\TestLib.csproj" />
   </ItemGroup>
 
