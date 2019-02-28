@@ -54,11 +54,11 @@ namespace ZYSocket.FiberStream
         }
 
 
-        public PipeFilberAwaiter Advance(int len)
+        public void Advance(int len)
         {
             wrlen = len;
             position = 0;
-            return Pipes.Advance(len);
+            Pipes.Advance(len);
         }
 
     

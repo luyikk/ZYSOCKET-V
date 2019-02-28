@@ -241,14 +241,14 @@ namespace ZYSocket.Client
             this.AcceptSocket = null;            
         }
 
-        public PipeFilberAwaiter Advance(int bytesTransferred)
+        public void Advance(int bytesTransferred)
         {
-            return RStream.Advance(bytesTransferred);
+            RStream.Advance(bytesTransferred);
         }
 
-        public PipeFilberAwaiter Advance()
+        public void Advance()
         {
-            return RStream.Advance(BytesTransferred);
+            RStream.Advance(BytesTransferred);
         }
 
    

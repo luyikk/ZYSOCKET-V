@@ -15,7 +15,7 @@ namespace ZYSocket.FiberStream
         Func<IAsyncResult,int> EndBeginReadFunc { get; set; }
         Action ServerReceive { get; set; }     
         byte[] Numericbytes { get; }
-        PipeFilberAwaiter Advance(int len);
+        void Advance(int len);
         ArraySegment<byte> GetArray(int inithnit);
         Memory<byte> GetMemory(int inithnit);
         int Read(byte[] buffer, int offset, int count);

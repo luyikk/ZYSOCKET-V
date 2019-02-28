@@ -14,7 +14,6 @@ namespace ZYSocket
             unsafe
             {
                 return ((ReadOnlyMemory<byte>)memory).GetArray();
-
             }
         }
 

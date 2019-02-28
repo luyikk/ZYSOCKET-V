@@ -86,8 +86,7 @@ namespace ZYSocket.Server
 
         private void ZYSocketAsyncEventArgs_Completed(object sender, SocketAsyncEventArgs e)
         {
-            if(Completed!=null)
-                this.Completed(sender, this);
+            this.Completed(sender, this);
         }
 
         public new event EventHandler<ZYSocketAsyncEventArgs> Completed;
@@ -232,14 +231,14 @@ namespace ZYSocket.Server
             }
         }
 
-        public PipeFilberAwaiter Advance(int bytesTransferred)
+        public void Advance(int bytesTransferred)
         {
-            return RStream.Advance(bytesTransferred);
+             RStream.Advance(bytesTransferred);
         }
 
-        public PipeFilberAwaiter Advance()
+        public void Advance()
         {
-            return RStream.Advance(BytesTransferred);
+             RStream.Advance(BytesTransferred);
         }
 
    

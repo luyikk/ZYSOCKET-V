@@ -12,6 +12,7 @@ namespace ZYSocket.FiberStream
     {
 
         public  const int BufferBlockSize = 4096;
+        public const int checknum = 12;
 
         private long _len = 0;
 
@@ -100,7 +101,7 @@ namespace ZYSocket.FiberStream
 
             int isfull = (int)(_len % BufferBlockSize);
 
-            int segment_ptr = (int)_len / BufferBlockSize;
+            int segment_ptr = (int)(_len >> checknum);
 
             if (isfull == 0)
                 if (segment_ptr > 0)
@@ -114,7 +115,7 @@ namespace ZYSocket.FiberStream
 
             if (isfull != 0)
             {
-                var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray();
+                var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull);
                 Send.Send(array);
             }
             else
@@ -132,7 +133,7 @@ namespace ZYSocket.FiberStream
 
             int isfull = (int)(_len % BufferBlockSize);
 
-            int segment_ptr = (int)_len / BufferBlockSize;
+            int segment_ptr = (int)(_len >> checknum);
 
             if (isfull == 0)
                 if (segment_ptr > 0)
@@ -148,7 +149,7 @@ namespace ZYSocket.FiberStream
 
             if (isfull != 0)
             {
-                var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray();
+                var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull);
                 sendlen += await AsyncSend.SendAsync(array);               
             }
             else
@@ -188,7 +189,7 @@ namespace ZYSocket.FiberStream
             else if(needs<0)
             {
                 var x = Math.Abs(needs);
-                int v =(int) x / BufferBlockSize;
+                int v =(int) (x >>checknum);
                 
                 if(v>0)
                 {
@@ -279,7 +280,7 @@ namespace ZYSocket.FiberStream
                     Buffer.MemoryCopy(source, target, len, len);                    
 
                     _postion = _postion + len;
-                    _index = (int)(_postion / BufferBlockSize);
+                    _index = (int)(_postion >> checknum);
                     _tmp_postion = (int)(_postion % BufferBlockSize);
 
                     if(_postion>_len)
@@ -298,7 +299,7 @@ namespace ZYSocket.FiberStream
                 }
 
                 _postion = _postion + len;
-                _index = (int)(_postion / BufferBlockSize);
+                _index = (int)(_postion>>checknum);
                 _tmp_postion = (int)(_postion % BufferBlockSize);
 
                 if (_postion > _len)
@@ -338,7 +339,7 @@ namespace ZYSocket.FiberStream
             if (postion > _len)
                 postion = _len;
             _postion = postion;          
-            _index =(int)(postion / BufferBlockSize);
+            _index =(int)(postion >>checknum);
             _tmp_postion = (int)(postion % BufferBlockSize);
         }
 

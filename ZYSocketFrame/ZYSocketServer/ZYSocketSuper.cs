@@ -524,14 +524,14 @@ namespace ZYSocket.Server
 
 
 
-        async void BeginReceive(ZYSocketAsyncEventArgs e)
+        void BeginReceive(ZYSocketAsyncEventArgs e)
         {
 
 
             if (e.SocketError == SocketError.Success && e.BytesTransferred > 0)
             {
                
-                await e.Advance();
+                e.Advance();
                 
                 if (!e.AcceptSocket.ReceiveAsync(e))                                
                         BeginReceive(e);               
