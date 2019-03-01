@@ -126,8 +126,7 @@ namespace ZYSocket.Server
         {
             if (await RStream.WaitStreamInit())
             {
-                RStream.IsBeginRaw = false;
-                StartReceive();
+                RStream.IsBeginRaw = false;              
                 var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init:init);
                 fiberT = fiber;
                 return fiber;
@@ -150,8 +149,7 @@ namespace ZYSocket.Server
                 {
                     return (null,er.Message);
                 }
-                RStream.IsBeginRaw = false;
-                StartReceive();
+                RStream.IsBeginRaw = false;               
                 var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslobj = fiber;
                 return (fiber,null);
@@ -174,8 +172,7 @@ namespace ZYSocket.Server
                 {
                     return (null,er.Message);
                 }
-                RStream.IsBeginRaw = false;
-                StartReceive();
+                RStream.IsBeginRaw = false;              
                 var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslT = fiber;
                 return (fiber,null);

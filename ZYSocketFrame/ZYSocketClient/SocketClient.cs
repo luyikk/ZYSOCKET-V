@@ -207,14 +207,12 @@ namespace ZYSocket.Client
         {
             if (!AsynEvent.IsStartReceive)
             {
+                AsynEvent.IsStartReceive = true;
                 try
                 {
                     if (!Sock.ReceiveAsync(AsynEvent))
-                        BeginReceive(AsynEvent);
-
-                    AsynEvent.IsStartReceive = true;
-                    IsConnect = true;
-                    errorMsg = "connect success";
+                        BeginReceive(AsynEvent);                 
+                 
                 }
                 catch (ObjectDisposedException)
                 {
@@ -227,7 +225,8 @@ namespace ZYSocket.Client
         {
             if (isSuccess)
             {
-                StartReceive();               
+                IsConnect = true;
+                errorMsg = "connect success";
             }
             else
             {
@@ -262,10 +261,7 @@ namespace ZYSocket.Client
                         if (e.Add_check() > 512)
                         {
                             e.Reset_check();
-                            ThreadPool.QueueUserWorkItem(obj =>
-                            {
-                                BeginReceive(obj as ZYSocketAsyncEventArgs);
-                            }, e);
+                            ThreadPool.QueueUserWorkItem(obj => BeginReceive(obj as ZYSocketAsyncEventArgs), e);
                         }
                         else
                             BeginReceive(e);

@@ -58,7 +58,11 @@ namespace ZYSocket.Share
                 }
                 catch (SocketException er)
                 {
-                    if (er.SocketErrorCode != SocketError.TimedOut && er.SocketErrorCode != SocketError.ConnectionReset && er.SocketErrorCode != SocketError.OperationAborted)
+                    if (er.SocketErrorCode != SocketError.TimedOut &&
+                      er.SocketErrorCode != SocketError.ConnectionReset &&
+                      er.SocketErrorCode != SocketError.OperationAborted &&
+                      er.SocketErrorCode != SocketError.ConnectionAborted &&
+                      er.ErrorCode != 32)
                         throw er;
                 }
 
@@ -83,7 +87,11 @@ namespace ZYSocket.Share
                 }
                 catch (SocketException er)
                 {
-                    if (er.SocketErrorCode != SocketError.TimedOut && er.SocketErrorCode != SocketError.ConnectionReset && er.SocketErrorCode != SocketError.OperationAborted)
+                    if (er.SocketErrorCode != SocketError.TimedOut &&
+                      er.SocketErrorCode != SocketError.ConnectionReset &&
+                      er.SocketErrorCode != SocketError.OperationAborted &&
+                      er.SocketErrorCode != SocketError.ConnectionAborted &&
+                      er.ErrorCode != 32)
                         throw er;
                 }
 
@@ -109,7 +117,11 @@ namespace ZYSocket.Share
                 }
                 catch (SocketException er)
                 {
-                    if (er.SocketErrorCode != SocketError.TimedOut && er.SocketErrorCode != SocketError.ConnectionReset && er.SocketErrorCode != SocketError.OperationAborted)
+                    if (er.SocketErrorCode != SocketError.TimedOut && 
+                        er.SocketErrorCode != SocketError.ConnectionReset &&
+                        er.SocketErrorCode != SocketError.OperationAborted&&
+                        er.SocketErrorCode!=SocketError.ConnectionAborted&&
+                        er.ErrorCode!=32)
                         throw er;
                 }
 
@@ -136,7 +148,10 @@ namespace ZYSocket.Share
                 }
                 catch (SocketException er)
                 {
-                    if (er.SocketErrorCode != SocketError.ConnectionReset && er.SocketErrorCode != SocketError.OperationAborted)
+                    if (er.SocketErrorCode != SocketError.TimedOut && 
+                        er.SocketErrorCode != SocketError.ConnectionReset &&
+                        er.SocketErrorCode != SocketError.OperationAborted &&
+                        er.ErrorCode != 32)
                         throw er;
                 }
 

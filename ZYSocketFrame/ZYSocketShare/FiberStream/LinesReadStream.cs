@@ -95,6 +95,8 @@ namespace ZYSocket.FiberStream
 
         public  PipeFilberAwaiter Check()
         {
+            ServerReceive();
+
             if (position == wrlen)
                 return Pipes.Need();
             else            
@@ -148,8 +150,7 @@ namespace ZYSocket.FiberStream
         public void StreamInit()
         {
             if (InitAwaiter != null)
-            {
-                Pipes.Init();
+            {              
                 InitAwaiter.SetResult(true);
                 InitAwaiter.Completed();             
             }
@@ -197,8 +198,7 @@ namespace ZYSocket.FiberStream
         }
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
-        {
-            ServerReceive();
+        {          
             await Check();
             return  Read(buffer, offset, count);
         }

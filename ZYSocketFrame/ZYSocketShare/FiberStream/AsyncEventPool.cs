@@ -260,7 +260,10 @@ namespace ZYSocket.Share
             {              
                 if (SocketError == SocketError.Success)
                     return Task.FromResult(BytesTransferred);
-                else if(SocketError!=SocketError.ConnectionReset && SocketError != SocketError.OperationAborted&&SocketError!= SocketError.ConnectionAborted)
+                else if (SocketError != SocketError.TimedOut &&
+                     SocketError != SocketError.ConnectionReset &&
+                     SocketError != SocketError.OperationAborted &&
+                     SocketError != SocketError.ConnectionAborted)
                     return Task.FromException<int>(GetException(SocketError));
                 else
                     return Task.FromResult(0);
@@ -319,7 +322,10 @@ namespace ZYSocket.Share
             {
                 builder.SetResult(saea.BytesTransferred);
             }
-            else if(error!= SocketError.ConnectionReset&&error!=SocketError.OperationAborted&& error != SocketError.ConnectionAborted)
+            else if (error != SocketError.TimedOut &&
+                     error != SocketError.ConnectionReset &&
+                     error != SocketError.OperationAborted &&
+                     error != SocketError.ConnectionAborted)
             {
                 builder.SetException(GetException(error));
             }

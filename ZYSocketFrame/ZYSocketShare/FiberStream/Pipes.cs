@@ -18,11 +18,6 @@ namespace ZYSocket.FiberStream
             wl = 0;           
         }
 
-        public void Init()
-        {
-            read.Init();
-        }
-        
      
 
         public void Advance(int len)

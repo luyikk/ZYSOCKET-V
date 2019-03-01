@@ -126,8 +126,7 @@ namespace Client
                             await fiberRw.Flush();
 
                             fiberRw.Write(3000); //发送消息                          
-                            fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
-                            fiberRw.Write(new byte[102400]);
+                            fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");                         
                             await fiberRw.Flush();
                         }
 
@@ -135,14 +134,12 @@ namespace Client
                     break;
                 case 3001:
                     {
-                        using (var pdata = await fiberRw.ReadMemory())
                         using (var data = await fiberRw.ReadMemory())
-                        {
-                            //Console.WriteLine(data.Value.Length);
+                        { 
+                            Console.WriteLine(data.Value.Length);
 
                             fiberRw.Write(3000); //发送消息                          
-                            fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
-                            fiberRw.Write(data.Value);
+                            fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");                         
                             await fiberRw.Flush();
                         }
                     }
