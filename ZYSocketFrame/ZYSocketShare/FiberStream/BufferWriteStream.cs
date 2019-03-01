@@ -172,8 +172,7 @@ namespace ZYSocket.FiberStream
 
         public void Reset()
         {           
-            _len = 0;
-            set_current_tmp_postion(0);
+            _len = _postion= _index= _tmp_postion=0;         
         }
 
 
@@ -335,10 +334,12 @@ namespace ZYSocket.FiberStream
 
 
         private void set_current_tmp_postion(long postion)
-        {          
-            if (postion > _len)
-                postion = _len;
-            _postion = postion;          
+        {
+            //if (postion > _len)
+            //    postion = _len;
+            //_postion = postion; 
+
+            _postion = postion = postion > _len ? _len : postion;
             _index =(int)(postion >>checknum);
             _tmp_postion = (int)(postion % BufferBlockSize);
         }

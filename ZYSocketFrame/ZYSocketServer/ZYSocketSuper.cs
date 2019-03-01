@@ -532,10 +532,23 @@ namespace ZYSocket.Server
             {
                
                 e.Advance();
-                
-                if (!e.AcceptSocket.ReceiveAsync(e))                                
-                        BeginReceive(e);               
 
+                if (!e.AcceptSocket.ReceiveAsync(e))
+                {
+                    if (e.Add_check() > 512)
+                    {
+                        e.Reset_check();
+                        ThreadPool.QueueUserWorkItem(obj =>
+                        {
+                            BeginReceive(obj as ZYSocketAsyncEventArgs);
+                        }, e);
+                    }
+                    else
+                        BeginReceive(e);
+
+                }
+
+                e.Reset_check();
             }
             else
             {             

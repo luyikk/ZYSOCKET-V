@@ -37,10 +37,15 @@ namespace TestClient
 
             var fiberRw = await client.GetFiberRw();
 
-            byte[] data = new byte[102400];
-            fiberRw.Write(data);
+            for (; ; )
+            {
+               
+                byte[] data = new byte[102400];
+                fiberRw.Write(data);
+                fiberRw.Write(1);
 
-            await fiberRw.Flush();
+                await fiberRw.Flush();
+            }
         }
 
         private static void Client_Disconnect(ISocketClient client, ISockAsyncEvent socketAsync, string msg)

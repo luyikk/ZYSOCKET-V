@@ -36,7 +36,7 @@ namespace TestServer
              .ConfigServer(p =>
              {
                  p.Port = 1002;
-                 p.MaxBufferSize = 8192;
+                 p.MaxBufferSize = 4096;
                  p.MaxConnectCout = 1;
              });
 
@@ -111,14 +111,16 @@ namespace TestServer
                 {
                     using (var data = await fiberRw.ReadMemory())
                     {
+                        int? x = await fiberRw.ReadInt32();
 
                         Console.WriteLine(data.Value.Length);
+                        Console.WriteLine(x);
 
                         fiberRw.Write("ok");
                         await fiberRw.Flush();
                     }
 
-                    break;
+                    //break;
 
                 }
                 catch (Exception er)

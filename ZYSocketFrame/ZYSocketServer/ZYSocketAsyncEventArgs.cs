@@ -35,13 +35,28 @@ namespace ZYSocket.Server
         private IDisposable fibersslobj;
         private IDisposable fibersslT;
         public Action<ZYSocketAsyncEventArgs> DisconnectIt { get; set; }
-
        
+
 
         public Action<ZYSocketAsyncEventArgs> StartReceiveAction { get; set; }
 
 
+
         int isStartReceive = 0;
+
+        private int _check_thread = 0;
+
+
+        public int Add_check()
+        {
+            _check_thread++;
+            return _check_thread;
+        }
+
+        public void Reset_check()
+        {
+            _check_thread = 0;
+        }
 
         public void StartReceive()
         {
