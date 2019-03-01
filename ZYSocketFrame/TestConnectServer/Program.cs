@@ -96,7 +96,7 @@ namespace TestServer
             if (fiberRw is null)
             {
                 Console.WriteLine(errMsg);
-                socketAsync.Disconnect(true);
+                socketAsync.Disconnect();
                 return;
             }
 
@@ -120,7 +120,7 @@ namespace TestServer
                         await fiberRw.Flush();
                     }
 
-                    //break;
+                    break;
 
                 }
                 catch (Exception er)

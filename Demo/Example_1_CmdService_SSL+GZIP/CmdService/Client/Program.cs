@@ -82,7 +82,7 @@ namespace Client
             if (res.IsError)
             {
                 Console.WriteLine(res.ErrMsg);
-                client.ShutdownBoth(true);
+                client.ShutdownBoth();
                 return;
             }
 

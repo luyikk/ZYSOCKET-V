@@ -133,7 +133,7 @@ namespace TestServer
             if (fiberRw is null)
             {
                 Console.WriteLine(errMsg);
-                socketAsync.Disconnect(true);
+                socketAsync.Disconnect();
                 return;
             }
 

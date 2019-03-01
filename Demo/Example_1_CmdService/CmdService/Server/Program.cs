@@ -47,7 +47,7 @@ namespace Server
 
             if (fiberW is null) //如果获取失败 那么断开连接
             {
-                socketAsync.Disconnect(true);
+                socketAsync.Disconnect();
                 return;
             }
 

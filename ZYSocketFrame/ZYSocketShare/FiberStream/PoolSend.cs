@@ -38,6 +38,20 @@ namespace ZYSocket.Share
             _accpet = connect;
         }
 
+
+        private bool TheSocketExceptionThrow(SocketException er)
+        {
+            if (er.SocketErrorCode != SocketError.TimedOut &&
+                    er.SocketErrorCode != SocketError.ConnectionReset &&
+                    er.SocketErrorCode != SocketError.OperationAborted &&
+                    er.SocketErrorCode != SocketError.ConnectionAborted &&
+                    er.SocketErrorCode != SocketError.Shutdown &&
+                    er.SocketErrorCode != SocketError.Interrupted &&
+                    er.ErrorCode != 32)
+                return false;
+
+            return true;
+        }
         
 
         public void Send(ArraySegment<byte> data)
@@ -58,13 +72,10 @@ namespace ZYSocket.Share
                 }
                 catch (SocketException er)
                 {
-                    if (er.SocketErrorCode != SocketError.TimedOut &&
-                      er.SocketErrorCode != SocketError.ConnectionReset &&
-                      er.SocketErrorCode != SocketError.OperationAborted &&
-                      er.SocketErrorCode != SocketError.ConnectionAborted &&
-                      er.ErrorCode != 32)
-                        throw er;
+                    if(TheSocketExceptionThrow(er))
+                            throw er;
                 }
+              
 
             }
         }
@@ -87,13 +98,10 @@ namespace ZYSocket.Share
                 }
                 catch (SocketException er)
                 {
-                    if (er.SocketErrorCode != SocketError.TimedOut &&
-                      er.SocketErrorCode != SocketError.ConnectionReset &&
-                      er.SocketErrorCode != SocketError.OperationAborted &&
-                      er.SocketErrorCode != SocketError.ConnectionAborted &&
-                      er.ErrorCode != 32)
+                    if (TheSocketExceptionThrow(er))
                         throw er;
                 }
+             
 
             }
 
@@ -117,13 +125,10 @@ namespace ZYSocket.Share
                 }
                 catch (SocketException er)
                 {
-                    if (er.SocketErrorCode != SocketError.TimedOut && 
-                        er.SocketErrorCode != SocketError.ConnectionReset &&
-                        er.SocketErrorCode != SocketError.OperationAborted&&
-                        er.SocketErrorCode!=SocketError.ConnectionAborted&&
-                        er.ErrorCode!=32)
+                    if (TheSocketExceptionThrow(er))
                         throw er;
                 }
+             
 
 
             }
@@ -148,12 +153,9 @@ namespace ZYSocket.Share
                 }
                 catch (SocketException er)
                 {
-                    if (er.SocketErrorCode != SocketError.TimedOut && 
-                        er.SocketErrorCode != SocketError.ConnectionReset &&
-                        er.SocketErrorCode != SocketError.OperationAborted &&
-                        er.ErrorCode != 32)
+                    if (TheSocketExceptionThrow(er))
                         throw er;
-                }
+                }            
 
             }
 

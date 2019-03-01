@@ -9,7 +9,7 @@
     <PackageLicenseUrl>https://github.com/luyikk/ZYSOCKET-V/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/luyikk/ZYSOCKET-V</PackageProjectUrl>
     <Description>ZYSOCKET CLIENT</Description>
-    <Version>1.2.8</Version>
+    <Version>1.3.0</Version>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
   </PropertyGroup>

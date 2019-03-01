@@ -263,8 +263,10 @@ namespace ZYSocket.Share
                 else if (SocketError != SocketError.TimedOut &&
                      SocketError != SocketError.ConnectionReset &&
                      SocketError != SocketError.OperationAborted &&
-                     SocketError != SocketError.ConnectionAborted)
-                    return Task.FromException<int>(GetException(SocketError));
+                     SocketError != SocketError.Shutdown &&
+                     SocketError != SocketError.ConnectionAborted&&
+                     SocketError !=SocketError.Interrupted)
+                        return Task.FromException<int>(GetException(SocketError));
                 else
                     return Task.FromResult(0);
             }
@@ -325,7 +327,9 @@ namespace ZYSocket.Share
             else if (error != SocketError.TimedOut &&
                      error != SocketError.ConnectionReset &&
                      error != SocketError.OperationAborted &&
-                     error != SocketError.ConnectionAborted)
+                     error != SocketError.Shutdown &&
+                     error != SocketError.ConnectionAborted&&
+                     error != SocketError.Interrupted)
             {
                 builder.SetException(GetException(error));
             }

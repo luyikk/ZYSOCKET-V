@@ -35,7 +35,7 @@ namespace Client
         //链接服务器
         static async void connect()
         {
-            var result =  client.Connect("127.0.0.1", 3000,6000); //同步链接
+            var result =  client.Connect("127.0.0.1", 3000,60000); //同步链接
            // var (IsSuccess, Msg) = await client.ConnectAsync("127.0.0.1", 3000); //异步链接
             Console.WriteLine(result);
 
@@ -77,7 +77,7 @@ namespace Client
             if (res.IsError)
             {
                 Console.WriteLine(res.ErrMsg);
-                client.ShutdownBoth(true);
+                client.ShutdownBoth();
                 return;
             }
 
@@ -97,7 +97,7 @@ namespace Client
                 }
             }
 
-            client.ShutdownBoth(true);
+            client.ShutdownBoth();
 
         }
 

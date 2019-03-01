@@ -47,7 +47,7 @@ namespace Client
             if (res.IsError)
             {
                 MessageBox.Show(res.ErrMsg);
-                client.ShutdownBoth(true);
+                client.ShutdownBoth();
                 return;
             }
 
@@ -66,7 +66,7 @@ namespace Client
                 }
             }
 
-            client.ShutdownBoth(true);
+            client.ShutdownBoth();
         }
 
                

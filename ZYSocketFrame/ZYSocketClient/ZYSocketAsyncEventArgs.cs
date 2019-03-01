@@ -36,8 +36,7 @@ namespace ZYSocket.Client
         private IDisposable fiberT;
         private IDisposable fibersslobj;
         private IDisposable fibersslT;
-
-        public Action Receive { get => RStream.ServerReceive; set { RStream.ServerReceive = value; } }
+     
 
         public Action<ZYSocketAsyncEventArgs> DisconnectIt { get; set; }
 
@@ -68,23 +67,10 @@ namespace ZYSocket.Client
             base.Completed += ZYSocketAsyncEventArgs_Completed;
             IsLittleEndian = isLittleEndian;
             SendImplemented = send;
-            AsyncSendImplemented = asyncsend;
-            RStream.BeginReadFunc = BeginRead;
-            RStream.EndBeginReadFunc = EndBeginRead;
+            AsyncSendImplemented = asyncsend;       
             
         }
 
-
-        private IAsyncResult BeginRead(byte[] data, int offset, int count, AsyncCallback callback, object state)
-        {
-            return this.ConnectSocket?.BeginReceive(data, offset, count, SocketFlags.None, callback, state);
-
-        }
-
-        private int EndBeginRead(IAsyncResult asyncResult)
-        {
-            return this.ConnectSocket.EndReceive(asyncResult);
-        }
 
 
         private void ZYSocketAsyncEventArgs_Completed(object sender, SocketAsyncEventArgs e)
@@ -98,8 +84,7 @@ namespace ZYSocket.Client
         public async ValueTask<IFiberRw> GetFiberRw(Func<Stream, Stream, GetFiberRwResult> init = null)
         {
             if (await RStream.WaitStreamInit())
-            {
-                RStream.IsBeginRaw = false;
+            {                
                 var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init: init);
                 fiberobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
@@ -112,8 +97,7 @@ namespace ZYSocket.Client
         public async ValueTask<IFiberRw<T>> GetFiberRw<T>(Func<Stream, Stream, GetFiberRwResult> init = null) where T:class
         {
             if (await RStream.WaitStreamInit())
-            {
-                RStream.IsBeginRaw = false;
+            {               
                 var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian,init: init);
                 fiberobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
@@ -140,7 +124,7 @@ namespace ZYSocket.Client
                 {
                     return new GetFiberRwSSLResult { IsError = true, FiberRw = null, ErrMsg = er.Message };                  
                 }
-                RStream.IsBeginRaw = false;
+             
                 var fiber = new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
@@ -170,7 +154,7 @@ namespace ZYSocket.Client
                     return new GetFiberRwSSLResult<T> { IsError = true, FiberRw = null, ErrMsg = er.Message };
                   
                 }
-                RStream.IsBeginRaw = false;
+              
                 var fiber = new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslT = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
@@ -200,7 +184,7 @@ namespace ZYSocket.Client
             base.SetBuffer(mem.Array, mem.Offset, mem.Count);
         }
 
-        public void Disconnect(bool dispose=false)
+        public void Disconnect()
         {
             try
             {
@@ -208,8 +192,8 @@ namespace ZYSocket.Client
                 {
                     ConnectSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
 
-                    if(dispose)
-                        DisconnectIt?.Invoke(this);
+                    //if(dispose)
+                    //    DisconnectIt?.Invoke(this);
                 }
             }
             catch (ObjectDisposedException)

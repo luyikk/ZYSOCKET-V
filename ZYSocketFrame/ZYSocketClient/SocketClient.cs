@@ -137,8 +137,7 @@ namespace ZYSocket.Client
             {
                 RemoteEndPoint = myEnd
             };
-            e.DisconnectIt = Diconnect_It;
-            e.Receive = StartReceive;
+            e.DisconnectIt = Diconnect_It;           
             e.Completed += E_Completed;
             AsynEvent = e;
 
@@ -194,6 +193,7 @@ namespace ZYSocket.Client
                 asyncsend.SetConnect(e);
                 e.SetBuffer(bufferSize);
                 e.StreamInit();
+                StartReceive();
             }
             else
             {
@@ -208,16 +208,10 @@ namespace ZYSocket.Client
             if (!AsynEvent.IsStartReceive)
             {
                 AsynEvent.IsStartReceive = true;
-                try
-                {
-                    if (!Sock.ReceiveAsync(AsynEvent))
-                        BeginReceive(AsynEvent);                 
-                 
-                }
-                catch (ObjectDisposedException)
-                {
-                    Diconnect_It(AsynEvent);
-                }
+
+                if (!Sock.ReceiveAsync(AsynEvent))
+                    BeginReceive(AsynEvent);
+
             }
         }
 
@@ -300,7 +294,7 @@ namespace ZYSocket.Client
             if (IsConnect)
             {
                 Sock?.Shutdown(SocketShutdown.Both);
-                this.Dispose();
+               
             }
 
             if (events)

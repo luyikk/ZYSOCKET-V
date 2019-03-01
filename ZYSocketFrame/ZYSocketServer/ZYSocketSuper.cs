@@ -314,9 +314,8 @@ namespace ZYSocket.Server
                     memoryPool,
                     Encoding.UTF8
                    );
-
-               
-                socketasyn.StartReceiveAction = StartReceive;
+                               
+             
                 socketasyn.DisconnectIt = Disconnect_It;
                 poolSend.SetAccpet(socketasyn);
                 socketasyn.Completed += new EventHandler<ZYSocketAsyncEventArgs>(Asyn_Completed);
@@ -438,8 +437,7 @@ namespace ZYSocket.Server
                     encode,
                     config.IsLittleEndian
                    );
-
-                socketasyn.StartReceiveAction= StartReceive;
+               
                 socketasyn.DisconnectIt = Disconnect_It;
                 poolSend.SetAccpet(socketasyn);
                 poolAsyncSend.SetAccpet(socketasyn);
@@ -506,7 +504,7 @@ namespace ZYSocket.Server
                 e.SetBuffer(MaxBufferSize);
                 BinaryInput?.Invoke(e);
                 e.StreamInit();
-
+                StartReceive(e);
             }
             else
             {               

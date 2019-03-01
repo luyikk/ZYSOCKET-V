@@ -25,27 +25,16 @@ namespace ZYSocket.FiberStream
 
         private long wrlen;
 
-        private long position;
-    
+        private long position;    
 
         private StreamInitAwaiter InitAwaiter;    
         
         private readonly byte[] numericbytes = new byte[8];
 
-        public Func<byte[], int, int, AsyncCallback,object, IAsyncResult> BeginReadFunc { get; set; }
-        public Func<IAsyncResult,int> EndBeginReadFunc { get; set; }
-        public Action ServerReceive { get; set; }
-
         public byte[]  Numericbytes { get => numericbytes; }
 
-        public int Size => len;
-
-        bool isBeginRw = true;
-        /// <summary>
-        /// 此参数只是为了对.NET FX SSL问题进行修复,因为.net fx sslstream调用的是Begin方法
-        /// </summary>
-        public bool IsBeginRaw { get=>IsBeginRaw; set { isBeginRw = value; } }
-
+        public int Size => len;       
+      
         public LinesReadStream(int length = 4096)
         {
             Pipes = new Pipes();
@@ -59,9 +48,7 @@ namespace ZYSocket.FiberStream
             wrlen = len;
             position = 0;
             Pipes.Advance(len);
-        }
-
-    
+        }            
 
 
         public Memory<byte> GetMemory(int inithnit)
@@ -95,8 +82,6 @@ namespace ZYSocket.FiberStream
 
         public  PipeFilberAwaiter Check()
         {
-            ServerReceive();
-
             if (position == wrlen)
                 return Pipes.Need();
             else            
@@ -111,7 +96,7 @@ namespace ZYSocket.FiberStream
             position = 0;
             wrlen = 0;
             offset = 0;
-            isBeginRw=true;
+          
           
         }
 
@@ -206,27 +191,15 @@ namespace ZYSocket.FiberStream
 
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
-            if (isBeginRw)
-            {
-                return BeginReadFunc.Invoke(buffer, offset, count, callback, state);
-            }
-            else
-            {
-                var task = ReadAsync(buffer, offset, count);
-                return TaskToApm.Begin(task, callback, state);
-            }
+
+            var task = ReadAsync(buffer, offset, count, CancellationToken.None);
+            return TaskToApm.Begin(task, callback, state);
+
         }
 
         public override int EndRead(IAsyncResult asyncResult)
         {
-            if (isBeginRw)
-            {
-                return EndBeginReadFunc.Invoke(asyncResult);
-            }
-            else
-            {
-                return TaskToApm.End<int>(asyncResult);
-            }
+            return TaskToApm.End<int>(asyncResult);
         }
 
 
