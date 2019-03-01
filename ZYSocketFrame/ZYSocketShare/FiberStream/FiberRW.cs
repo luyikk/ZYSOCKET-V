@@ -156,7 +156,7 @@ namespace ZYSocket.FiberStream
             do
             {
                
-                var res = await streamReadFormat.ReadAsync(data, offset, needcount, CancellationToken.None).ConfigureAwait(false);
+                var res = await streamReadFormat.ReadAsync(data, offset_next, needcount, CancellationToken.None).ConfigureAwait(false);
 
                 if (res == 0)
                     return count - needcount;
