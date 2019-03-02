@@ -47,7 +47,7 @@ namespace ZYSocket.Client
 
         public bool IsConnect { get; private set; }
 
-        public ZYSocketAsyncEventArgs AsynEvent { get; private set; }
+        public ZYSocketAsyncEventArgs CurrentSocketAsyncEventArgs { get; private set; }
       
 
         private System.Threading.AutoResetEvent wait = new System.Threading.AutoResetEvent(false);
@@ -139,11 +139,11 @@ namespace ZYSocket.Client
             };
             e.DisconnectIt = Diconnect_It;           
             e.Completed += E_Completed;
-            AsynEvent = e;
+            CurrentSocketAsyncEventArgs = e;
 
-            if (!Sock.ConnectAsync(AsynEvent))
+            if (!Sock.ConnectAsync(CurrentSocketAsyncEventArgs))
             {
-                Connect(AsynEvent);
+                Connect(CurrentSocketAsyncEventArgs);
             }
 
             if (wait.WaitOne(connectTimeout))
@@ -205,12 +205,12 @@ namespace ZYSocket.Client
 
         private void StartReceive()
         {
-            if (!AsynEvent.IsStartReceive)
+            if (!CurrentSocketAsyncEventArgs.IsStartReceive)
             {
-                AsynEvent.IsStartReceive = true;
+                CurrentSocketAsyncEventArgs.IsStartReceive = true;
 
-                if (!Sock.ReceiveAsync(AsynEvent))
-                    BeginReceive(AsynEvent);
+                if (!Sock.ReceiveAsync(CurrentSocketAsyncEventArgs))
+                    BeginReceive(CurrentSocketAsyncEventArgs);
 
             }
         }
@@ -224,7 +224,7 @@ namespace ZYSocket.Client
             }
             else
             {
-                Diconnect_It(AsynEvent);
+                Diconnect_It(CurrentSocketAsyncEventArgs);
 
                 IsConnect = false;
                 if (string.IsNullOrEmpty(err))
@@ -300,7 +300,7 @@ namespace ZYSocket.Client
             if (events)
             {
                 errorMsg = "Disconnect";
-                Disconnect?.Invoke(this, AsynEvent, errorMsg);
+                Disconnect?.Invoke(this, CurrentSocketAsyncEventArgs, errorMsg);
             }
         }
 

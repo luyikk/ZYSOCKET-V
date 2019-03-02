@@ -6,7 +6,7 @@ namespace ZYSocket.Client
 {
     public interface ISocketClient
     {
-        ZYSocketAsyncEventArgs AsynEvent { get; }
+        ZYSocketAsyncEventArgs CurrentSocketAsyncEventArgs { get; }
         string ErrorMsg { get; set; }
         bool IsConnect { get; }
         Socket Sock { get; }

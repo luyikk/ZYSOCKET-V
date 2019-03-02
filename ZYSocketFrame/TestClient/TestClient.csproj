@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ZYSocketClient\ZYSocketClient.csproj" />
-    <ProjectReference Include="..\ZYSocketShare\ZYSocketShare.csproj" />
   </ItemGroup>
 
 </Project>
