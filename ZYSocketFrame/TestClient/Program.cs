@@ -37,8 +37,14 @@ namespace TestClient
 
             var fiberRw = await client.GetFiberRw();
 
-            for(; ; )
-                SendTest(fiberRw);
+            for (; ; )
+            {
+                try
+                {
+                    SendTest(fiberRw);
+                }
+                catch { break; }
+            }
         }
 
         private static void Client_Disconnect(ISocketClient client, ISockAsyncEvent socketAsync, string msg)

@@ -254,7 +254,7 @@ namespace ZYSocket
             Write(data ? ((byte)1) : ((byte)0));
         }
 
-        public async void Flush()
+        public Task<int> Flush()
         {
 
 
@@ -293,7 +293,7 @@ namespace ZYSocket
             byte[] data = StreamWrite.ToArray();
             StreamWriteFormat.Write(data, 0, data.Length);
             StreamWriteFormat.Flush();
-            await FiberWriteStream.AwaitFlush();
+            return  FiberWriteStream.AwaitFlush();
         }
 
 

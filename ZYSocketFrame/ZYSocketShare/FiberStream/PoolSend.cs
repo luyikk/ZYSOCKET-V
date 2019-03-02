@@ -48,9 +48,9 @@ namespace ZYSocket.Share
                     er.SocketErrorCode != SocketError.Shutdown &&
                     er.SocketErrorCode != SocketError.Interrupted &&
                     er.ErrorCode != 32)
-                return false;
+                return true;
 
-            return true;
+            return false;
         }
         
 
@@ -134,8 +134,9 @@ namespace ZYSocket.Share
             }
         }
 
-        public  void Send(ReadOnlyMemory<byte> data)
+        public void Send(ReadOnlyMemory<byte> data)
         {
+
             Socket socket = null;
 
             if (isAccpet)
@@ -145,7 +146,7 @@ namespace ZYSocket.Share
 
             if (socket != null)
             {
-               
+
                 try
                 {
                     var array = data.GetArray();
@@ -155,11 +156,12 @@ namespace ZYSocket.Share
                 {
                     if (TheSocketExceptionThrow(er))
                         throw er;
-                }            
+                }
 
             }
 
-    }
+
+        }
 
 
         public async Task<int> SendAsync(ArraySegment<byte> data)
