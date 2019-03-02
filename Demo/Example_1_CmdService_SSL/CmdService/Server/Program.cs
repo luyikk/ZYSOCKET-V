@@ -25,7 +25,7 @@ namespace Server
 
              })
              .ConfigServer(p => {
-                 p.MaxConnectCout = 1;
+                 p.MaxConnectCout = 100;
                  p.Port = 3000;
                  p.MaxBufferSize = 4096;
                  }))
