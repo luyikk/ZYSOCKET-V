@@ -1,8 +1,8 @@
 ﻿/*
- * 北风之神SOCKET框架(ZYSocket)
- *  Borey Socket Frame(ZYSocket)
+ *  ZY Socket Frame
  *  by luyikk@126.com
- *  Updated 2014-7-21  此类已支持MONO
+ *  Start 2007-12-3
+ *  Updated 2019-3-3 
  */
 
 using System;

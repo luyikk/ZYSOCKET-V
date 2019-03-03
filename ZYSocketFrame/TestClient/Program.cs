@@ -67,15 +67,15 @@ namespace TestClient
                 writeBytes.Write(true);
                 writeBytes.Write(false);
                 writeBytes.Write("ssssssssssssssssssssssssssssssssssssss");
-                writeBytes.Write("XXXXXXXXXXXXXXXXXXXXXXXXX");
+                writeBytes.Write(new byte[9000]);
                 writeBytes.Write((short)111);
 
-                List<Guid> guids = new List<Guid>();
-                for (int i = 0; i < 1; i++)
-                {
-                    guids.Add(Guid.NewGuid());
-                }
-                writeBytes.Write(guids);
+                //List<Guid> guids = new List<Guid>();
+                //for (int i = 0; i < 100; i++)
+                //{
+                //    guids.Add(Guid.NewGuid());
+                //}
+                //writeBytes.Write(guids);
                 writeBytes.Flush();
             }
         }
@@ -129,7 +129,7 @@ namespace TestClient
             {
 
                 var p9 = await fiberRw.ReadInt16();
-                var p10 = await fiberRw.ReadObject<List<Guid>>();
+               // var p10 = await fiberRw.ReadObject<List<Guid>>();
 
    
                 //fiberRw.Write(len.Value);

@@ -134,8 +134,8 @@ namespace TestServer
                 try
                 {
                     //提供2种数据 读取写入方式
-                    //ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
-                    //DataOn(ref readBytes, fiberRw);
+                    ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
+                    DataOn(ref readBytes, fiberRw);
 
 
                     await DataOnByLine(fiberRw);
@@ -171,10 +171,10 @@ namespace TestServer
 
             using (var p8 = await fiberRw.ReadMemory())
             {
-
+                
                 var p9 = await fiberRw.ReadInt16();
              
-                var p10 = await fiberRw.ReadObject<List<Guid>>();
+               // var p10 = await fiberRw.ReadObject<List<Guid>>();
 
                 fiberRw.Write(len.Value);
                 fiberRw.Write(cmd.Value);
@@ -187,7 +187,7 @@ namespace TestServer
                 fiberRw.Write(p7);
                 fiberRw.Write(p8.Value);
                 fiberRw.Write(p9.Value);
-                fiberRw.Write(p10);
+                //fiberRw.Write(p10);
                 await fiberRw.Flush();
             }
 
@@ -209,7 +209,7 @@ namespace TestServer
             var p9 = read.ReadInt16();      
 
 
-            var p10 = read.ReadObject<List<Guid>>();
+           // var p10 = read.ReadObject<List<Guid>>();
             read.Dispose();
           
 
@@ -226,7 +226,7 @@ namespace TestServer
                 writeBytes.Write(p7);
                 writeBytes.Write(p8);
                 writeBytes.Write(p9.Value);
-                writeBytes.Write(p10);
+                //writeBytes.Write(p10);
                 writeBytes.Flush();
             }
 

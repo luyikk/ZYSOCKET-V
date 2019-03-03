@@ -360,10 +360,7 @@ namespace ZYSocket
         {
             var mem = ReadMemory();
             var array = mem.GetArray();
-
             return FiberRw.ObjFormat.Read<T>(array.Array, array.Offset, array.Count);
-
-
         }
 
     }
