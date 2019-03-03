@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZYSocket.FiberStream;
 using ZYSocket.Share;
+using ZYSocket.Interface;
 
 namespace ZYSocket.Server
 {
@@ -19,6 +20,8 @@ namespace ZYSocket.Server
         private readonly IFiberReadStream RStream;
 
         private readonly IFiberWriteStream WStream;
+
+
       
         private bool isInit = false;
         public bool IsInit => isInit;
@@ -27,6 +30,8 @@ namespace ZYSocket.Server
 
         public  bool IsLittleEndian { get; private set; }
         public  Encoding Encoding { get; private set; }
+        public IObjFormat ObjFormat { get; private set; }
+
         public ISend SendImplemented { get;  private set; }
         public IAsyncSend AsyncSendImplemented { get; private set; } 
 
@@ -54,12 +59,13 @@ namespace ZYSocket.Server
       
 
 
-        public ZYSocketAsyncEventArgs(IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, bool isLittleEndian=false)
+        public ZYSocketAsyncEventArgs(IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, IObjFormat objFormat = null,bool isLittleEndian=false)
         {
             this.MemoryPool = memoryPool;
             this.RStream = r_stream;
             this.WStream = w_stream;
             this.Encoding = encoding;
+            this.ObjFormat = objFormat;
             base.Completed += ZYSocketAsyncEventArgs_Completed;
             IsLittleEndian = isLittleEndian;
             SendImplemented = send;
@@ -81,7 +87,7 @@ namespace ZYSocket.Server
         {
             if (await RStream.WaitStreamInit())
             { 
-                var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian,init:init);
+                var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat,IsLittleEndian, init:init);
                 fiberobj = fiber;
                 return fiber;
             }
@@ -93,7 +99,7 @@ namespace ZYSocket.Server
         {
             if (await RStream.WaitStreamInit())
             {       
-                var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init:init);
+                var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat,IsLittleEndian, init:init);
                 fiberT = fiber;
                 return fiber;
             }
@@ -115,7 +121,7 @@ namespace ZYSocket.Server
                 {
                     return (null,er.Message);
                 }                   
-                var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+                var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslobj = fiber;
                 return (fiber,null);
             }
@@ -137,7 +143,7 @@ namespace ZYSocket.Server
                 {
                     return (null,er.Message);
                 }                    
-                var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+                var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat, IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslT = fiber;
                 return (fiber,null);
             }

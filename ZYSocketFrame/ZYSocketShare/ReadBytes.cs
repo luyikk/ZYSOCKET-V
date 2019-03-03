@@ -360,10 +360,8 @@ namespace ZYSocket
         {
             var mem = ReadMemory();
             var array = mem.GetArray();
-            using (System.IO.MemoryStream stream = new System.IO.MemoryStream(array.Array, array.Offset, array.Count))
-            {
-                return ProtoBuf.Serializer.Deserialize<T>(stream);
-            }
+
+            return FiberRw.ObjFormat.Read<T>(array.Array, array.Offset, array.Count);
 
 
         }

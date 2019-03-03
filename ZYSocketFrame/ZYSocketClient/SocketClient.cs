@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ZYSocket.FiberStream;
+using ZYSocket.Interface;
 using ZYSocket.Share;
 
 namespace ZYSocket.Client
@@ -39,6 +40,8 @@ namespace ZYSocket.Client
 
         private readonly IAsyncSend asyncsend;
 
+        private readonly IObjFormat objFormat;
+
         private readonly int bufferSize;
 
    
@@ -61,7 +64,7 @@ namespace ZYSocket.Client
 
         public event DisconnectHandler Disconnect;
 
-        public SocketClient(int buffer_size=4096,MemoryPool<byte> memPool =null,ISend sync_send=null,IAsyncSend async_send=null, Encoding encode =null)
+        public SocketClient(int buffer_size=4096,MemoryPool<byte> memPool =null,ISend sync_send=null,IAsyncSend async_send=null, IObjFormat obj_Format = null, Encoding encode =null)
         {
             if (encode is null)
                 this.encoding = Encoding.UTF8;
@@ -78,6 +81,9 @@ namespace ZYSocket.Client
 
             if (async_send is null)
                 async_send = new PoolSend();
+
+            if (obj_Format is null)
+                objFormat = new ProtobuffObjFormat();
 
 
             syncsend = sync_send;
@@ -133,7 +139,9 @@ namespace ZYSocket.Client
                     syncsend,
                     asyncsend,
                     memoryPool,
-                    encoding)
+                    encoding,
+                    objFormat,
+                    false)
             {
                 RemoteEndPoint = myEnd
             };

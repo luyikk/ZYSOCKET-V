@@ -3,6 +3,8 @@ using System;
 using System.Buffers;
 using System.Text;
 using ZYSocket.Share;
+using ZYSocket.Interface;
+using ZYSocket.FiberStream;
 
 namespace ZYSocket.Server.Builder
 {
@@ -44,6 +46,7 @@ namespace ZYSocket.Server.Builder
             ConfigISend();
             ConfigIAsyncSend();
             ConfigEncode();
+            ConfigObjFormat();
             return this;
         }
 
@@ -110,6 +113,20 @@ namespace ZYSocket.Server.Builder
             });
 
             return this;
+        }
+
+        public ISockServBuilder ConfigObjFormat(Func<IObjFormat> func = null)
+        {
+            Container.Register<IObjFormat>(p =>
+            {
+                if (func is null)
+                    return new ProtobuffObjFormat();
+                else
+                    return func();
+            });
+
+            return this;
+
         }
 
 

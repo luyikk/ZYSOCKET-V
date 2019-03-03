@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using ZYSocket.Interface;
 
 namespace ZYSocket.FiberStream
 {
@@ -17,6 +18,8 @@ namespace ZYSocket.FiberStream
         public bool IsInit { get => isinit; }
 
         public Encoding Encoding { get; private set; }
+
+        public IObjFormat ObjFormat { get; private set; }
 
         private readonly bool isLittleEndian;
         public bool IsLittleEndian { get => isLittleEndian; }
@@ -40,7 +43,7 @@ namespace ZYSocket.FiberStream
         private readonly byte[] read_Numericbytes;
         private readonly byte[] write_Numericbytes;
 
-        public FiberRw(ISockAsyncEvent async,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,bool isLittleEndian=false, Stream inputStream=null,Stream outputStream=null, Func<Stream,Stream,GetFiberRwResult> init=null)
+        public FiberRw(ISockAsyncEvent async,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,IObjFormat objFormat, bool isLittleEndian=false, Stream inputStream=null,Stream outputStream=null, Func<Stream,Stream,GetFiberRwResult> init=null)
         {
            
             if (init != null)
@@ -74,6 +77,12 @@ namespace ZYSocket.FiberStream
             this.isLittleEndian = isLittleEndian;           
             read_Numericbytes = fiberReadStream.Numericbytes;
             write_Numericbytes = fiberWriteStream.Numericbytes;
+
+            if (objFormat is null)
+                ObjFormat = new ProtobuffObjFormat();
+            else
+                ObjFormat = objFormat;
+            
             isinit = true;
         }
 
@@ -502,10 +511,7 @@ namespace ZYSocket.FiberStream
             {
                 var array = mem.Value.GetArray();
 
-                using (System.IO.MemoryStream stream = new System.IO.MemoryStream(array.Array, array.Offset, array.Count))
-                {
-                    return ProtoBuf.Serializer.Deserialize<S>(stream);
-                }
+                return ObjFormat.Read<S>(array.Array, array.Offset, array.Count);
             }
         }
         #endregion
@@ -719,32 +725,7 @@ namespace ZYSocket.FiberStream
 
         #region wr obj
 
-        public void Write(object obj)
-        {
-            if (StreamWriteFormat.CanSeek)
-            {
-                var bkpostion = StreamWriteFormat.Position;
-                Write(0);
-                ProtoBuf.Meta.RuntimeTypeModel.Default.Serialize(StreamWriteFormat, obj);
-                var lastpostion = StreamWriteFormat.Position;
-                var len = lastpostion - bkpostion - 4;
-                StreamWriteFormat.Position = bkpostion;
-                Write((int)len);
-                StreamWriteFormat.Position = lastpostion;
-            }
-            else
-            {
-                using (var stream = new MemoryStream())
-                {
-                    ProtoBuf.Meta.RuntimeTypeModel.Default.Serialize(stream, obj);
-                    byte[] data = stream.ToArray();
-                    Write(data);
-                }
-
-            }
-        }
-
-
+        public void Write(object obj) => Write(ObjFormat.Serialize(obj));
 
 
         #endregion

@@ -44,6 +44,7 @@ namespace TestClient
                     SendTest(fiberRw);
                 }
                 catch { break; }
+
             }
         }
 
@@ -69,12 +70,12 @@ namespace TestClient
                 writeBytes.Write("XXXXXXXXXXXXXXXXXXXXXXXXX");
                 writeBytes.Write((short)111);
 
-                //List<Guid> guids = new List<Guid>();
-                //for (int i = 0; i < 10; i++)
-                //{
-                //    guids.Add(Guid.NewGuid());
-                //}
-                //writeBytes.Write(guids);
+                List<Guid> guids = new List<Guid>();
+                for (int i = 0; i < 1; i++)
+                {
+                    guids.Add(Guid.NewGuid());
+                }
+                writeBytes.Write(guids);
                 writeBytes.Flush();
             }
         }
@@ -128,8 +129,9 @@ namespace TestClient
             {
 
                 var p9 = await fiberRw.ReadInt16();
-               // var p10 = await fiberRw.ReadObject<List<Guid>>();
+                var p10 = await fiberRw.ReadObject<List<Guid>>();
 
+   
                 //fiberRw.Write(len.Value);
                 //fiberRw.Write(cmd.Value);
                 //fiberRw.Write(p1.Value);
@@ -141,7 +143,7 @@ namespace TestClient
                 //fiberRw.Write(p7);
                 //fiberRw.Write(p8.Value);
                 //fiberRw.Write(p9.Value);
-                ////fiberRw.Write(p10);
+                //fiberRw.Write(p10);
                 //await fiberRw.Flush();
             }
 

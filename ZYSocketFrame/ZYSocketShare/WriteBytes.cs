@@ -129,20 +129,7 @@ namespace ZYSocket
         }
 
 
-        public void Write(object obj)
-        {
-
-            var bkpostion = StreamWrite.Position;
-            Write(0);
-            ProtoBuf.Meta.RuntimeTypeModel.Default.Serialize(StreamWrite, obj);
-            var lastpostion = StreamWrite.Position;
-            var len = lastpostion - bkpostion - 4;
-            StreamWrite.Position = bkpostion;
-            Write((int)len);
-            StreamWrite.Position = lastpostion;
-
-        }
-
+        public void Write(object obj) => Write(FiberRw.ObjFormat.Serialize(obj));     
 
 
         public void Write(byte data)

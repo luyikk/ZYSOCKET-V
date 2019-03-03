@@ -3,6 +3,7 @@ using System;
 using System.Buffers;
 using System.Text;
 using ZYSocket.Share;
+using ZYSocket.Interface;
 
 namespace ZYSocket.Server.Builder
 {
@@ -16,6 +17,7 @@ namespace ZYSocket.Server.Builder
         ISockServBuilder ConfigISend(Func<ISend> func = null);
         ISockServBuilder ConfigMemoryPool(Func<MemoryPool<byte>> func = null);
         ISockServBuilder ConfigServer(Action<SocketServerOptions> config = null);
+        ISockServBuilder ConfigObjFormat(Func<IObjFormat> func = null);    
         ISockServBuilder ConfigureDefaults();
     }
 }

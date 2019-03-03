@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ZYSocket.Interface;
 
 namespace ZYSocket.FiberStream
 {
@@ -12,6 +13,7 @@ namespace ZYSocket.FiberStream
 
         ISockAsyncEvent Async { get; }
         Encoding Encoding { get; }
+        IObjFormat ObjFormat { get; }
         IFiberReadStream FiberReadStream { get; }
         IFiberWriteStream FiberWriteStream { get; }
         bool IsInit { get; }

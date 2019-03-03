@@ -9,6 +9,7 @@ using ZYSocket.FiberStream;
 using ZYSocket.Share;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using ZYSocket.Interface;
 
 namespace ZYSocket.Client
 {
@@ -27,6 +28,7 @@ namespace ZYSocket.Client
         private readonly MemoryPool<byte> MemoryPool;
 
         public  bool IsLittleEndian { get; private set; }
+        public IObjFormat ObjFormat { get; private set; }
         public  Encoding Encoding { get; private set; }
         public ISend SendImplemented { get;  private set; }
         public IAsyncSend AsyncSendImplemented { get; private set; }
@@ -57,13 +59,14 @@ namespace ZYSocket.Client
 
         public bool IsStartReceive { get; set; }
 
-        public ZYSocketAsyncEventArgs(TaskCompletionSource<IFiberRw> completionSource ,IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, bool isLittleEndian=false)
+        public ZYSocketAsyncEventArgs(TaskCompletionSource<IFiberRw> completionSource ,IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, IObjFormat objFormat=null, bool isLittleEndian=false)
         {
             this.taskCompletionSource = completionSource;
             this.MemoryPool = memoryPool;
             this.RStream = r_stream;
             this.WStream = w_stream;
             this.Encoding = encoding;
+            this.ObjFormat = objFormat;
             base.Completed += ZYSocketAsyncEventArgs_Completed;
             IsLittleEndian = isLittleEndian;
             SendImplemented = send;
@@ -85,7 +88,7 @@ namespace ZYSocket.Client
         {
             if (await RStream.WaitStreamInit())
             {                
-                var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, init: init);
+                var fiber= new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat,IsLittleEndian, init: init);
                 fiberobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
                 return fiber;
@@ -98,7 +101,7 @@ namespace ZYSocket.Client
         {
             if (await RStream.WaitStreamInit())
             {               
-                var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian,init: init);
+                var fiber= new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat,IsLittleEndian, init: init);
                 fiberobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
                 return fiber;
@@ -125,7 +128,7 @@ namespace ZYSocket.Client
                     return new GetFiberRwSSLResult { IsError = true, FiberRw = null, ErrMsg = er.Message };                  
                 }
              
-                var fiber = new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+                var fiber = new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat,IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslobj = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
                 return new GetFiberRwSSLResult { IsError = false, FiberRw = fiber, ErrMsg = null };
@@ -155,7 +158,7 @@ namespace ZYSocket.Client
                   
                 }
               
-                var fiber = new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, IsLittleEndian, sslstream, sslstream, init: init);
+                var fiber = new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat,IsLittleEndian, sslstream, sslstream, init: init);
                 fibersslT = fiber;
                 taskCompletionSource?.TrySetResult(fiber);
                 return new GetFiberRwSSLResult<T> { IsError = false, FiberRw = fiber, ErrMsg = null };

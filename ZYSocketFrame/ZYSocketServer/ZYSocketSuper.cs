@@ -19,6 +19,7 @@ using System.Buffers;
 using Autofac;
 using ZYSocket.Server.Builder;
 using ZYSocket.Share;
+using ZYSocket.Interface;
 
 namespace ZYSocket.Server
 {
@@ -311,7 +312,7 @@ namespace ZYSocket.Server
                     new BufferWriteStream(memoryPool, poolSend, poolSend),
                     poolSend,
                     poolSend,
-                    memoryPool,
+                    memoryPool,                    
                     Encoding.UTF8
                    );
                                
@@ -421,6 +422,7 @@ namespace ZYSocket.Server
 
             var memoryPool = component.Resolve<MemoryPool<byte>>();
             var encode = component.Resolve<Encoding>();
+            var objFormat = component.Resolve<IObjFormat>();
 
             for (int i = 0; i < MaxConnectCout; i++)
             {
@@ -435,6 +437,7 @@ namespace ZYSocket.Server
                     poolAsyncSend,
                     memoryPool,
                     encode,
+                    objFormat,
                     config.IsLittleEndian
                    );
                
