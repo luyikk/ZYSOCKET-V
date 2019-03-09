@@ -17,9 +17,9 @@ namespace ZYSocket.FiberStream
         private readonly bool isinit;
         public bool IsInit { get => isinit; }
 
-        public Encoding Encoding { get; private set; }
+        public Encoding Encoding { get; }
 
-        public IObjFormat ObjFormat { get; private set; }
+        public IObjFormat ObjFormat { get;}
 
         private readonly bool isLittleEndian;
         public bool IsLittleEndian { get => isLittleEndian; }
@@ -37,7 +37,7 @@ namespace ZYSocket.FiberStream
 
         private readonly Stream streamWriteFormat;
         public Stream StreamWriteFormat { get => streamWriteFormat; }
-        public ISockAsyncEvent Async { get; private set; }       
+        public ISockAsyncEvent Async { get; }       
         public T UserToken { get; set; }
 
         private readonly byte[] read_Numericbytes;

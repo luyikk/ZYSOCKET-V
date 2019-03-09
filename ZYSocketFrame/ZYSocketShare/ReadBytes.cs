@@ -18,7 +18,7 @@ namespace ZYSocket
 
         public static long MaxPackerSize { get; set; } = 1024 * 16;
 
-        public IFiberRw FiberRw { get; private set; }
+        public IFiberRw FiberRw { get; }
 
         public int Packerlen { get; private set; }
 

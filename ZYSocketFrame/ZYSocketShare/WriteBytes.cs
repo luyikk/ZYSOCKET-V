@@ -14,7 +14,7 @@ namespace ZYSocket
     public struct WriteBytes:IDisposable
     {
 
-        public IFiberRw FiberRw { get; private set; }
+        public IFiberRw FiberRw { get;  }
 
         public LengthLen LenType { get; set; }
 

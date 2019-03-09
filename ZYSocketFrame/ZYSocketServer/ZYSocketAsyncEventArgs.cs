@@ -28,12 +28,12 @@ namespace ZYSocket.Server
 
         private readonly MemoryPool<byte> MemoryPool;
 
-        public  bool IsLittleEndian { get; private set; }
-        public  Encoding Encoding { get; private set; }
-        public IObjFormat ObjFormat { get; private set; }
+        public  bool IsLittleEndian { get;  }
+        public  Encoding Encoding { get;  }
+        public IObjFormat ObjFormat { get;  }
 
-        public ISend SendImplemented { get;  private set; }
-        public IAsyncSend AsyncSendImplemented { get; private set; } 
+        public ISend SendImplemented { get;   }
+        public IAsyncSend AsyncSendImplemented { get;  } 
 
         private IDisposable fiberobj;
         private IDisposable fiberT;

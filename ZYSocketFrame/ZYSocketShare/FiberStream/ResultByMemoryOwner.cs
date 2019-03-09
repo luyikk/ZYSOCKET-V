@@ -7,10 +7,10 @@ namespace ZYSocket.FiberStream
 {
     public struct ResultByMemoryOwner<T>:IDisposable 
     {
-        public bool IsInit { get; private set; }
-        public T Value { get; private set; }
+        public bool IsInit { get;  }
+        public T Value { get;  }
 
-        public IMemoryOwner<byte> MemoryOwner { get; private set; }
+        public IMemoryOwner<byte> MemoryOwner { get;  }
 
         public ResultByMemoryOwner(IMemoryOwner<byte> memoryOwner,T value)
         {
