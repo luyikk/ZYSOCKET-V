@@ -22,7 +22,7 @@ namespace ZYSocket.FiberStream
         Stream StreamWriteFormat { get; }
         IMemoryOwner<byte> GetMemory(int inithint);     
         Task<long> NextMove(long offset);
-        Task<int> Read(byte[] data, int offset, int count);
+        Task<int> ReadAsync(byte[] data, int offset, int count);  
         Task<byte[]> ReadArray();
         Task<byte[]> ReadArray(int count);
         Task<bool?> ReadBoolean();

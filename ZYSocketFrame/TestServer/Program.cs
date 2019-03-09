@@ -134,8 +134,8 @@ namespace TestServer
                 try
                 {
                     //提供2种数据 读取写入方式
-                    ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
-                    DataOn(ref readBytes, fiberRw);
+                    //ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
+                    //DataOn(ref readBytes, fiberRw);
 
 
                     await DataOnByLine(fiberRw);
@@ -166,8 +166,9 @@ namespace TestServer
             var p3 = await fiberRw.ReadDouble();
             var p4 = await fiberRw.ReadSingle();
             var p5 = await fiberRw.ReadBoolean();
-            var p6 = await fiberRw.ReadBoolean();         
-            var p7 = await fiberRw.ReadString();         
+            var p6 = await fiberRw.ReadBoolean();
+            var p7 = await fiberRw.ReadString();
+
 
             using (var p8 = await fiberRw.ReadMemory())
             {

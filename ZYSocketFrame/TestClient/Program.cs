@@ -66,7 +66,7 @@ namespace TestClient
                 writeBytes.Write(4.3f);
                 writeBytes.Write(true);
                 writeBytes.Write(false);
-                writeBytes.Write("ssssssssssssssssssssssssssssssssssssss");
+                writeBytes.Write(new byte[9000]);
                 writeBytes.Write(new byte[9000]);
                 writeBytes.Write((short)111);
 

@@ -155,7 +155,7 @@ namespace ZYSocket.FiberStream
             return fiberReadStream.ReadToBlockArrayEnd();
         }
 
-        public async Task<int> Read(byte[] data,int offset,int count)
+        public async Task<int> ReadAsync(byte[] data,int offset,int count)
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -195,7 +195,7 @@ namespace ZYSocket.FiberStream
                 throw new NotSupportedException("not init it");
 
 
-            int count = await this.Read(read_Numericbytes, 0, 1);
+            int count = await this.ReadAsync(read_Numericbytes, 0, 1);
 
             if (count == 1)
                 return read_Numericbytes[0];
@@ -216,7 +216,7 @@ namespace ZYSocket.FiberStream
             if (!isinit)
                 throw new NotSupportedException("not init it");
 
-            int count = await this.Read(read_Numericbytes, 0, 2);
+            int count = await this.ReadAsync(read_Numericbytes, 0, 2);
 
             if (count == 2)
             {
@@ -231,7 +231,7 @@ namespace ZYSocket.FiberStream
             if (!isinit)
                 throw new NotSupportedException("not init it");
 
-            int count = await this.Read(read_Numericbytes, 0, 2);
+            int count = await this.ReadAsync(read_Numericbytes, 0, 2);
 
             if (count == 2)
             {
@@ -261,7 +261,7 @@ namespace ZYSocket.FiberStream
             if (!isinit)
                 throw new NotSupportedException("not init it");
 
-            int count = await this.Read(read_Numericbytes, 0, 4);
+            int count = await this.ReadAsync(read_Numericbytes, 0, 4);
 
             if (count == 4)
             {
@@ -277,7 +277,7 @@ namespace ZYSocket.FiberStream
             if (!isinit)
                 throw new NotSupportedException("not init it");
 
-            int count = await this.Read(read_Numericbytes, 0, 4);
+            int count = await this.ReadAsync(read_Numericbytes, 0, 4);
 
             if (count == 4)
             {
@@ -308,7 +308,7 @@ namespace ZYSocket.FiberStream
             if (!isinit)
                 throw new NotSupportedException("not init it");
 
-            int count = await this.Read(read_Numericbytes, 0, 8);
+            int count = await this.ReadAsync(read_Numericbytes, 0, 8);
 
             if (count == 8)
             {
@@ -323,7 +323,7 @@ namespace ZYSocket.FiberStream
             if (!isinit)
                 throw new NotSupportedException("not init it");
 
-            int count = await this.Read(read_Numericbytes, 0, 8);
+            int count = await this.ReadAsync(read_Numericbytes, 0, 8);
 
             if (count == 8)
             {
@@ -356,7 +356,7 @@ namespace ZYSocket.FiberStream
                 throw new NotSupportedException("not init it");
 
             
-            int count = await this.Read(read_Numericbytes, 0, 8);
+            int count = await this.ReadAsync(read_Numericbytes, 0, 8);
 
             if (count == 8)
             {
@@ -387,7 +387,7 @@ namespace ZYSocket.FiberStream
                 throw new NotSupportedException("not init it");
 
 
-            int count = await this.Read(read_Numericbytes, 0, 4);
+            int count = await this.ReadAsync(read_Numericbytes, 0, 4);
 
             if (count == 4)
             {
@@ -424,7 +424,7 @@ namespace ZYSocket.FiberStream
             var memory = imo.Memory;
             var array = memory.GetArray();
 
-            int len = await Read(array.Array, array.Offset, size);
+            int len = await ReadAsync(array.Array, array.Offset, size);
 
             if (len != size)
                 throw new System.IO.IOException($"not read data");
@@ -452,7 +452,7 @@ namespace ZYSocket.FiberStream
 
             byte[] array = new byte[size];
 
-            int len = await Read(array, 0, size);
+            int len = await ReadAsync(array, 0, size);
 
             if (len != size)
                 throw new System.IO.IOException($"not read data");
@@ -489,7 +489,7 @@ namespace ZYSocket.FiberStream
 
                     var array = imo.Memory.GetArray();
 
-                    int rlen = await Read(array.Array, array.Offset, len.Value);
+                    int rlen = await ReadAsync(array.Array, array.Offset, len.Value);
 
                     if (rlen != len.Value)
                         throw new System.IO.IOException($"not read data");
