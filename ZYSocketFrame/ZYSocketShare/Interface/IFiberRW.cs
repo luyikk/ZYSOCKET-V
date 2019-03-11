@@ -13,7 +13,7 @@ namespace ZYSocket.FiberStream
 
         ISockAsyncEvent Async { get; }
         Encoding Encoding { get; }
-        IObjFormat ObjFormat { get; }
+        ISerialization ObjFormat { get; }
         IFiberReadStream FiberReadStream { get; }
         IFiberWriteStream FiberWriteStream { get; }
         bool IsInit { get; }

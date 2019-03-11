@@ -28,7 +28,7 @@ namespace ZYSocket.Client
         private readonly MemoryPool<byte> MemoryPool;
 
         public  bool IsLittleEndian { get; }
-        public IObjFormat ObjFormat { get;  }
+        public ISerialization ObjFormat { get;  }
         public  Encoding Encoding { get;  }
         public ISend SendImplemented { get;  }
         public IAsyncSend AsyncSendImplemented { get;  }
@@ -59,7 +59,7 @@ namespace ZYSocket.Client
 
         public bool IsStartReceive { get; set; }
 
-        public ZYSocketAsyncEventArgs(TaskCompletionSource<IFiberRw> completionSource ,IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, IObjFormat objFormat=null, bool isLittleEndian=false)
+        public ZYSocketAsyncEventArgs(TaskCompletionSource<IFiberRw> completionSource ,IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, ISerialization objFormat=null, bool isLittleEndian=false)
         {
             this.taskCompletionSource = completionSource;
             this.MemoryPool = memoryPool;

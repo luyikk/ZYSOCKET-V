@@ -422,7 +422,7 @@ namespace ZYSocket.Server
 
             var memoryPool = component.Resolve<MemoryPool<byte>>();
             var encode = component.Resolve<Encoding>();
-            var objFormat = component.Resolve<IObjFormat>();
+            var objFormat = component.Resolve<ISerialization>();
 
             for (int i = 0; i < MaxConnectCout; i++)
             {

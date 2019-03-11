@@ -30,7 +30,7 @@ namespace ZYSocket.Server
 
         public  bool IsLittleEndian { get;  }
         public  Encoding Encoding { get;  }
-        public IObjFormat ObjFormat { get;  }
+        public ISerialization ObjFormat { get;  }
 
         public ISend SendImplemented { get;   }
         public IAsyncSend AsyncSendImplemented { get;  } 
@@ -59,7 +59,7 @@ namespace ZYSocket.Server
       
 
 
-        public ZYSocketAsyncEventArgs(IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, IObjFormat objFormat = null,bool isLittleEndian=false)
+        public ZYSocketAsyncEventArgs(IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, ISerialization objFormat = null,bool isLittleEndian=false)
         {
             this.MemoryPool = memoryPool;
             this.RStream = r_stream;

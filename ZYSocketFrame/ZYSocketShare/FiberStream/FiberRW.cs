@@ -19,7 +19,7 @@ namespace ZYSocket.FiberStream
 
         public Encoding Encoding { get; }
 
-        public IObjFormat ObjFormat { get;}
+        public ISerialization ObjFormat { get;}
 
         private readonly bool isLittleEndian;
         public bool IsLittleEndian { get => isLittleEndian; }
@@ -43,7 +43,7 @@ namespace ZYSocket.FiberStream
         private readonly byte[] read_Numericbytes;
         private readonly byte[] write_Numericbytes;
 
-        public FiberRw(ISockAsyncEvent async,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,IObjFormat objFormat, bool isLittleEndian=false, Stream inputStream=null,Stream outputStream=null, Func<Stream,Stream,GetFiberRwResult> init=null)
+        public FiberRw(ISockAsyncEvent async,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,ISerialization objFormat, bool isLittleEndian=false, Stream inputStream=null,Stream outputStream=null, Func<Stream,Stream,GetFiberRwResult> init=null)
         {
            
             if (init != null)
@@ -511,7 +511,7 @@ namespace ZYSocket.FiberStream
             {
                 var array = mem.Value.GetArray();
 
-                return ObjFormat.Read<S>(array.Array, array.Offset, array.Count);
+                return ObjFormat.Deserialize<S>(array.Array, array.Offset, array.Count);
             }
         }
         #endregion

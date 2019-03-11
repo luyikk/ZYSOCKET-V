@@ -115,9 +115,9 @@ namespace ZYSocket.Server.Builder
             return this;
         }
 
-        public ISockServBuilder ConfigObjFormat(Func<IObjFormat> func = null)
+        public ISockServBuilder ConfigObjFormat(Func<ISerialization> func = null)
         {
-            Container.Register<IObjFormat>(p =>
+            Container.Register<ISerialization>(p =>
             {
                 if (func is null)
                     return new ProtobuffObjFormat();

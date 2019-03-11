@@ -40,7 +40,7 @@ namespace ZYSocket.Client
 
         private readonly IAsyncSend asyncsend;
 
-        private readonly IObjFormat objFormat;
+        private readonly ISerialization objFormat;
 
         private readonly int bufferSize;
 
@@ -64,7 +64,7 @@ namespace ZYSocket.Client
 
         public event DisconnectHandler Disconnect;
 
-        public SocketClient(int buffer_size=4096,MemoryPool<byte> memPool =null,ISend sync_send=null,IAsyncSend async_send=null, IObjFormat obj_Format = null, Encoding encode =null)
+        public SocketClient(int buffer_size=4096,MemoryPool<byte> memPool =null,ISend sync_send=null,IAsyncSend async_send=null, ISerialization obj_Format = null, Encoding encode =null)
         {
             if (encode is null)
                 this.encoding = Encoding.UTF8;
