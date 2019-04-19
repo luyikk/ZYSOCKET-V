@@ -93,10 +93,10 @@ namespace ZYSocket.Client
 
 
 
-        public async Task<ConnectResult> ConnectAsync(string host, int port,int connectTimeout=6000)
+        public Task<ConnectResult> ConnectAsync(string host, int port,int connectTimeout=6000)
         {
 
-            return await Task.Run<ConnectResult>(() =>
+            return Task.Run<ConnectResult>(() =>
                 {
                     return Connect(host, port, connectTimeout);
                 });

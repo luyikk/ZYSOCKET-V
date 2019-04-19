@@ -66,8 +66,8 @@ namespace TestClient
                 writeBytes.Write(4.3f);
                 writeBytes.Write(true);
                 writeBytes.Write(false);
-                writeBytes.Write(new byte[9000]);
-                writeBytes.Write(new byte[9000]);
+                writeBytes.Write("AAAAAAAAAAAAAA");
+                writeBytes.Write("BBBBBBBBBBBBBBBB");
                 writeBytes.Write((short)111);
 
                 //List<Guid> guids = new List<Guid>();
@@ -129,22 +129,22 @@ namespace TestClient
             {
 
                 var p9 = await fiberRw.ReadInt16();
-               // var p10 = await fiberRw.ReadObject<List<Guid>>();
+               // // var p10 = await fiberRw.ReadObject<List<Guid>>();
 
-   
-                //fiberRw.Write(len.Value);
-                //fiberRw.Write(cmd.Value);
-                //fiberRw.Write(p1.Value);
-                //fiberRw.Write(p2.Value);
-                //fiberRw.Write(p3.Value);
-                //fiberRw.Write(p4.Value);
-                //fiberRw.Write(p5.Value);
-                //fiberRw.Write(p6.Value);
-                //fiberRw.Write(p7);
-                //fiberRw.Write(p8.Value);
-                //fiberRw.Write(p9.Value);
-                //fiberRw.Write(p10);
-                //await fiberRw.Flush();
+
+               // fiberRw.Write(len.Value);
+               // fiberRw.Write(cmd.Value);
+               // fiberRw.Write(p1.Value);
+               // fiberRw.Write(p2.Value);
+               // fiberRw.Write(p3.Value);
+               // fiberRw.Write(p4.Value);
+               // fiberRw.Write(p5.Value);
+               // fiberRw.Write(p6.Value);
+               // fiberRw.Write(p7);
+               // fiberRw.Write(p8.Value);
+               // fiberRw.Write(p9.Value);
+               //// fiberRw.Write(p10);
+               // await fiberRw.Flush();
             }
 
 
