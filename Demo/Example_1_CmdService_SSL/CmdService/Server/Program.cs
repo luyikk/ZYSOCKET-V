@@ -96,9 +96,7 @@ namespace Server
                                 UserName=username,
                                 Password=password
                             };
-
-                            fiberRw.Async.UserToken = fiberRw.UserToken; //我们可以断开后对userinfo做一些事情
-
+                       
                             fiberRw.Write(1001);  //发送登入成功
                             fiberRw.Write(true);
                             fiberRw.Write("logon ok");

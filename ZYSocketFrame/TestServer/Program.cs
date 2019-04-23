@@ -73,7 +73,7 @@ namespace TestServer
             var build = containerBuilder.Build();
 
             var server3 = build.Resolve<ISocketServer>();
-            server3.Start(); //启动服务器 1002端口 缓冲区为8KB 
+            server3.Start(); //启动服务器 1002端口 缓冲区为4KB 
 
             
             Console.ReadLine();

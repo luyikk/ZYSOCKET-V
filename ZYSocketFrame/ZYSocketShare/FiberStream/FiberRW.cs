@@ -38,7 +38,7 @@ namespace ZYSocket.FiberStream
         private readonly Stream streamWriteFormat;
         public Stream StreamWriteFormat { get => streamWriteFormat; }
         public ISockAsyncEvent Async { get; }       
-        public T UserToken { get; set; }
+        public T UserToken { get=>(T)Async.UserToken; set=>Async.UserToken=value; }
 
         private readonly byte[] read_Numericbytes;
         private readonly byte[] write_Numericbytes;
@@ -66,10 +66,9 @@ namespace ZYSocket.FiberStream
             {
                 streamReadFormat = inputStream == null ? fiberRStream as Stream : inputStream;
                 streamWriteFormat = outputStream == null ? fiberWStream as Stream : outputStream;
-            }
-
-            UserToken = null;
+            }                       
             this.Async = async;
+            UserToken = null;
             fiberReadStream = fiberRStream;
             fiberWriteStream = fiberWStream;
             this.Encoding = encoding;

@@ -121,8 +121,7 @@ namespace Server
                                 UserName = username,
                             };
 
-                            fiberRw.Async.UserToken = fiberRw; //我们可以断开后对userinfo做一些事情
-
+                         
                             UserList.Add(fiberRw);
 
                             fiberRw.Write(1001);  //发送登入成功
