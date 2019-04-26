@@ -551,7 +551,22 @@ namespace ZYSocket.FiberStream
             streamWriteFormat.Write(array.Array, array.Offset, array.Count);           
         }
 
-   
+        public void Write(ResultByMemoryOwner<Memory<byte>> data, bool wlen = true)
+        {
+            if (!data.IsInit)
+                throw new ObjectDisposedException("data is not init");
+
+            Write(data.Value, wlen);
+        }
+
+        public void Write(ResultByMemoryOwner<Memory<byte>> data, int offset, int count)
+        {
+            if (!data.IsInit)
+                throw new ObjectDisposedException("data is not init");
+
+            Write(data.Value, offset,count);
+        }
+
 
         public void Write(string data)
         {
@@ -667,56 +682,86 @@ namespace ZYSocket.FiberStream
         {
             Write(data ? ((byte)1) : ((byte)0));
         }
-                    
+
 
         public void Write(bool? data)
         {
-            Write(data.GetValueOrDefault());
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
         }
 
         public void Write(byte? data)
         {
-            Write(data.GetValueOrDefault());
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
         }
 
         public void Write(short? data)
         {
-            Write(data.GetValueOrDefault());
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
         }
 
         public void Write(int? data)
         {
-            Write(data.GetValueOrDefault());
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
         }
 
         public void Write(long? data)
         {
-            Write(data.GetValueOrDefault());
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
         }
 
         public void Write(ushort? data)
         {
-            Write(data.GetValueOrDefault());
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
         }
 
         public void Write(uint? data)
         {
-            Write(data.GetValueOrDefault());
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
         }
 
         public void Write(ulong? data)
         {
-            Write(data.GetValueOrDefault());
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
         }
 
         public void Write(double? data)
         {
-            Write(data.GetValueOrDefault());
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
         }
 
         public void Write(float? data)
         {
-            Write(data.GetValueOrDefault());
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
         }
 
 
@@ -729,18 +774,20 @@ namespace ZYSocket.FiberStream
 
         #endregion
 
-        public async ValueTask<int> Flush()
+        public Task<int> Flush()
         {
 
             StreamWriteFormat.Flush();
 
             if (FiberWriteStream.Length > 0)
             {
-                return await FiberWriteStream.AwaitFlush();
+                return  FiberWriteStream.AwaitFlush();
             }
             else
-                return 0;
+                return Task.FromResult(0);
         }
+
+   
     }
 
 

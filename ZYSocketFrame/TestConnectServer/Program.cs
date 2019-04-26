@@ -123,6 +123,10 @@ namespace TestServer
                     break;
 
                 }
+                catch (System.Net.Sockets.SocketException)
+                {
+                    break;
+                }
                 catch (Exception er)
                 {
                     Console.WriteLine(er.ToString());

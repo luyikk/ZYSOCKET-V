@@ -94,7 +94,7 @@ namespace ZYSocket.Server.Builder
             Container.Register<ISend>(p =>
             {
                 if (func is null)
-                    return new PoolSend();
+                    return new PoolSend(true);
                 else
                     return func();
             });
@@ -107,7 +107,7 @@ namespace ZYSocket.Server.Builder
             Container.Register<IAsyncSend>(p =>
             {
                 if (func is null)
-                    return new PoolSend();
+                    return new PoolSend(true);
                 else
                     return func();
             });

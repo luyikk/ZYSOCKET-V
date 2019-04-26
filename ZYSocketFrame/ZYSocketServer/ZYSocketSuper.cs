@@ -302,10 +302,7 @@ namespace ZYSocket.Server
             for (int i = 0; i < MaxConnectCout; i++)
             {
 
-                PoolSend poolSend = new PoolSend();
-                 //var memoryPool = new SlabMemoryPool();
-                 // var memoryPool = new MemoryPool.BufferMemoryPool();
-             
+                PoolSend poolSend = new PoolSend(true);                  
 
                 ZYSocketAsyncEventArgs socketasyn = new ZYSocketAsyncEventArgs(
                     new LinesReadStream(MaxBufferSize),

@@ -8,21 +8,9 @@ using ZYSocket.Interface;
 
 namespace ZYSocket.FiberStream
 {
-    public interface IFiberRw
+    public interface IBufferAsyncRead
     {
-
-        ISockAsyncEvent Async { get; }
-        Encoding Encoding { get; }
-        ISerialization ObjFormat { get; }
-        IFiberReadStream FiberReadStream { get; }
-        IFiberWriteStream FiberWriteStream { get; }
-        bool IsInit { get; }
-        bool IsLittleEndian { get; }    
-        Stream StreamReadFormat { get; }
-        Stream StreamWriteFormat { get; }
-        IMemoryOwner<byte> GetMemory(int inithint);     
-        Task<long> NextMove(long offset);
-        Task<int> ReadAsync(byte[] data, int offset, int count);  
+        Task<int> ReadAsync(byte[] data, int offset, int count);
         Task<byte[]> ReadArray();
         Task<byte[]> ReadArray(int count);
         Task<bool?> ReadBoolean();
@@ -41,12 +29,18 @@ namespace ZYSocket.FiberStream
         Task<ushort?> ReadUInt16();
         Task<uint?> ReadUInt32();
         Task<ulong?> ReadUInt64();
+    }
 
+
+    public interface IBufferWrite
+    {
         void Write(ArraySegment<byte> data);
         void Write(byte[] data, int offset, int count);
         void Write(byte[] data, bool wlen = true);
         void Write(Memory<byte> data, int offset, int count);
         void Write(Memory<byte> data, bool wlen = true);
+        void Write(ResultByMemoryOwner<Memory<byte>> data, bool wlen = true);
+        void Write(ResultByMemoryOwner<Memory<byte>> data, int offset, int count);
         void Write(string data);
         void Write(byte data);
         void Write(short data);
@@ -69,7 +63,26 @@ namespace ZYSocket.FiberStream
         void Write(float? data);
         void Write(bool data);
         void Write(object obj);
-        ValueTask<int> Flush();
+        Task<int> Flush();
+    }
+
+
+
+
+    public interface IFiberRw: IBufferWrite, IBufferAsyncRead
+    {
+
+        ISockAsyncEvent Async { get; }
+        Encoding Encoding { get; }
+        ISerialization ObjFormat { get; }
+        IFiberReadStream FiberReadStream { get; }
+        IFiberWriteStream FiberWriteStream { get; }
+        bool IsInit { get; }
+        bool IsLittleEndian { get; }    
+        Stream StreamReadFormat { get; }
+        Stream StreamWriteFormat { get; }
+        IMemoryOwner<byte> GetMemory(int inithint);
+        Task<long> NextMove(long offset);
     }
 
     public interface IFiberRw<T> : IFiberRw

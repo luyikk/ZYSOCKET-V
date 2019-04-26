@@ -43,7 +43,7 @@ namespace TestClient
                 {
                     SendTest(fiberRw);
                 }
-                catch { break; }
+                catch {break; }
 
             }
         }

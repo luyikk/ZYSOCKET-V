@@ -94,6 +94,10 @@ namespace Client
                 {
                     await ReadCommand(res.FiberRw);
                 }
+                catch (System.Net.Sockets.SocketException)
+                {
+                    break;
+                }
                 catch (Exception er)
                 {
                     Console.WriteLine(er);

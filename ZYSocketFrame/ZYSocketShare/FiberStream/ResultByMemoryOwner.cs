@@ -7,7 +7,7 @@ namespace ZYSocket.FiberStream
 {
     public struct ResultByMemoryOwner<T>:IDisposable 
     {
-        public bool IsInit { get;  }
+        public bool IsInit { get; private set; }
         public T Value { get;  }
 
         public IMemoryOwner<byte> MemoryOwner { get;  }
@@ -22,6 +22,7 @@ namespace ZYSocket.FiberStream
         public void Dispose()
         {
             MemoryOwner?.Dispose();
+            IsInit = false;
         }
     }
 }

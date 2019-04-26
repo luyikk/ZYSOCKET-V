@@ -11,7 +11,7 @@ namespace ZYSocket
 
 
 
-    public struct WriteBytes:IDisposable
+    public struct WriteBytes:IDisposable,IBufferWrite
     {
 
         public IFiberRw FiberRw { get;  }
@@ -111,6 +111,12 @@ namespace ZYSocket
             StreamWrite.Write(array.Array, array.Offset + offset, count);
         }
 
+        public void Write(byte[] data, int offset, int count)
+        {
+            StreamWrite.Write(data, offset, count);
+        }
+
+
         public void Write(Memory<byte> data, bool wlen = true)
         {
             var array = data.GetArray();
@@ -119,6 +125,22 @@ namespace ZYSocket
                 Write(array.Count);
 
             StreamWrite.Write(array.Array, array.Offset, array.Count);
+        }
+
+        public void Write(ResultByMemoryOwner<Memory<byte>> data, bool wlen = true)
+        {
+            if (!data.IsInit)
+                throw new ObjectDisposedException("data is not init");
+
+            Write(data.Value, wlen);
+        }
+
+        public void Write(ResultByMemoryOwner<Memory<byte>> data, int offset, int count)
+        {
+            if (!data.IsInit)
+                throw new ObjectDisposedException("data is not init");
+
+            Write(data.Value, offset, count);
         }
 
 
@@ -137,83 +159,78 @@ namespace ZYSocket
             StreamWrite.WriteByte(data);
         }
 
-        public void Write(short data)
+
+        public unsafe void Write(short data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
 
-            Numericbytes[0] = (byte)data;
-            Numericbytes[1] = (byte)(data >> 8);
-
-            Write(Numericbytes, 0, 2);
-        }
-        public void Write(int data)
-        {
-            if (IsLittleEndian)
-                data = BinaryPrimitives.ReverseEndianness(data);
-
-            Numericbytes[0] = (byte)data;
-            Numericbytes[1] = (byte)(data >> 8);
-            Numericbytes[2] = (byte)(data >> 0x10);
-            Numericbytes[3] = (byte)(data >> 0x18);
-
-            Write(Numericbytes, 0, 4);
-        }
-        public void Write(long data)
-        {
-            if (IsLittleEndian)
-                data = BinaryPrimitives.ReverseEndianness(data);
-
-
-            Numericbytes[0] = (byte)data;
-            Numericbytes[1] = (byte)(data >> 8);
-            Numericbytes[2] = (byte)(data >> 0x10);
-            Numericbytes[3] = (byte)(data >> 0x18);
-            Numericbytes[4] = (byte)(data >> 0x20);
-            Numericbytes[5] = (byte)(data >> 0x28);
-            Numericbytes[6] = (byte)(data >> 0x30);
-            Numericbytes[7] = (byte)(data >> 0x38);
-
-            Write(Numericbytes, 0, 8);
+            fixed (byte* numRef = &Numericbytes[0])
+            {
+                *((short*)numRef) = data;
+                Write(Numericbytes, 0, 2);
+            }
         }
 
-        public void Write(ushort data)
+
+        public unsafe void Write(int data)
         {
             if (IsLittleEndian)
-                data = BinaryPrimitives.ReverseEndianness(data);
+                data = BinaryPrimitives.ReverseEndianness(data);        
 
-            Numericbytes[0] = (byte)data;
-            Numericbytes[1] = (byte)(data >> 8);
-            Write(Numericbytes, 0, 2);
+            fixed (byte* numRef = &Numericbytes[0])
+            {
+                *((int*)numRef) = data;
+                Write(Numericbytes, 0, 4);
+            }
         }
-        public void Write(uint data)
+
+        public unsafe void Write(long data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
 
-            Numericbytes[0] = (byte)data;
-            Numericbytes[1] = (byte)(data >> 8);
-            Numericbytes[2] = (byte)(data >> 0x10);
-            Numericbytes[3] = (byte)(data >> 0x18);
-
-            Write(Numericbytes, 0, 4);
+            fixed (byte* numRef = &Numericbytes[0])
+            {
+                *((long*)numRef) = data;
+                Write(Numericbytes, 0, 8);
+            }
         }
-        public void Write(ulong data)
+
+        public unsafe void Write(ushort data)
+        {
+            if (IsLittleEndian)
+                data = BinaryPrimitives.ReverseEndianness(data);
+
+            fixed (byte* numRef = &Numericbytes[0])
+            {
+                *((ushort*)numRef) = data;
+                Write(Numericbytes, 0, 2);
+            }
+        }
+        public unsafe void Write(uint data)
+        {
+            if (IsLittleEndian)
+                data = BinaryPrimitives.ReverseEndianness(data);
+
+            fixed (byte* numRef = &Numericbytes[0])
+            {
+                *((uint*)numRef) = data;
+                Write(Numericbytes, 0, 4);
+            }
+        }
+
+        public unsafe void Write(ulong data)
         {
             if (IsLittleEndian)
                 data = BinaryPrimitives.ReverseEndianness(data);
 
 
-            Numericbytes[0] = (byte)data;
-            Numericbytes[1] = (byte)(data >> 8);
-            Numericbytes[2] = (byte)(data >> 0x10);
-            Numericbytes[3] = (byte)(data >> 0x18);
-            Numericbytes[4] = (byte)(data >> 0x20);
-            Numericbytes[5] = (byte)(data >> 0x28);
-            Numericbytes[6] = (byte)(data >> 0x30);
-            Numericbytes[7] = (byte)(data >> 0x38);
-
-            Write(Numericbytes, 0, 8);
+            fixed (byte* numRef = &Numericbytes[0])
+            {
+                *((ulong*)numRef) = data;
+                Write(Numericbytes, 0, 8);
+            }
         }
 
 
@@ -241,54 +258,90 @@ namespace ZYSocket
             Write(data ? ((byte)1) : ((byte)0));
         }
 
-        public Task<int> Flush()
+        public void Write(bool? data)
         {
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
 
-
-            switch (LenType)
-            {
-                case LengthLen.Byte:
-                    {
-                        StreamWrite.Position = 0;
-                        var lenbytes = (byte)StreamWrite.Length;
-                        Write(lenbytes);
-                    }
-                    break;
-                case LengthLen.Int16:
-                    {
-                        StreamWrite.Position = 0;
-                        Write((ushort)StreamWrite.Length);
-                    }
-                    break;
-                case LengthLen.Int32:
-                    {
-                        StreamWrite.Position = 0;
-                        Write((uint)StreamWrite.Length);
-                    }
-                    break;
-                case LengthLen.Int64:
-                    {
-                        StreamWrite.Position = 0;
-                        Write((ulong)StreamWrite.Length);
-                    }
-                    break;
-
-            }
-
-
-
-            byte[] data = StreamWrite.ToArray();
-            StreamWriteFormat.Write(data, 0, data.Length);
-            StreamWriteFormat.Flush();
-            return  FiberWriteStream.AwaitFlush();
+            Write(data.Value);
         }
 
-
-        public async ValueTask<int> AwaitFlush()
+        public void Write(byte? data)
         {
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
 
+            Write(data.Value);
+        }
 
+        public void Write(short? data)
+        {
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
 
+            Write(data.Value);
+        }
+
+        public void Write(int? data)
+        {
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
+        }
+
+        public void Write(long? data)
+        {
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
+        }
+
+        public void Write(ushort? data)
+        {
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
+        }
+
+        public void Write(uint? data)
+        {
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
+        }
+
+        public void Write(ulong? data)
+        {
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
+        }
+
+        public void Write(double? data)
+        {
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
+        }
+
+        public void Write(float? data)
+        {
+            if (!data.HasValue)
+                throw new ArgumentNullException("data");
+
+            Write(data.Value);
+        }
+
+        
+        public Task<int> Flush()
+        {
+            
             switch (LenType)
             {
                 case LengthLen.Byte:
@@ -324,11 +377,11 @@ namespace ZYSocket
             StreamWriteFormat.Write(data, 0, data.Length);
             StreamWriteFormat.Flush();
             if (FiberWriteStream.Length > 0)
-                return await FiberWriteStream.AwaitFlush();
+                return FiberWriteStream.AwaitFlush();
             else
-                return 0;
+                return Task.FromResult(0);
         }
 
-       
+      
     }
 }

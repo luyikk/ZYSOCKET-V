@@ -143,6 +143,10 @@ namespace TestServer
                  
 
                 }
+                catch (System.Net.Sockets.SocketException)
+                {                   
+                    break;
+                }
                 catch (Exception er)
                 {
                     Console.WriteLine(er.ToString());
@@ -177,17 +181,17 @@ namespace TestServer
              
                // var p10 = await fiberRw.ReadObject<List<Guid>>();
 
-                fiberRw.Write(len.Value);
-                fiberRw.Write(cmd.Value);
-                fiberRw.Write(p1.Value);
-                fiberRw.Write(p2.Value);
-                fiberRw.Write(p3.Value);
-                fiberRw.Write(p4.Value);
-                fiberRw.Write(p5.Value);
-                fiberRw.Write(p6.Value);
+                fiberRw.Write(len);
+                fiberRw.Write(cmd);
+                fiberRw.Write(p1);
+                fiberRw.Write(p2);
+                fiberRw.Write(p3);
+                fiberRw.Write(p4);
+                fiberRw.Write(p5);
+                fiberRw.Write(p6);
                 fiberRw.Write(p7);
-                fiberRw.Write(p8.Value);
-                fiberRw.Write(p9.Value);
+                fiberRw.Write(p8);
+                fiberRw.Write(p9);
                 //fiberRw.Write(p10);
                 await fiberRw.Flush();
             }
@@ -218,15 +222,15 @@ namespace TestServer
             {
                 writeBytes.WriteLen();
                 writeBytes.Cmd(cmd.Value);
-                writeBytes.Write(p1.Value);
-                writeBytes.Write(p2.Value);
-                writeBytes.Write(p3.Value);
-                writeBytes.Write(p4.Value);
-                writeBytes.Write(p5.Value);
-                writeBytes.Write(p6.Value);
+                writeBytes.Write(p1);
+                writeBytes.Write(p2);
+                writeBytes.Write(p3);
+                writeBytes.Write(p4);
+                writeBytes.Write(p5);
+                writeBytes.Write(p6);
                 writeBytes.Write(p7);
                 writeBytes.Write(p8);
-                writeBytes.Write(p9.Value);
+                writeBytes.Write(p9);
                 //writeBytes.Write(p10);
                 writeBytes.Flush();
             }

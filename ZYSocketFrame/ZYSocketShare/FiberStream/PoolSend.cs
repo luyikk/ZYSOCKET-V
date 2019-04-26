@@ -14,8 +14,11 @@ namespace ZYSocket.Share
 
         private readonly SendSocketAsyncEventPool _sendPool;
 
-        public PoolSend()
+        private bool IsThrowDisconnectException { get; }
+
+        public PoolSend(bool isThrowSocketDisconnectException=false)
         {
+            IsThrowDisconnectException = isThrowSocketDisconnectException;
             _sendPool = SendSocketAsyncEventPool.Shared;
         }
 
@@ -41,6 +44,9 @@ namespace ZYSocket.Share
 
         private bool TheSocketExceptionThrow(SocketException er)
         {
+            if (IsThrowDisconnectException)
+                return true;
+
             if (er.SocketErrorCode != SocketError.TimedOut &&
                     er.SocketErrorCode != SocketError.ConnectionReset &&
                     er.SocketErrorCode != SocketError.OperationAborted &&

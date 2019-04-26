@@ -57,6 +57,10 @@ namespace Server
                 {
                     await ReadCommand(fiberW);
                 }
+                catch (System.Net.Sockets.SocketException)
+                {
+                    break;
+                }
                 catch (Exception er)
                 {
                     Console.WriteLine(er.ToString()); //出现异常 打印，并且结束循环，断开连接
