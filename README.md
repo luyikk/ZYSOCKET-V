@@ -1,4 +1,14 @@
-# ZYSOCKET 第5代框架
+﻿# ZYSOCKET 第5代框架-异构
+
+NUGET
+
+Server: PM> Install-Package ZYSocketServerV
+
+Client:  PM> Install-Package ZYSocketClientV
+
+推荐IKende很好用的TCP测试工具: https://github.com/IKende/TCPBenchmarks
+
+特性介绍:
 
 完全采用 async await模拟fiber编写
 
