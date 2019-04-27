@@ -1,4 +1,4 @@
-﻿# ZYSOCKET 第5代框架-异构
+﻿# ZYSOCKET 第5代异构框架
 
 NUGET
 
@@ -7,6 +7,9 @@ Server: PM> Install-Package ZYSocketServerV
 Client:  PM> Install-Package ZYSocketClientV
 
 推荐IKende很好用的TCP测试工具: https://github.com/IKende/TCPBenchmarks
+
+关于性能测试 ECHO:
+使用TCPBenchmarks 测试 CPU  E1230V2  10G网的情况下,可达到37W-38.5W RPS左右
 
 特性介绍:
 
