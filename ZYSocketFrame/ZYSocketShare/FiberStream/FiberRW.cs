@@ -513,6 +513,16 @@ namespace ZYSocket.FiberStream
                 return ObjFormat.Deserialize<S>(array.Array, array.Offset, array.Count);
             }
         }
+
+        public async Task<object> ReadObject(Type type)
+        {
+            using (var mem = await ReadMemory())
+            {
+                var array = mem.Value.GetArray();
+
+                return ObjFormat.Deserialize(type, array.Array, array.Offset, array.Count);
+            }
+        }
         #endregion
 
         #region write buf

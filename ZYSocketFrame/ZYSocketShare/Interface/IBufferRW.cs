@@ -17,6 +17,7 @@ namespace ZYSocket.FiberStream
         Task<ResultByMemoryOwner<Memory<byte>>> ReadMemory();
         Task<ResultByMemoryOwner<Memory<byte>>> ReadMemory(int count);
         Task<T> ReadObject<T>();
+        Task<object> ReadObject(Type type);
         Task<float?> ReadSingle();
         Task<string> ReadString();
         Task<ArraySegment<byte>> ReadToBlockArrayEnd();

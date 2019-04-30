@@ -363,5 +363,12 @@ namespace ZYSocket
             return FiberRw.ObjFormat.Deserialize<T>(array.Array, array.Offset, array.Count);
         }
 
+        public object ReadObject(Type type)
+        {
+            var mem = ReadMemory();
+            var array = mem.GetArray();
+            return FiberRw.ObjFormat.Deserialize(type,array.Array, array.Offset, array.Count);
+        }
+
     }
 }
