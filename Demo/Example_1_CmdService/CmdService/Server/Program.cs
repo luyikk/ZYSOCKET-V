@@ -25,6 +25,9 @@ namespace Server
                 build.Bulid().Start();
                 Console.ReadLine();
             }
+
+          
+            Console.ReadLine();
         }
 
         static bool ConnectionFilter(ISockAsyncEventAsServer socketAsync)

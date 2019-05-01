@@ -16,10 +16,11 @@ using System.IO;
 using System.Threading;
 using ZYSocket.FiberStream;
 using System.Buffers;
-using Autofac;
 using ZYSocket.Server.Builder;
 using ZYSocket.Share;
 using ZYSocket.Interface;
+using Microsoft.Extensions.DependencyInjection;
+
 
 namespace ZYSocket.Server
 {
@@ -325,9 +326,9 @@ namespace ZYSocket.Server
 
 
         
-        public ZYSocketSuper(IComponentContext component)
+        public ZYSocketSuper(IServiceProvider component)
         {
-            var config = component.Resolve<SocketServerOptions>();
+            var config = component.GetRequiredService<SocketServerOptions>();
 
 
             this.Port = config.Port;
@@ -345,14 +346,14 @@ namespace ZYSocket.Server
         /// <summary>
         /// 启动
         /// </summary>
-        private void Run(IComponentContext component)
+        private void Run(IServiceProvider component)
         {
             if (isDisposed == true)
             {
                 throw new ObjectDisposedException("ZYServer is Disposed");
             }
 
-            var config = component.Resolve<SocketServerOptions>();
+            var config = component.GetService<SocketServerOptions>();
 
 
             IPEndPoint myEnd = new IPEndPoint(IPAddress.Any, Port);
@@ -417,15 +418,15 @@ namespace ZYSocket.Server
 
 
 
-            var memoryPool = component.Resolve<MemoryPool<byte>>();
-            var encode = component.Resolve<Encoding>();
-            var objFormat = component.Resolve<ISerialization>();
+            var memoryPool = component.GetRequiredService<MemoryPool<byte>>();
+            var encode = component.GetRequiredService<Encoding>();
+            var objFormat = component.GetRequiredService<ISerialization>();
 
             for (int i = 0; i < MaxConnectCout; i++)
             {
               
-                var poolSend = component.Resolve<ISend>();
-                var poolAsyncSend = component.Resolve<IAsyncSend>();
+                var poolSend = component.GetRequiredService<ISend>();
+                var poolAsyncSend = component.GetRequiredService<IAsyncSend>();
 
                 ZYSocketAsyncEventArgs socketasyn = new ZYSocketAsyncEventArgs(
                     new LinesReadStream(MaxBufferSize),

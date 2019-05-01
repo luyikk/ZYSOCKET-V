@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using ZYSocket.FiberStream;
 using System.Threading.Tasks;
 using ZYSocket.Server.Builder;
-using Autofac;
 using ZYSocket;
 using System.IO.Compression;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Authentication;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TestServer
 {
@@ -57,7 +57,7 @@ namespace TestServer
 
 
 
-            ContainerBuilder containerBuilder = new ContainerBuilder();
+            var containerBuilder = new ServiceCollection();
             new SockServBuilder(containerBuilder, p =>
             {
                 return new ZYSocketSuper(p)
@@ -72,9 +72,9 @@ namespace TestServer
                  p.MaxBufferSize = 8192;
              });
 
-            var build = containerBuilder.Build();
+            var build = containerBuilder.BuildServiceProvider();
 
-            var server3 = build.Resolve<ISocketServer>();
+            var server3 = build.GetRequiredService<ISocketServer>();
             server3.Start(); //启动服务器 1002端口 缓冲区为8KB 
 
 

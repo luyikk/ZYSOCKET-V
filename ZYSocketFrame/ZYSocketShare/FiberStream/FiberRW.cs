@@ -95,6 +95,7 @@ namespace ZYSocket.FiberStream
             
             try
             {
+
                 streamWriteFormat?.Dispose();
             }
             catch (ObjectDisposedException) { }

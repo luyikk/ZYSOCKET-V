@@ -1,40 +1,41 @@
-﻿using Autofac;
-using System;
+﻿using System;
 using System.Buffers;
 using System.Text;
 using ZYSocket.Share;
 using ZYSocket.Interface;
 using ZYSocket.FiberStream;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ZYSocket.Server.Builder
 {
     public class SockServBuilder :  ISockServBuilder,IDisposable
     {
-        private ContainerBuilder Container { get; set; }
+        private IServiceCollection Container { get; set; }
 
-        public IContainer ContainerBuilder { get; private set; }
+        public IServiceProvider ContainerBuilder { get; private set; }
      
 
-        public SockServBuilder(Func<IComponentContext,ISocketServer> func=null)
+        public SockServBuilder(Func<IServiceProvider, ISocketServer> func=null)
         {
-            Container = new ContainerBuilder();
+            Container = new ServiceCollection();
             ConfigureDefaults();
+
             if (func is null)
-                Container.Register<ZYSocketSuper>(p => new ZYSocketSuper(p)).As<ISocketServer>().SingleInstance();
+                Container.AddSingleton<ISocketServer, ZYSocketSuper>(p => new ZYSocketSuper(p));
             else
-                Container.Register<ISocketServer>(func).SingleInstance();
+                Container.AddSingleton<ISocketServer>(func);
 
         }
 
-        public SockServBuilder(ContainerBuilder container, Func<IComponentContext, ISocketServer> func = null)
+        public SockServBuilder(IServiceCollection container, Func<IServiceProvider, ISocketServer> func = null)
         {
             this.Container = container;
             ConfigureDefaults();
 
             if (func is null)
-                Container.Register<ZYSocketSuper>(p => new ZYSocketSuper(p)).As<ISocketServer>().SingleInstance();
+                Container.AddSingleton<ISocketServer, ZYSocketSuper>(p => new ZYSocketSuper(p));
             else
-                Container.Register<ISocketServer>(func).SingleInstance();            
+                Container.AddSingleton<ISocketServer, ISocketServer>(func);
         }
 
 
@@ -52,32 +53,32 @@ namespace ZYSocket.Server.Builder
 
         public ISockServBuilder ConfigServer(Action<SocketServerOptions> config = null)
         {
-            Container.Register<SocketServerOptions>(p =>
+            Container.AddSingleton<SocketServerOptions>(p =>
                {
                    var c = new SocketServerOptions();
                    config?.Invoke(c);
                    return c;
-               }).SingleInstance();
+               });
 
             return this;
         }
 
         public ISockServBuilder ConfigEncode(Func<Encoding> func=null)
         {
-            Container.Register<Encoding>(p =>
+            Container.AddSingleton<Encoding>(p =>
             {
                 if (func is null)
                     return Encoding.UTF8;
                 else
                     return func();
-            }).SingleInstance();
+            });
 
             return this;
         }
 
         public ISockServBuilder ConfigMemoryPool(Func<MemoryPool<byte>> func = null)
         {
-            Container.Register<MemoryPool<byte>>(p =>
+            Container.AddTransient<MemoryPool<byte>>(p =>
             {
                 if (func is null)
                     return new Thruster.FastMemoryPool<byte>();
@@ -91,7 +92,7 @@ namespace ZYSocket.Server.Builder
 
         public ISockServBuilder ConfigISend(Func<ISend> func=null)
         {
-            Container.Register<ISend>(p =>
+            Container.AddTransient<ISend>(p =>
             {
                 if (func is null)
                     return new PoolSend(true);
@@ -104,7 +105,7 @@ namespace ZYSocket.Server.Builder
 
         public ISockServBuilder ConfigIAsyncSend(Func<IAsyncSend> func = null)
         {
-            Container.Register<IAsyncSend>(p =>
+            Container.AddTransient<IAsyncSend>(p =>
             {
                 if (func is null)
                     return new PoolSend(true);
@@ -117,7 +118,7 @@ namespace ZYSocket.Server.Builder
 
         public ISockServBuilder ConfigObjFormat(Func<ISerialization> func = null)
         {
-            Container.Register<ISerialization>(p =>
+            Container.AddTransient<ISerialization>(p =>
             {
                 if (func is null)
                     return new ProtobuffObjFormat();
@@ -132,16 +133,17 @@ namespace ZYSocket.Server.Builder
 
         public ISocketServer Bulid()
         {
-            var build = Container.Build();
+            var build = Container.BuildServiceProvider();
 
             ContainerBuilder = build;
 
-            return build.Resolve<ISocketServer>();
+            return build.GetRequiredService<ISocketServer>();
         }
 
         public void Dispose()
         {
-            ContainerBuilder?.Dispose();
+            if (ContainerBuilder is IDisposable disposable)
+                disposable.Dispose();
         }
     }
 }
