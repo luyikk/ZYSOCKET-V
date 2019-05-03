@@ -82,7 +82,7 @@ namespace ZYSocket.Server
                    // sock.Shutdown(SocketShutdown.Both);
                     sock.Close();
                     sock.Dispose();
-                  
+                    reset.Dispose();
                 }
                 catch
                 {
@@ -122,7 +122,7 @@ namespace ZYSocket.Server
         public DisconnectHandler MessageInput { get; set; }
 
 
-        private readonly System.Threading.AutoResetEvent[] reset;
+        private readonly System.Threading.ManualResetEventSlim reset;
 
         /// <summary>
         /// 是否关闭SOCKET Delay算法
@@ -228,10 +228,8 @@ namespace ZYSocket.Server
             this.Host = host;
             this.MaxBufferSize = maxbuffersize;
             this.MaxConnectCout = maxconnectcout;
-           
-            this.reset = new System.Threading.AutoResetEvent[1];
-            reset[0] = new System.Threading.AutoResetEvent(false);
 
+            this.reset = new ManualResetEventSlim(false); 
             Run();
 
         }
@@ -336,9 +334,7 @@ namespace ZYSocket.Server
             this.MaxBufferSize = config.MaxBufferSize;
             this.MaxConnectCout = config.MaxConnectCout;
 
-            this.reset = new System.Threading.AutoResetEvent[1];
-            reset[0] = new System.Threading.AutoResetEvent(false);
-
+            this.reset = new ManualResetEventSlim(false);          
             Run(component);
         }
 
@@ -454,13 +450,13 @@ namespace ZYSocket.Server
 
         public void Start()
         {
-            reset[0].Set();
+            reset.Set();
            
         }
 
         public void Stop()
         {
-            reset[0].Reset();
+            reset.Reset();
         }
 
         void Accept(ZYSocketAsyncEventArgs sockasyn)
@@ -485,8 +481,8 @@ namespace ZYSocket.Server
             if (e.SocketError == SocketError.Success)
             {
 
-                System.Threading.WaitHandle.WaitAll(reset);
-                reset[0].Set();
+                reset.Wait();
+                reset.Set();
 
                 if (this.Connetions != null)
                     if (!this.Connetions(e))
