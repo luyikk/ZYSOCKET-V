@@ -51,7 +51,7 @@ namespace Client
                 return;
             }
 
-            client.SetConnect();
+            client.SetConnected();
 
             for(; ; )
             {

@@ -86,7 +86,7 @@ namespace Client
                 return;
             }
 
-            client.SetConnect();
+            client.SetConnected();
 
             for (; ; ) //我们可以在这里处理数据或者在上面
             {

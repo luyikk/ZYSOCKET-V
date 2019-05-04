@@ -85,7 +85,7 @@ namespace TestClient
         {
             var fiberRw = await socketAsync.GetFiberRw();
 
-            client.SetConnect();
+            client.SetConnected();
 
             while (true)
             {

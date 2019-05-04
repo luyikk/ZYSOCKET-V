@@ -101,7 +101,7 @@ namespace TestClient
 
             var fiberRw = res.FiberRw;
 
-            client.SetConnect();
+            client.SetConnected();
 
 
 

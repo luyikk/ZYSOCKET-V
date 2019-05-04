@@ -223,7 +223,7 @@ namespace ZYSocket.Client
             }
         }
 
-        public void SetConnect(bool isSuccess=true,string err=null)
+        public void SetConnected(bool isSuccess=true,string err=null)
         {
             if (isSuccess)
             {
@@ -231,14 +231,14 @@ namespace ZYSocket.Client
                 errorMsg = "connect success";
             }
             else
-            {
-                Diconnect_It(CurrentSocketAsyncEventArgs);
-
-                IsConnect = false;
+            {               
                 if (string.IsNullOrEmpty(err))
                     errorMsg = "set connect faill";
                 else
-                    ErrorMsg = err;
+                    errorMsg = err;
+
+                Diconnect_It(CurrentSocketAsyncEventArgs,errorMsg);
+                IsConnect = false;
             }
 
             wait?.Set();
@@ -284,32 +284,26 @@ namespace ZYSocket.Client
 
         }
 
-        private void Diconnect_It(ZYSocketAsyncEventArgs e)
-        {
+        private void Diconnect_It(ZYSocketAsyncEventArgs e) => Diconnect_It(e,null);
 
-            errorMsg = "Disconnect";
-            Disconnect?.Invoke(this, e, errorMsg);
 
+        private void Diconnect_It(ZYSocketAsyncEventArgs e, string errorMsg=null)
+        {                       
+            Disconnect?.Invoke(this, e, errorMsg?? "Disconnect");
             if(IsConnect)
                 this.Dispose();
-
         }
 
 
 
-        public void ShutdownBoth(bool events=false)
+        public void ShutdownBoth(bool events=false, string errorMsg =null)
         {
-            if (IsConnect)
-            {
+            if (IsConnect)            
                 Sock?.Shutdown(SocketShutdown.Both);
-               
-            }
 
             if (events)
-            {
-                errorMsg = "Disconnect";
-                Disconnect?.Invoke(this, CurrentSocketAsyncEventArgs, errorMsg);
-            }
+                Disconnect?.Invoke(this, CurrentSocketAsyncEventArgs, errorMsg?? "Disconnect");
+            
         }
 
 
