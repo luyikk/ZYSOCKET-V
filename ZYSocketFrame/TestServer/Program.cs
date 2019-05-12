@@ -135,8 +135,11 @@ namespace TestServer
                 try
                 {
                     //提供2种数据 读取写入方式
-                    ReadBytes readBytes = await new ReadBytes(fiberRw).Init();
-                    DataOn(ref readBytes, fiberRw);
+                    using (ReadBytes readBytes = new ReadBytes(fiberRw))
+                    {
+                        await readBytes.Init();
+                        DataOn(readBytes, fiberRw);
+                    }
 
 
                     await DataOnByLine(fiberRw);
@@ -200,7 +203,7 @@ namespace TestServer
 
         }
 
-        static void  DataOn(ref ReadBytes read, IFiberRw<string> fiberRw)
+        static void  DataOn(ReadBytes read, IFiberRw<string> fiberRw)
         {
            
             var cmd = read.ReadInt32();
@@ -216,7 +219,7 @@ namespace TestServer
 
 
            // var p10 = read.ReadObject<List<Guid>>();
-            read.Dispose();
+           // read.Dispose();
           
 
             using (WriteBytes writeBytes = new WriteBytes(fiberRw))

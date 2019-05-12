@@ -48,7 +48,7 @@ namespace ZYSocket.FiberStream
            
             if (init != null)
             {
-                var result = init(inputStream==null?fiberRStream as Stream:inputStream, outputStream==null? fiberWStream as Stream:outputStream);
+                var result = init(inputStream ?? fiberRStream as Stream, outputStream ?? fiberWStream as Stream);
 
                 if(result!= null)
                 {
@@ -58,14 +58,14 @@ namespace ZYSocket.FiberStream
                 }
                 else
                 {
-                    streamReadFormat = inputStream == null ? fiberRStream as Stream : inputStream;
-                    streamWriteFormat = outputStream == null ? fiberWStream as Stream : outputStream;
+                    streamReadFormat = inputStream ?? fiberRStream as Stream;
+                    streamWriteFormat = outputStream ?? fiberWStream as Stream;
                 }
             }
             else
             {
-                streamReadFormat = inputStream == null ? fiberRStream as Stream : inputStream;
-                streamWriteFormat = outputStream == null ? fiberWStream as Stream : outputStream;
+                streamReadFormat = inputStream ?? fiberRStream as Stream;
+                streamWriteFormat = outputStream ?? fiberWStream as Stream;
             }                       
             this.Async = async;
             UserToken = null;

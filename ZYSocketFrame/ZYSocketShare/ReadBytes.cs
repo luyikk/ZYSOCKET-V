@@ -12,7 +12,7 @@ namespace ZYSocket
 
 
 
-    public  struct ReadBytes:IDisposable
+    public  class ReadBytes:IDisposable
     {
         public static LengthLen LenType { get; set; } = LengthLen.Int32;
 
