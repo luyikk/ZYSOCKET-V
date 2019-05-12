@@ -9,17 +9,17 @@ using ZYSocket.Interface;
 
 namespace ZYSocket.FiberStream
 {
-    public class FiberRw<T> : IDisposable,IFiberRw<T> where T:class
+    public class FiberRw<T> : IDisposable, IFiberRw<T> where T : class
     {
         private readonly MemoryPool<byte> memoryPool;
-        public  MemoryPool<byte> MemoryPool { get => memoryPool; }
+        public MemoryPool<byte> MemoryPool { get => memoryPool; }
 
         private readonly bool isinit;
         public bool IsInit { get => isinit; }
 
         public Encoding Encoding { get; }
 
-        public ISerialization ObjFormat { get;}
+        public ISerialization ObjFormat { get; }
 
         private readonly bool isLittleEndian;
         public bool IsLittleEndian { get => isLittleEndian; }
@@ -37,20 +37,20 @@ namespace ZYSocket.FiberStream
 
         private readonly Stream streamWriteFormat;
         public Stream StreamWriteFormat { get => streamWriteFormat; }
-        public ISockAsyncEvent Async { get; }       
-        public T UserToken { get=>(T)Async.UserToken; set=>Async.UserToken=value; }
+        public ISockAsyncEvent Async { get; }
+        public T UserToken { get => (T)Async.UserToken; set => Async.UserToken = value; }
 
         private readonly byte[] read_Numericbytes;
         private readonly byte[] write_Numericbytes;
 
-        public FiberRw(ISockAsyncEvent async,IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream,  MemoryPool<byte> memoryPool, Encoding encoding,ISerialization objFormat, bool isLittleEndian=false, Stream inputStream=null,Stream outputStream=null, Func<Stream,Stream,GetFiberRwResult> init=null)
+        public FiberRw(ISockAsyncEvent async, IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream, MemoryPool<byte> memoryPool, Encoding encoding, ISerialization objFormat, bool isLittleEndian = false, Stream inputStream = null, Stream outputStream = null, Func<Stream, Stream, GetFiberRwResult> init = null)
         {
-           
+
             if (init != null)
             {
                 var result = init(inputStream ?? fiberRStream as Stream, outputStream ?? fiberWStream as Stream);
 
-                if(result!= null)
+                if (result != null)
                 {
                     streamReadFormat = result.Input;
                     streamWriteFormat = result.Output;
@@ -66,14 +66,14 @@ namespace ZYSocket.FiberStream
             {
                 streamReadFormat = inputStream ?? fiberRStream as Stream;
                 streamWriteFormat = outputStream ?? fiberWStream as Stream;
-            }                       
+            }
             this.Async = async;
             UserToken = null;
             fiberReadStream = fiberRStream;
             fiberWriteStream = fiberWStream;
             this.Encoding = encoding;
             this.memoryPool = memoryPool;
-            this.isLittleEndian = isLittleEndian;           
+            this.isLittleEndian = isLittleEndian;
             read_Numericbytes = fiberReadStream.Numericbytes;
             write_Numericbytes = fiberWriteStream.Numericbytes;
 
@@ -81,7 +81,7 @@ namespace ZYSocket.FiberStream
                 ObjFormat = new ProtobuffObjFormat();
             else
                 ObjFormat = objFormat;
-            
+
             isinit = true;
         }
 
@@ -92,7 +92,7 @@ namespace ZYSocket.FiberStream
                 streamReadFormat?.Dispose();
             }
             catch (ObjectDisposedException) { }
-            
+
             try
             {
 
@@ -102,7 +102,7 @@ namespace ZYSocket.FiberStream
         }
 
 
-       
+
 
 
         public async Task<long> NextMove(long offset)
@@ -155,7 +155,7 @@ namespace ZYSocket.FiberStream
             return fiberReadStream.ReadToBlockArrayEnd();
         }
 
-        public async Task<int> ReadAsync(byte[] data,int offset,int count)
+        public async Task<int> ReadAsync(byte[] data, int offset, int count)
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -164,7 +164,7 @@ namespace ZYSocket.FiberStream
             int offset_next = offset;
             do
             {
-               
+
                 var res = await streamReadFormat.ReadAsync(data, offset_next, needcount, CancellationToken.None).ConfigureAwait(false);
 
                 if (res == 0)
@@ -179,12 +179,12 @@ namespace ZYSocket.FiberStream
 
             return count;
         }
-     
-     
+
+
 
         public IMemoryOwner<byte> GetMemory(int inithint)
         {
-           return memoryPool.Rent(inithint);
+            return memoryPool.Rent(inithint);
         }
 
 
@@ -243,8 +243,8 @@ namespace ZYSocket.FiberStream
 
         private unsafe short? ReadInt16(byte[] value)
         {
-            if (value == null)            
-                return null; 
+            if (value == null)
+                return null;
 
             fixed (byte* numRef = &(value[0]))
             {
@@ -255,7 +255,7 @@ namespace ZYSocket.FiberStream
                     return x;
             }
         }
-                
+
         public async Task<uint?> ReadUInt32()
         {
             if (!isinit)
@@ -265,8 +265,8 @@ namespace ZYSocket.FiberStream
 
             if (count == 4)
             {
-                
-                return (uint?)ReadInt32(read_Numericbytes);           
+
+                return (uint?)ReadInt32(read_Numericbytes);
             }
             else
                 return null;
@@ -302,7 +302,7 @@ namespace ZYSocket.FiberStream
                     return x;
             }
         }
-        
+
         public async Task<ulong?> ReadUInt64()
         {
             if (!isinit)
@@ -355,7 +355,7 @@ namespace ZYSocket.FiberStream
             if (!isinit)
                 throw new NotSupportedException("not init it");
 
-            
+
             int count = await this.ReadAsync(read_Numericbytes, 0, 8);
 
             if (count == 8)
@@ -419,6 +419,9 @@ namespace ZYSocket.FiberStream
 
         public async Task<ResultByMemoryOwner<Memory<byte>>> ReadMemory(int size)
         {
+            if (size == 0)
+                return default;
+
             var imo = GetMemory(size);
 
             var memory = imo.Memory;
@@ -429,7 +432,7 @@ namespace ZYSocket.FiberStream
             if (len != size)
                 throw new System.IO.IOException($"not read data");
 
-            var slice_mem= memory.Slice(0, len);
+            var slice_mem = memory.Slice(0, len);
 
             return new ResultByMemoryOwner<Memory<byte>>(imo, slice_mem);
 
@@ -439,7 +442,7 @@ namespace ZYSocket.FiberStream
         {
             int? len = await ReadInt32();
 
-            if (len == null)
+            if (len == null || len.Value == 0)
                 return default;
             else
             {
@@ -448,7 +451,9 @@ namespace ZYSocket.FiberStream
         }
 
         public async Task<byte[]> ReadArray(int size)
-        {            
+        {
+            if (size == 0)
+                return new byte[] { };
 
             byte[] array = new byte[size];
 
@@ -459,7 +464,7 @@ namespace ZYSocket.FiberStream
 
             return array;
         }
-   
+
 
 
         public async Task<byte[]> ReadArray()
@@ -467,10 +472,35 @@ namespace ZYSocket.FiberStream
             int? len = await ReadInt32();
 
             if (len == null)
-                return null;
+                return new byte[] { };
             else
             {
                 return await ReadArray(len.Value);
+            }
+        }
+
+        public async Task<string> ReadString(int len)
+        {
+
+            if (len == 0)
+                return "";
+            else
+            {
+
+                using (var imo = GetMemory(len))
+                {
+
+                    var array = imo.Memory.GetArray();
+
+                    int rlen = await ReadAsync(array.Array, array.Offset, len);
+
+                    if (rlen != len)
+                        throw new System.IO.IOException($"not read data");
+
+                    return Encoding.GetString(array.Array, array.Offset, rlen);
+
+
+                }
             }
         }
 
@@ -480,24 +510,10 @@ namespace ZYSocket.FiberStream
             int? len = await ReadInt32();
 
             if (len == null)
-                return default;
+                return "";
             else
             {
-
-                using (var imo = GetMemory(len.Value))
-                {
-
-                    var array = imo.Memory.GetArray();
-
-                    int rlen = await ReadAsync(array.Array, array.Offset, len.Value);
-
-                    if (rlen != len.Value)
-                        throw new System.IO.IOException($"not read data");
-
-                    return Encoding.GetString(array.Array, array.Offset, rlen);
-
-
-                }
+                return await ReadString(len.Value);
             }
         }
 

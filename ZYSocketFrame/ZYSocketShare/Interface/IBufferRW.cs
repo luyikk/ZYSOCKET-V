@@ -20,6 +20,7 @@ namespace ZYSocket.FiberStream
         Task<object> ReadObject(Type type);
         Task<float?> ReadSingle();
         Task<string> ReadString();
+        Task<string> ReadString(int len);
         Task<ArraySegment<byte>> ReadToBlockArrayEnd();
         Task<Memory<byte>> ReadToBlockEnd();
         Task<ushort?> ReadUInt16();

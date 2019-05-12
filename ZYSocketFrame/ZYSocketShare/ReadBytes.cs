@@ -292,31 +292,49 @@ namespace ZYSocket
             var len = ReadInt32();
 
             if (len is null)
-                return null;
+                return "";
+
+            return ReadString(len.Value);
+        }
+
+        public string ReadString(int len)
+        {                     
+
+            if (len==0)
+                return "";
 
 
             var mm = Memory.GetArray();
-            var tmpstr = FiberRw.Encoding.GetString(mm.Array, mm.Offset, len.Value);
-            Memory = Memory.Slice(len.Value);
+            var tmpstr = FiberRw.Encoding.GetString(mm.Array, mm.Offset, len);
+            Memory = Memory.Slice(len);
             return tmpstr;
 
         }
+
 
         public Memory<byte> ReadMemory()
         {
             var len = ReadInt32();
 
             if (len is null)
-                return null;
+                return default;
 
+            return ReadMemory(len.Value);
 
-            var mm = Memory.Slice(0, len.Value);
-            Memory = Memory.Slice(len.Value);
+        }
+
+        public Memory<byte> ReadMemory(int len)
+        {
+            if (len == 0)
+                return default;
+
+            var mm = Memory.Slice(0, len);
+            Memory = Memory.Slice(len);
             return mm;
 
         }
 
-        public Span<byte> ReadSpan(int  count)
+        public Span<byte> ReadSpan(int count)
         {
             var mm = Memory.Slice(0, count);
             Memory = Memory.Slice(count);
@@ -335,25 +353,34 @@ namespace ZYSocket
             if (len is null)
                 return null;
 
+            return ReadArray(len.Value);        
+            
+        }
 
-            var mm = Memory.Slice(0, len.Value).GetArray();
-            Memory = Memory.Slice(len.Value);
+        public byte[] ReadArray(int len)
+        {
+            
+            if (len == 0)
+                return new byte[] { };
+
+            var mm = Memory.Slice(0, len).GetArray();
+            Memory = Memory.Slice(len);
 
             byte[] source = mm.Array;
 
-            byte[] target = new byte[len.Value];
+            byte[] target = new byte[len];
 
             unsafe
             {
-                fixed(byte* sourcep=&source[mm.Offset])
-                    fixed(byte * targetp=&target[0])
+                fixed (byte* sourcep = &source[mm.Offset])
+                fixed (byte* targetp = &target[0])
                 {
                     Buffer.MemoryCopy(sourcep, targetp, target.LongLength, target.LongLength);
 
                     return target;
                 }
             }
-            
+
         }
 
         public T ReadObject<T>()

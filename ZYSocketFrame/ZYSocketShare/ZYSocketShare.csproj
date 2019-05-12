@@ -11,7 +11,7 @@
     <RepositoryUrl>https://github.com/luyikk/ZYSOCKET-V</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <Version>1.3.9</Version>
+    <Version>1.4.2</Version>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
     <Description>ZYSocket Share lib</Description>
