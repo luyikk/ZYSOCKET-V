@@ -3,7 +3,7 @@
 ## 使用方式:
 NUGET:
 
-[Server link description here](%28https://www.nuget.org/packages/ZYSocketServerV%29)
+[Server link description here](https://www.nuget.org/packages/ZYSocketServerV)
 
     Server: PM> Install-Package ZYSocketServerV
 [Client link description here](https://www.nuget.org/packages/ZYSocketClientV)
