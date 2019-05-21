@@ -8,24 +8,24 @@ namespace ZYSocket.FiberStream
         Task<int> ReadAsync(byte[] data, int offset, int count);
         Task<byte[]> ReadArray();
         Task<byte[]> ReadArray(int count);
-        Task<bool?> ReadBoolean();
-        Task<byte?> ReadByte();
-        Task<double?> ReadDouble();
-        Task<short?> ReadInt16();
-        Task<int?> ReadInt32();
-        Task<long?> ReadInt64();
+        Task<bool> ReadBoolean();
+        Task<byte> ReadByte();
+        Task<double> ReadDouble();
+        Task<short> ReadInt16();
+        Task<int> ReadInt32();
+        Task<long> ReadInt64();
         Task<ResultByMemoryOwner<Memory<byte>>> ReadMemory();
         Task<ResultByMemoryOwner<Memory<byte>>> ReadMemory(int count);
         Task<T> ReadObject<T>();
         Task<object> ReadObject(Type type);
-        Task<float?> ReadSingle();
+        Task<float> ReadSingle();
         Task<string> ReadString();
         Task<string> ReadString(int len);
         Task<ArraySegment<byte>> ReadToBlockArrayEnd();
         Task<Memory<byte>> ReadToBlockEnd();
-        Task<ushort?> ReadUInt16();
-        Task<uint?> ReadUInt32();
-        Task<ulong?> ReadUInt64();
+        Task<ushort> ReadUInt16();
+        Task<uint> ReadUInt32();
+        Task<ulong> ReadUInt64();
     }
 
 

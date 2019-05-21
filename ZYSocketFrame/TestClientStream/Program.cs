@@ -17,7 +17,7 @@ namespace TestClient
 
         static X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/client.pfx", "testPassword");
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             client = new SocketClient();
             client.BinaryInput += Client_BinaryInput;
@@ -25,7 +25,7 @@ namespace TestClient
 
             while (true)
             {
-                connect();
+                await connect();
 
                 Console.ReadLine();
 
@@ -35,15 +35,18 @@ namespace TestClient
             }
         }
 
-        static async void connect()
+        static async Task connect()
         {
-            var result = client.Connect("127.0.0.1", 1002,6000);         
-
+            var result =await client.ConnectAsync("127.0.0.1", 1002,6000);
             Console.WriteLine(result);
 
-            var fiber = await client.GetFiberRw();          
+            if (result.IsSuccess)
+            {              
 
-            SendTest(fiber);          
+                var fiber = await client.GetFiberRw();
+
+                SendTest(fiber);
+            }
 
         }
 
@@ -145,17 +148,17 @@ namespace TestClient
                 var p9 = await fiberRw.ReadInt16();
                 var p10 = await fiberRw.ReadObject<List<Guid>>();
 
-                fiberRw.Write(len.Value);
-                fiberRw.Write(cmd.Value);
-                fiberRw.Write(p1.Value);
-                fiberRw.Write(p2.Value);
-                fiberRw.Write(p3.Value);
-                fiberRw.Write(p4.Value);
-                fiberRw.Write(p5.Value);
-                fiberRw.Write(p6.Value);
+                fiberRw.Write(len);
+                fiberRw.Write(cmd);
+                fiberRw.Write(p1);
+                fiberRw.Write(p2);
+                fiberRw.Write(p3);
+                fiberRw.Write(p4);
+                fiberRw.Write(p5);
+                fiberRw.Write(p6);
                 fiberRw.Write(p7);
-                fiberRw.Write(p8.Value);
-                fiberRw.Write(p9.Value);
+                fiberRw.Write(p8);
+                fiberRw.Write(p9);
                 fiberRw.Write(p10);
                 await fiberRw.Flush();
             }

@@ -55,6 +55,8 @@ namespace ZYSocket.Client
 
         private System.Threading.AutoResetEvent wait = new System.Threading.AutoResetEvent(false);
 
+        private System.Threading.SemaphoreSlim semaphore = new System.Threading.SemaphoreSlim(1,1);
+
         private TaskCompletionSource<IFiberRw> completionSource;
 
         private string errorMsg;
@@ -93,84 +95,191 @@ namespace ZYSocket.Client
 
 
 
-        public Task<ConnectResult> ConnectAsync(string host, int port,int connectTimeout=6000)
+        public async Task<ConnectResult> ConnectAsync(string host, int port,int connectTimeout=6000)
         {
 
-            return Task.Run<ConnectResult>(() =>
+        
+
+            if (await semaphore.WaitAsync(60000))
+            {
+               
+                try
                 {
-                    return Connect(host, port, connectTimeout);
-                });
+                    if (IsConnect)
+                        return new ConnectResult(false, "the socket status is connect already,please Dispose it.");
+
+
+                    completionSource = new TaskCompletionSource<IFiberRw>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                    errorMsg = null;
+                    IPEndPoint myEnd = null;
+
+                    #region ipformat
+                    try
+                    {
+                        myEnd = new IPEndPoint(IPAddress.Parse(host), port);
+                    }
+                    catch (FormatException)
+                    {
+                        IPHostEntry p = Dns.GetHostEntry(host);
+
+                        foreach (IPAddress s in p.AddressList)
+                        {
+                            myEnd = new IPEndPoint(s, port);
+                            break;
+                        }
+                    }
+
+                    #endregion
+
+                    Sock = new Socket(myEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+                    ZYSocketAsyncEventArgs e = new ZYSocketAsyncEventArgs(
+                            completionSource,
+                            new LinesReadStream(),
+                            new BufferWriteStream(memoryPool, syncsend, asyncsend),
+                            syncsend,
+                            asyncsend,
+                            memoryPool,
+                            encoding,
+                            objFormat,
+                            false)
+                    {
+                        RemoteEndPoint = myEnd
+                    };
+                    e.DisconnectIt = Diconnect_It;
+                    e.Completed += E_Completed;
+                    CurrentSocketAsyncEventArgs = e;
+
+                    if (!Sock.ConnectAsync(CurrentSocketAsyncEventArgs))
+                    {
+                        Connect(CurrentSocketAsyncEventArgs);
+                    }
+
+                    if (wait.WaitOne(connectTimeout))
+                    {
+                        wait.Reset();
+
+                        if (!IsConnect)
+                        {
+                            this.Dispose();
+                        }
+
+                        return new ConnectResult(IsConnect, errorMsg);
+                    }
+                    else
+                    {
+                        wait.Reset();
+                        this.Dispose();
+                        return new ConnectResult(false, "connect time out");
+                    }
+
+                }
+                catch (Exception er)
+                {
+                    return new ConnectResult(false, er.ToString());
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+
+            }
+            else
+                return new ConnectResult(false, "connect time out");
         }
 
         public ConnectResult Connect(string host, int port, int connectTimeout = 6000)
         {
-            if (IsConnect)
-                throw new System.IO.IOException("the socket status is connect already,please Dispose it.");
+           
 
-            completionSource = new TaskCompletionSource<IFiberRw>(TaskCreationOptions.RunContinuationsAsynchronously);
-          
-            errorMsg = null;
-            IPEndPoint myEnd = null;
-
-            #region ipformat
-            try
+            if (semaphore.Wait(60000))
             {
-                myEnd = new IPEndPoint(IPAddress.Parse(host), port);
-            }
-            catch (FormatException)
-            {
-                IPHostEntry p = Dns.GetHostEntry(host);
-
-                foreach (IPAddress s in p.AddressList)
+              
+                try
                 {
-                    myEnd = new IPEndPoint(s, port);
-                    break;
+                    if (IsConnect)
+                        return new ConnectResult(false, "the socket status is connect already,please Dispose it.");
+
+
+                    completionSource = new TaskCompletionSource<IFiberRw>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                    errorMsg = null;
+                    IPEndPoint myEnd = null;
+
+                    #region ipformat
+                    try
+                    {
+                        myEnd = new IPEndPoint(IPAddress.Parse(host), port);
+                    }
+                    catch (FormatException)
+                    {
+                        IPHostEntry p = Dns.GetHostEntry(host);
+
+                        foreach (IPAddress s in p.AddressList)
+                        {
+                            myEnd = new IPEndPoint(s, port);
+                            break;
+                        }
+                    }
+
+                    #endregion
+
+                    Sock = new Socket(myEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+                    ZYSocketAsyncEventArgs e = new ZYSocketAsyncEventArgs(
+                            completionSource,
+                            new LinesReadStream(),
+                            new BufferWriteStream(memoryPool, syncsend, asyncsend),
+                            syncsend,
+                            asyncsend,
+                            memoryPool,
+                            encoding,
+                            objFormat,
+                            false)
+                    {
+                        RemoteEndPoint = myEnd
+                    };
+                    e.DisconnectIt = Diconnect_It;
+                    e.Completed += E_Completed;
+                    CurrentSocketAsyncEventArgs = e;
+
+                    if (!Sock.ConnectAsync(CurrentSocketAsyncEventArgs))
+                    {
+                        Connect(CurrentSocketAsyncEventArgs);
+                    }
+
+                    if (wait.WaitOne(connectTimeout))
+                    {
+                        wait.Reset();
+
+                        if (!IsConnect)
+                        {
+                            this.Dispose();
+                        }
+
+                        return new ConnectResult(IsConnect, errorMsg);
+                    }
+                    else
+                    {
+                        wait.Reset();
+                        this.Dispose();
+                        return new ConnectResult(false, "connect time out");
+                    }
+
                 }
-            }
-
-            #endregion
-
-            Sock = new Socket(myEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            ZYSocketAsyncEventArgs e = new ZYSocketAsyncEventArgs(
-                    completionSource,
-                    new LinesReadStream(),
-                    new BufferWriteStream(memoryPool, syncsend, asyncsend),
-                    syncsend,
-                    asyncsend,
-                    memoryPool,
-                    encoding,
-                    objFormat,
-                    false)
-            {
-                RemoteEndPoint = myEnd
-            };
-            e.DisconnectIt = Diconnect_It;           
-            e.Completed += E_Completed;
-            CurrentSocketAsyncEventArgs = e;
-
-            if (!Sock.ConnectAsync(CurrentSocketAsyncEventArgs))
-            {
-                Connect(CurrentSocketAsyncEventArgs);
-            }
-
-            if (wait.WaitOne(connectTimeout))
-            {
-                wait.Reset();
-
-                if (!IsConnect)
+                catch (Exception er)
                 {
-                    this.Dispose();
+                    return new ConnectResult(false, er.ToString());
+                }
+                finally
+                {
+                    semaphore.Release();
                 }
 
-                return  new ConnectResult(IsConnect, errorMsg);
             }
             else
-            {
-                wait.Reset();
-                this.Dispose();
                 return new ConnectResult(false, "connect time out");
-            }
         }
 
         public async Task<IFiberRw> GetFiberRw()
@@ -217,9 +326,15 @@ namespace ZYSocket.Client
             {
                 CurrentSocketAsyncEventArgs.IsStartReceive = true;
 
-                if (!Sock.ReceiveAsync(CurrentSocketAsyncEventArgs))
-                    BeginReceive(CurrentSocketAsyncEventArgs);
+                try
+                {
+                    if (!Sock.ReceiveAsync(CurrentSocketAsyncEventArgs))
+                        BeginReceive(CurrentSocketAsyncEventArgs);
+                }
+                catch (ObjectDisposedException)
+                {
 
+                }
             }
         }
 

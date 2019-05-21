@@ -53,30 +53,22 @@ namespace ZYSocket
             {
                 case LengthLen.Byte:
                     {
-                        var l = await FiberRw.ReadByte();
-                        if (l != null)
-                            Packerlen = l.Value;
+                        Packerlen = await FiberRw.ReadByte();  
                     }
                     break;
                 case LengthLen.Int16:
                     {
-                        var l = await FiberRw.ReadUInt16();
-                        if (l != null)
-                            Packerlen = l.Value;
+                        Packerlen = await FiberRw.ReadUInt16();
                     }
                     break;
                 case LengthLen.Int32:
                     {
-                        var l = await FiberRw.ReadUInt32();
-                        if (l != null)
-                            Packerlen = (int)l.Value;
+                        Packerlen =(int) await FiberRw.ReadUInt32();                    
                     }
                     break;
                 case LengthLen.Int64:
                     {
-                        var l = await FiberRw.ReadInt64();
-                        if (l != null)
-                            Packerlen = (int)l.Value;
+                        Packerlen = (int)await FiberRw.ReadInt64();
                     }
                     break;
 

@@ -80,7 +80,7 @@ namespace Client
                     {
                         var isSuccess = await fiberRw.ReadBoolean();
 
-                        if(isSuccess.GetValueOrDefault())
+                        if(isSuccess)
                         {
                             await fiberRw.ReadString();
 

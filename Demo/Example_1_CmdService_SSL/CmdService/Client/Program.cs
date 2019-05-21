@@ -113,7 +113,7 @@ namespace Client
 
                         Console.WriteLine(await fiberRw.ReadString());
 
-                        if (isSuccess.Value)
+                        if (isSuccess)
                         {
                             Data data = new Data()
                             {

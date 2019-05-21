@@ -37,17 +37,6 @@ namespace TestClient
         { 
             var result = await client.ConnectAsync("127.0.0.1", 1002,60000);
             Console.WriteLine(result);
-
-        
-            //for (; ; )
-            //{
-            //    try
-            //    {
-
-            //    }
-            //    catch {break; }
-
-            //}
         }
 
         private static void Client_Disconnect(ISocketClient client, ISockAsyncEvent socketAsync, string msg)

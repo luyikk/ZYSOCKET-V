@@ -189,7 +189,7 @@ namespace ZYSocket.FiberStream
 
 
         #region read integer
-        public async Task<byte?> ReadByte()
+        public async Task<byte> ReadByte()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -200,18 +200,18 @@ namespace ZYSocket.FiberStream
             if (count == 1)
                 return read_Numericbytes[0];
             else
-                return null;
+                throw new IOException("read data len error"); 
 
         }
 
-        public async Task<bool?> ReadBoolean()
+        public async Task<bool> ReadBoolean()
         {
             var b = await ReadByte();
 
             return b == 1 ? true : false;
         }
 
-        public async Task<ushort?> ReadUInt16()
+        public async Task<ushort> ReadUInt16()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -220,13 +220,13 @@ namespace ZYSocket.FiberStream
 
             if (count == 2)
             {
-                return (ushort?)ReadInt16(read_Numericbytes);
+                return (ushort)ReadInt16(read_Numericbytes);
             }
             else
-                return null;
+                throw new IOException("read data len error"); 
         }
 
-        public async Task<short?> ReadInt16()
+        public async Task<short> ReadInt16()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -238,13 +238,11 @@ namespace ZYSocket.FiberStream
                 return ReadInt16(read_Numericbytes);
             }
             else
-                return null;
+                throw new IOException("read data len error");
         }
 
-        private unsafe short? ReadInt16(byte[] value)
-        {
-            if (value == null)
-                return null;
+        private unsafe short ReadInt16(byte[] value)
+        {         
 
             fixed (byte* numRef = &(value[0]))
             {
@@ -256,7 +254,7 @@ namespace ZYSocket.FiberStream
             }
         }
 
-        public async Task<uint?> ReadUInt32()
+        public async Task<uint> ReadUInt32()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -265,14 +263,13 @@ namespace ZYSocket.FiberStream
 
             if (count == 4)
             {
-
-                return (uint?)ReadInt32(read_Numericbytes);
+                return (uint)ReadInt32(read_Numericbytes);
             }
             else
-                return null;
+                throw new IOException("read data len error");
         }
 
-        public async Task<int?> ReadInt32()
+        public async Task<int> ReadInt32()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -284,15 +281,11 @@ namespace ZYSocket.FiberStream
                 return ReadInt32(read_Numericbytes);
             }
             else
-                return null;
+                throw new IOException("read data len error");
         }
 
-        private unsafe int? ReadInt32(byte[] value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
+        private unsafe int ReadInt32(byte[] value)
+        {           
             fixed (byte* numRef = &(value[0]))
             {
                 var x = *(((int*)numRef));
@@ -303,7 +296,7 @@ namespace ZYSocket.FiberStream
             }
         }
 
-        public async Task<ulong?> ReadUInt64()
+        public async Task<ulong> ReadUInt64()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -312,13 +305,13 @@ namespace ZYSocket.FiberStream
 
             if (count == 8)
             {
-                return (ulong?)ReadInt64(read_Numericbytes);
+                return (ulong)ReadInt64(read_Numericbytes);
             }
             else
-                return null;
+                throw new IOException("read data len error");
         }
 
-        public async Task<long?> ReadInt64()
+        public async Task<long> ReadInt64()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -330,15 +323,12 @@ namespace ZYSocket.FiberStream
                 return ReadInt64(read_Numericbytes);
             }
             else
-                return null;
+                throw new IOException("read data len error");
         }
 
-        private unsafe long? ReadInt64(byte[] value)
+        private unsafe long ReadInt64(byte[] value)
         {
-            if (value == null)
-            {
-                return null;
-            }
+           
             fixed (byte* numRef = &(value[0]))
             {
                 var x = *(((long*)numRef));
@@ -350,7 +340,7 @@ namespace ZYSocket.FiberStream
         }
 
 
-        public async Task<double?> ReadDouble()
+        public async Task<double> ReadDouble()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -363,15 +353,11 @@ namespace ZYSocket.FiberStream
                 return ReadDouble(read_Numericbytes);
             }
             else
-                return null;
+                throw new IOException("read data len error");
         }
 
-        private unsafe double? ReadDouble(byte[] value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
+        private unsafe double ReadDouble(byte[] value)
+        {           
 
             fixed (byte* numRef = &(value[0]))
             {
@@ -381,7 +367,7 @@ namespace ZYSocket.FiberStream
             }
         }
 
-        public async Task<float?> ReadSingle()
+        public async Task<float> ReadSingle()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
@@ -394,15 +380,11 @@ namespace ZYSocket.FiberStream
                 return ReadSingle(read_Numericbytes);
             }
             else
-                return null;
+                throw new IOException("read data len error");
         }
 
-        private unsafe float? ReadSingle(byte[] value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
+        private unsafe float ReadSingle(byte[] value)
+        {           
 
             fixed (byte* numRef = &(value[0]))
             {
