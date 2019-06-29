@@ -116,7 +116,8 @@ namespace ZYSocket.FiberStream
 
             do
             {
-                await fiberReadStream.Check();
+                if (fiberReadStream.NeedRead)
+                    await fiberReadStream.Check();
 
                 var x = streamReadFormat.Length - streamReadFormat.Position;
 
@@ -140,9 +141,8 @@ namespace ZYSocket.FiberStream
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
-
-            await fiberReadStream.Check();
-
+            if (fiberReadStream.NeedRead)
+                await fiberReadStream.Check();
             return fiberReadStream.ReadToBlockEnd();
         }
 
@@ -150,8 +150,8 @@ namespace ZYSocket.FiberStream
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
-
-            await fiberReadStream.Check();
+            if (fiberReadStream.NeedRead)
+                await fiberReadStream.Check();
             return fiberReadStream.ReadToBlockArrayEnd();
         }
 

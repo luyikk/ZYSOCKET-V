@@ -10,11 +10,7 @@ using System.Runtime.CompilerServices;
 namespace ZYSocket.FiberStream
 {
     public class LinesReadStream : Stream, IFiberReadStream
-    {
-        private readonly object lockobj = new object();
-
-        private readonly PipeFilberAwaiter check_completed = new PipeFilberAwaiter(true);
-
+    {      
         private readonly Pipes Pipes;
 
         private readonly byte[] data;
@@ -33,8 +29,10 @@ namespace ZYSocket.FiberStream
 
         public byte[]  Numericbytes { get => numericbytes; }
 
-        public int Size => len;       
-      
+        public int Size => len;
+        public bool NeedRead => position == wrlen;
+
+
         public LinesReadStream(int length = 4096)
         {
             Pipes = new Pipes();
@@ -80,12 +78,9 @@ namespace ZYSocket.FiberStream
         }
 
 
-        public  PipeFilberAwaiter Check()
+        public PipeFilberAwaiter Check()
         {
-            if (position == wrlen)
-                return Pipes.Need();
-            else            
-                return check_completed;            
+            return Pipes.Need();
         }
 
         public void Reset()
@@ -183,9 +178,11 @@ namespace ZYSocket.FiberStream
         }
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
-        {          
-            await Check();
-            return  Read(buffer, offset, count);
+        {
+            if (NeedRead)
+                await Check();
+
+            return Read(buffer, offset, count);
         }
 
 
