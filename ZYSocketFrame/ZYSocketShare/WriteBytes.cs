@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
@@ -24,23 +25,61 @@ namespace ZYSocket
 
         private readonly Stream StreamWriteFormat;
         private readonly IFiberWriteStream FiberWriteStream;
-
         private readonly MemoryStream StreamWrite;
+        private readonly IMemoryOwner<byte> memory;
+
+       
 
         public WriteBytes(IFiberRw fiberRw)
         {
+          
+
             FiberRw = fiberRw;
             LenType = LengthLen.None;
             IsLittleEndian = FiberRw.IsLittleEndian;
             Numericbytes = FiberRw.FiberWriteStream.Numericbytes;
             StreamWriteFormat = FiberRw.StreamWriteFormat;
             FiberWriteStream = FiberRw.FiberWriteStream;
-            StreamWrite = new MemoryStream();
+            StreamWrite = new MemoryStream(256);
+            memory = null;
         }
+
+        public WriteBytes(IFiberRw fiberRw,int capacity)
+        {
+           
+            FiberRw = fiberRw;
+            LenType = LengthLen.None;
+            IsLittleEndian = FiberRw.IsLittleEndian;
+            Numericbytes = FiberRw.FiberWriteStream.Numericbytes;
+            StreamWriteFormat = FiberRw.StreamWriteFormat;
+            FiberWriteStream = FiberRw.FiberWriteStream;           
+            memory=FiberRw.GetMemory(capacity);
+            var buffer = memory.Memory.GetArray();
+            StreamWrite = new MemoryStream(buffer.Array,buffer.Offset,buffer.Count, true, true);
+            StreamWrite.SetLength(0);
+        }
+
+        public WriteBytes(IFiberRw fiberRw, ref Memory<byte> memory)
+        {
+
+            FiberRw = fiberRw;
+            LenType = LengthLen.None;
+            IsLittleEndian = FiberRw.IsLittleEndian;
+            Numericbytes = FiberRw.FiberWriteStream.Numericbytes;
+            StreamWriteFormat = FiberRw.StreamWriteFormat;
+            FiberWriteStream = FiberRw.FiberWriteStream;         
+            var buffer = memory.GetArray();
+            StreamWrite = new MemoryStream(buffer.Array, buffer.Offset, buffer.Count, true, true);
+            StreamWrite.SetLength(0);
+            this.memory = null;
+        }
+
+        public Stream Stream => StreamWrite;
 
         public void Dispose()
         {
             StreamWrite.Dispose();
+            memory?.Dispose();
         }
 
         public void Reset()
@@ -53,10 +92,6 @@ namespace ZYSocket
         public void WriteLen(LengthLen headLenType = LengthLen.Int32)
         {
 
-            if (StreamWrite.Length > 0)
-                throw new System.IO.InvalidDataException("the stream not null");
-
-
             LenType = headLenType;
 
             switch (LenType)
@@ -64,6 +99,7 @@ namespace ZYSocket
                 case LengthLen.Byte:
                     {
                         StreamWrite.Write(Numericbytes, 0, 1);
+                       
                     }
                     break;
                 case LengthLen.Int16:
@@ -88,9 +124,7 @@ namespace ZYSocket
         {
             Write(cmd);
         }
-
-
-
+        
         public void Write(ArraySegment<byte> data)
         {
             StreamWrite.Write(data.Array, data.Offset, data.Count);
@@ -113,7 +147,7 @@ namespace ZYSocket
 
         public void Write(byte[] data, int offset, int count)
         {
-            StreamWrite.Write(data, offset, count);
+            StreamWrite.Write(data, offset, count);           
         }
 
 
@@ -143,13 +177,11 @@ namespace ZYSocket
             Write(data.Value, offset, count);
         }
 
-
-        public void Write(string data)
+        public void Write(string data,bool wlen=true)
         {
             byte[] bytes = FiberRw.Encoding.GetBytes(data);
-            Write(bytes);
+            Write(bytes,wlen);
         }
-
 
         public void Write(object obj) => Write(FiberRw.ObjFormat.Serialize(obj));     
 
@@ -334,14 +366,23 @@ namespace ZYSocket
         {
             if (!data.HasValue)
                 throw new ArgumentNullException("data");
-
             Write(data.Value);
         }
 
-        
+
+        public (int, int) Allocate(int size, byte data = 0)
+        {
+            var postion =(int) StreamWrite.Position;
+
+            for (int i = 0; i < size; i++)
+                Write(data);
+
+            return (postion, size);
+        }
+
         public Task<int> Flush()
         {
-            
+           
             switch (LenType)
             {
                 case LengthLen.Byte:
@@ -372,10 +413,12 @@ namespace ZYSocket
 
             }
 
+            if (StreamWrite.TryGetBuffer(out ArraySegment<byte> buffer))
+            {
+                StreamWriteFormat.Write(buffer.Array, buffer.Offset, buffer.Count);
+                StreamWriteFormat.Flush();
+            }
 
-            byte[] data = StreamWrite.ToArray();
-            StreamWriteFormat.Write(data, 0, data.Length);
-            StreamWriteFormat.Flush();
             if (FiberWriteStream.Length > 0)
                 return FiberWriteStream.AwaitFlush();
             else

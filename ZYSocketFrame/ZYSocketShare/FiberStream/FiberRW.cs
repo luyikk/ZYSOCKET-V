@@ -488,34 +488,69 @@ namespace ZYSocket.FiberStream
             }
         }
 
-        public async Task<ResultByMemoryOwner<Memory<byte>>> ReadLine()
+        public async ValueTask<ResultByMemoryOwner<Memory<byte>>> ReadLine()
         {
             if (!isinit)
                 throw new NotSupportedException("not init it");
 
-            var imo = GetMemory(256);
+            var imo = GetMemory(4096);
 
             var memory = imo.Memory;
             var array = memory.GetArray();
-
             int needcount = array.Count;
             int offset_next = array.Offset;
             do
             {
 
-                var res = await streamReadFormat.ReadAsync(array.Array, offset_next, 1, CancellationToken.None).ConfigureAwait(false);
+                var res = streamReadFormat.Read(array.Array, offset_next, 1);
 
-                if (res == 0|| array.Array[offset_next] == 10)
-                    break;              
-
-                needcount -= res;
-                offset_next += res;
+                if (res == 0)
+                {
+                    if (fiberReadStream.NeedRead)
+                        await fiberReadStream.Check();
+                }            
+                else
+                {
+                    needcount--;
+                    if (array.Array[offset_next] == 10)
+                        break;                    
+                    offset_next++;
+                }
 
             } while (needcount > 0);
 
-            var slice_mem = imo.Memory.Slice(0, array.Count- needcount);
+            var slice_mem = imo.Memory.Slice(0, array.Count - needcount);
 
             return new ResultByMemoryOwner<Memory<byte>>(imo, slice_mem);
+        }
+
+        public async ValueTask<Memory<byte>> ReadLine(Memory<byte> memory)
+        {
+            if (!isinit)
+                throw new NotSupportedException("not init it");
+            var array = memory.GetArray();
+            int needcount = array.Count;
+            int offset_next = array.Offset;
+            do
+            {
+
+                var res = streamReadFormat.Read(array.Array, offset_next, 1);
+
+                if (res == 0)
+                {
+                    if (fiberReadStream.NeedRead)
+                        await fiberReadStream.Check();
+                }
+                else
+                {
+                    needcount--;
+                    if (array.Array[offset_next] == 10)
+                        break;                  
+                    offset_next++;
+                }
+            } while (needcount > 0);
+
+            return memory.Slice(0, array.Count - needcount); 
         }
 
 
@@ -612,13 +647,13 @@ namespace ZYSocket.FiberStream
         }
 
 
-        public void Write(string data)
+        public void Write(string data, bool wrlen = true)
         {
             byte[] bytes = Encoding.GetBytes(data);
-            Write(bytes);
+            Write(bytes,wrlen);
         }
 
-      
+
 
         #endregion
 

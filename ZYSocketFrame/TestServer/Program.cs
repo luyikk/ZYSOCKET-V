@@ -127,35 +127,36 @@ namespace TestServer
          
             for (; ;)
             {
+
                 //读取 发送 测试
-                var data = await fiberRw.ReadToBlockArrayEnd();
-                fiberRw.Write(data);
-                await fiberRw.Flush();
+                //var data = await fiberRw.ReadToBlockArrayEnd();
+                //fiberRw.Write(data);
+                //await fiberRw.Flush();
 
-                //try
-                //{
-                //    //提供2种数据 读取写入方式
-                //    using (ReadBytes readBytes = new ReadBytes(fiberRw))
-                //    {
-                //        await readBytes.Init();
-                //        DataOn(readBytes, fiberRw);
-                //    }
-
-
-                //    await DataOnByLine(fiberRw);
+                try
+                {
+                    //提供2种数据 读取写入方式
+                    using (ReadBytes readBytes = new ReadBytes(fiberRw))
+                    {
+                        await readBytes.Init();
+                        DataOn(readBytes, fiberRw);
+                    }
 
 
+                  //  await DataOnByLine(fiberRw);
 
-                //}
-                //catch (System.Net.Sockets.SocketException)
-                //{                   
-                //    break;
-                //}
-                //catch (Exception er)
-                //{
-                //    Console.WriteLine(er.ToString());
-                //    break;
-                //}
+
+
+                }
+                catch (System.Net.Sockets.SocketException)
+                {
+                    break;
+                }
+                catch (Exception er)
+                {
+                    Console.WriteLine(er.ToString());
+                    break;
+                }
 
             }
        

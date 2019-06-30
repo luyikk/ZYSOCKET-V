@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>7.2</LangVersion>
     <PackageId>ZYSocketShareV-Portable</PackageId>
     <RootNamespace>ZYSocket.Share</RootNamespace>
     <Authors>luyikk</Authors>
@@ -11,7 +11,7 @@
     <RepositoryUrl>https://github.com/luyikk/ZYSOCKET-V</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <Version>1.4.5</Version>
+    <Version>1.4.7</Version>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>

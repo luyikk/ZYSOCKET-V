@@ -26,7 +26,8 @@ namespace ZYSocket.FiberStream
         Task<ushort> ReadUInt16();
         Task<uint> ReadUInt32();
         Task<ulong> ReadUInt64();
-        Task<ResultByMemoryOwner<Memory<byte>>> ReadLine();
+        ValueTask<ResultByMemoryOwner<Memory<byte>>> ReadLine();
+        ValueTask<Memory<byte>> ReadLine(Memory<byte> memory);
     }
 
 
@@ -38,8 +39,8 @@ namespace ZYSocket.FiberStream
         void Write(Memory<byte> data, int offset, int count);
         void Write(Memory<byte> data, bool wlen = true);
         void Write(ResultByMemoryOwner<Memory<byte>> data, bool wlen = true);
-        void Write(ResultByMemoryOwner<Memory<byte>> data, int offset, int count);
-        void Write(string data);
+        void Write(ResultByMemoryOwner<Memory<byte>> data, int offset, int count);      
+        void Write(string data, bool wlen = true);
         void Write(byte data);
         void Write(short data);
         void Write(int data);
