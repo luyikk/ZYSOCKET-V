@@ -25,6 +25,8 @@ namespace ZYSocket.FiberStream
         void StreamInit();
         StreamInitAwaiter WaitStreamInit();
         PipeFilberAwaiter Check();
-       
+        bool NeedRead { get; }
+
+
     }
 }

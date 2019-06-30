@@ -82,7 +82,7 @@ GC方面:
                 ReadData(cmd, p1, p2);
             }
     
-            static async void ReadData(int? cmd,int? p1,long? p2)
+            static async void ReadData(int cmd,int p1,long p2)
             {
                 try
                 {
