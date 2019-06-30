@@ -5,9 +5,9 @@ using System.Text;
 
 namespace ZYSocket.FiberStream
 {
-    public struct ResultByMemoryOwner<T>:IDisposable 
+    public readonly struct ResultByMemoryOwner<T>:IDisposable 
     {
-        public bool IsInit { get; private set; }
+        public bool IsInit { get;  }
         public T Value { get;  }
 
         public IMemoryOwner<byte> MemoryOwner { get;  }
@@ -21,8 +21,7 @@ namespace ZYSocket.FiberStream
 
         public void Dispose()
         {
-            MemoryOwner?.Dispose();
-            IsInit = false;
+            MemoryOwner?.Dispose();           
         }
     }
 }

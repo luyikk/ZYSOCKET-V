@@ -26,6 +26,7 @@ namespace ZYSocket.FiberStream
         Task<ushort> ReadUInt16();
         Task<uint> ReadUInt32();
         Task<ulong> ReadUInt64();
+        Task<ResultByMemoryOwner<Memory<byte>>> ReadLine();
     }
 
 

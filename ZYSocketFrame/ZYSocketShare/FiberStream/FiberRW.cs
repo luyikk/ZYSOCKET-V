@@ -188,6 +188,8 @@ namespace ZYSocket.FiberStream
         }
 
 
+
+
         #region read integer
         public async Task<byte> ReadByte()
         {
@@ -486,6 +488,36 @@ namespace ZYSocket.FiberStream
             }
         }
 
+        public async Task<ResultByMemoryOwner<Memory<byte>>> ReadLine()
+        {
+            if (!isinit)
+                throw new NotSupportedException("not init it");
+
+            var imo = GetMemory(256);
+
+            var memory = imo.Memory;
+            var array = memory.GetArray();
+
+            int needcount = array.Count;
+            int offset_next = array.Offset;
+            do
+            {
+
+                var res = await streamReadFormat.ReadAsync(array.Array, offset_next, 1, CancellationToken.None).ConfigureAwait(false);
+
+                if (res == 0|| array.Array[offset_next] == 10)
+                    break;              
+
+                needcount -= res;
+                offset_next += res;
+
+            } while (needcount > 0);
+
+            var slice_mem = imo.Memory.Slice(0, array.Count- needcount);
+
+            return new ResultByMemoryOwner<Memory<byte>>(imo, slice_mem);
+        }
+
 
         public async Task<string> ReadString()
         {
@@ -498,6 +530,9 @@ namespace ZYSocket.FiberStream
                 return await ReadString(len.Value);
             }
         }
+
+
+      
 
 
         #endregion

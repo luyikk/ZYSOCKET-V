@@ -95,98 +95,12 @@ namespace ZYSocket.Client
 
 
 
-        public async Task<ConnectResult> ConnectAsync(string host, int port,int connectTimeout=6000)
+        public  Task<ConnectResult> ConnectAsync(string host, int port,int connectTimeout=6000)
         {
-
-        
-
-            if (await semaphore.WaitAsync(60000))
+            return Task.Run<ConnectResult>(() =>
             {
-               
-                try
-                {
-                    if (IsConnect)
-                        return new ConnectResult(false, "the socket status is connect already,please Dispose it.");
-
-
-                    completionSource = new TaskCompletionSource<IFiberRw>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-                    errorMsg = null;
-                    IPEndPoint myEnd = null;
-
-                    #region ipformat
-                    try
-                    {
-                        myEnd = new IPEndPoint(IPAddress.Parse(host), port);
-                    }
-                    catch (FormatException)
-                    {
-                        IPHostEntry p = Dns.GetHostEntry(host);
-
-                        foreach (IPAddress s in p.AddressList)
-                        {
-                            myEnd = new IPEndPoint(s, port);
-                            break;
-                        }
-                    }
-
-                    #endregion
-
-                    Sock = new Socket(myEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-                    ZYSocketAsyncEventArgs e = new ZYSocketAsyncEventArgs(
-                            completionSource,
-                            new LinesReadStream(),
-                            new BufferWriteStream(memoryPool, syncsend, asyncsend),
-                            syncsend,
-                            asyncsend,
-                            memoryPool,
-                            encoding,
-                            objFormat,
-                            false)
-                    {
-                        RemoteEndPoint = myEnd
-                    };
-                    e.DisconnectIt = Diconnect_It;
-                    e.Completed += E_Completed;
-                    CurrentSocketAsyncEventArgs = e;
-
-                    if (!Sock.ConnectAsync(CurrentSocketAsyncEventArgs))
-                    {
-                        Connect(CurrentSocketAsyncEventArgs);
-                    }
-
-                    if (wait.WaitOne(connectTimeout))
-                    {
-                        wait.Reset();
-
-                        if (!IsConnect)
-                        {
-                            this.Dispose();
-                        }
-
-                        return new ConnectResult(IsConnect, errorMsg);
-                    }
-                    else
-                    {
-                        wait.Reset();
-                        this.Dispose();
-                        return new ConnectResult(false, "connect time out");
-                    }
-
-                }
-                catch (Exception er)
-                {
-                    return new ConnectResult(false, er.ToString());
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-
-            }
-            else
-                return new ConnectResult(false, "connect time out");
+                return Connect(host, port, connectTimeout);
+            });
         }
 
         public ConnectResult Connect(string host, int port, int connectTimeout = 6000)
@@ -413,8 +327,17 @@ namespace ZYSocket.Client
 
         public void ShutdownBoth(bool events=false, string errorMsg =null)
         {
-            if (IsConnect)            
-                Sock?.Shutdown(SocketShutdown.Both);
+            if (IsConnect)
+            {
+                try
+                {
+                    Sock?.Shutdown(SocketShutdown.Both);
+                }
+                catch (SocketException)
+                {
+                }
+            }
+
 
             if (events)
                 Disconnect?.Invoke(this, CurrentSocketAsyncEventArgs, errorMsg?? "Disconnect");
