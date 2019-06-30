@@ -47,6 +47,10 @@ namespace TestServer
 
 
             Console.ReadLine();
+            server3.Stop();
+            Console.ReadLine();
+            server3.Start();
+            Console.ReadLine();
             build.Dispose();
             Console.ReadLine();
         }

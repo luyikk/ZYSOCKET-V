@@ -20,7 +20,7 @@ using ZYSocket.Server.Builder;
 using ZYSocket.Share;
 using ZYSocket.Interface;
 using Microsoft.Extensions.DependencyInjection;
-
+using System.Collections.Concurrent;
 
 namespace ZYSocket.Server
 {
@@ -208,6 +208,11 @@ namespace ZYSocket.Server
             }
         }
 
+        /// <summary>
+        /// SEAE队列
+        /// </summary>
+        public readonly ConcurrentQueue<ZYSocketAsyncEventArgs> SAEAQueue = new ConcurrentQueue<ZYSocketAsyncEventArgs>();
+
    
 
 
@@ -220,6 +225,8 @@ namespace ZYSocket.Server
         /// 端口
         /// </summary>
         private readonly int Port;
+
+        
 
 
         
@@ -318,10 +325,10 @@ namespace ZYSocket.Server
                 socketasyn.DisconnectIt = Disconnect_It;
                 poolSend.SetAccpet(socketasyn);
                 socketasyn.Completed += new EventHandler<ZYSocketAsyncEventArgs>(Asyn_Completed);
-                Accept(socketasyn);
+                SAEAQueue.Enqueue(socketasyn);
             }
 
-
+            Task.Factory.StartNew(StartAccept);
         }
 
 
@@ -438,14 +445,15 @@ namespace ZYSocket.Server
                     objFormat,
                     config.IsLittleEndian
                    );
-               
+                socketasyn.SetBuffer(MaxBufferSize);
                 socketasyn.DisconnectIt = Disconnect_It;
                 poolSend.SetAccpet(socketasyn);
                 poolAsyncSend.SetAccpet(socketasyn);
-
                 socketasyn.Completed += new EventHandler<ZYSocketAsyncEventArgs>(Asyn_Completed);
-                Accept(socketasyn);
+                SAEAQueue.Enqueue(socketasyn);
             }
+
+            Task.Factory.StartNew(StartAccept);
 
         }
 
@@ -455,7 +463,8 @@ namespace ZYSocket.Server
         public void Start()
         {
             if (BinaryInput is null)
-                throw new Exception("BinaryInput is null");
+                throw new IOException("BinaryInput is null");
+
             reset[0].Set();
            
         }
@@ -465,54 +474,56 @@ namespace ZYSocket.Server
             reset[0].Reset();
         }
 
-        void Accept(ZYSocketAsyncEventArgs sockasyn)
+
+
+        void StartAccept()
         {
-
-            sockasyn.Reset();
-
-            try
+            for(; ; )
             {
-                if (!Sock.AcceptAsync(sockasyn))
+                var target=  Sock.Accept();
+
+                if(SAEAQueue.TryDequeue(out ZYSocketAsyncEventArgs saea))
                 {
-                    BeginAccep(sockasyn);
+                    BeginReceive(target, saea);
+                }
+                else
+                {
+                    Disconnect(target);
                 }
             }
-            catch (ObjectDisposedException) { }
         }
 
-        void BeginAccep(ZYSocketAsyncEventArgs e)
+
+        void PushSaea(ZYSocketAsyncEventArgs sockasyn)
         {
+            sockasyn.Reset();
+            SAEAQueue.Enqueue(sockasyn);
+        }
 
 
-            if (e.SocketError == SocketError.Success)
-            {
+        void BeginReceive(Socket socket, ZYSocketAsyncEventArgs e)
+        {
+            System.Threading.WaitHandle.WaitAll(reset);
+            reset[0].Set();
 
-                System.Threading.WaitHandle.WaitAll(reset);                
-
-                if (this.Connetions != null)
-                    if (!this.Connetions(e))
+            e.AcceptSocket = socket;
+            if (this.Connetions != null)
+                if (!this.Connetions(e))
+                {
+                    try
                     {
-                        try
-                        {
-                            e.AcceptSocket?.Shutdown(SocketShutdown.Both);
-                        }
-                        catch { }
-
-                        e.AcceptSocket = null;
-                        Accept(e);
-                        return;
+                        e.AcceptSocket?.Shutdown(SocketShutdown.Both);
                     }
+                    catch { }
 
-                e.SetBuffer(MaxBufferSize);
-                BinaryInput(e);
-                e.StreamInit();
-                StartReceive(e);
-            }
-            else
-            {               
-                Accept(e);
-            }
-
+                    e.AcceptSocket = null;
+                    PushSaea(e);
+                    return;
+                }
+          
+            BinaryInput(e);
+            e.StreamInit();
+            StartReceive(e);
 
         }
 
@@ -588,25 +599,14 @@ namespace ZYSocket.Server
             e.AcceptSocket = null;
             
             if(e.IsInit)
-                Accept(e);
+                PushSaea(e);
         }
 
 
 
 
-        void Asyn_Completed(object sender, ZYSocketAsyncEventArgs e)
-        {
-            switch (e.LastOperation)
-            {
-                case SocketAsyncOperation.Accept:
-                    BeginAccep(e);
-                    break;
-                case SocketAsyncOperation.Receive:
-                    BeginReceive(e);
-                    break;
+        void Asyn_Completed(object sender, ZYSocketAsyncEventArgs e)=> BeginReceive(e);
 
-            }
-        }
 
 
         /// <summary>
