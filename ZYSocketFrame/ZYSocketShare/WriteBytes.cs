@@ -380,6 +380,13 @@ namespace ZYSocket
             return (postion, size);
         }
 
+        public (int, int) Allocate(byte[] data)
+        {
+            var postion = (int)StreamWrite.Position;
+            Write(data, false);
+            return (postion, data.Length);
+        }
+
         public Task<int> Flush()
         {
            

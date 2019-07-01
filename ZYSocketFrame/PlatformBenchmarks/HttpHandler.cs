@@ -39,6 +39,8 @@ namespace PlatformBenchmarks
 
         private static readonly AsciiString _result_plaintext = "Hello, World!";
 
+        private static readonly byte[] LenData = new byte[10] { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32 };
+
         private static byte _Space = 32;
 
         private static byte _question = 63;
@@ -176,7 +178,7 @@ namespace PlatformBenchmarks
         private void OnWriteContentLength(WriteBytes write, HttpToken token)
         {
             write.Write(_headerContentLength.Data, 0, _headerContentLength.Length);
-            token.ContentPostion = write.Allocate(10, 32);
+            token.ContentPostion = write.Allocate(LenData);
             write.Write(_2line, 0, 4);
             token.HttpHandlerPostion = (int)write.Stream.Position;
         }
