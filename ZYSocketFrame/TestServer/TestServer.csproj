@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NetxActor" Version="1.3.5" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ZYSocketServer\ZYSocketServer.csproj" />
   </ItemGroup>
 

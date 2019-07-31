@@ -14,7 +14,7 @@ namespace ZYSocket
 
     public  class ReadBytes:IDisposable
     {
-        public static LengthLen LenType { get; set; } = LengthLen.Int32;
+        public static LengthSize LenType { get; set; } = LengthSize.Int32;
 
         public static long MaxPackerSize { get; set; } = 1024 * 16;
 
@@ -51,22 +51,22 @@ namespace ZYSocket
         {
             switch (LenType)
             {
-                case LengthLen.Byte:
+                case LengthSize.Byte:
                     {
                         Packerlen = await FiberRw.ReadByte();  
                     }
                     break;
-                case LengthLen.Int16:
+                case LengthSize.Int16:
                     {
                         Packerlen = await FiberRw.ReadUInt16();
                     }
                     break;
-                case LengthLen.Int32:
+                case LengthSize.Int32:
                     {
                         Packerlen =(int) await FiberRw.ReadUInt32();                    
                     }
                     break;
-                case LengthLen.Int64:
+                case LengthSize.Int64:
                     {
                         Packerlen = (int)await FiberRw.ReadInt64();
                     }
@@ -97,7 +97,7 @@ namespace ZYSocket
         }
 
 
-        public byte? ReadByte()
+        public byte ReadByte()
         {
             if (Memory.Length > 0)
             {
@@ -109,10 +109,10 @@ namespace ZYSocket
                 return value;
             }
             else
-                return null;
+                throw new IndexOutOfRangeException("Meory length Too small");
         }
 
-        public bool? ReadBoolean()
+        public bool ReadBoolean()
         {
             if (Memory.Length > 1)
             {
@@ -124,12 +124,12 @@ namespace ZYSocket
                 return value;
             }
             else
-                return null;
+                throw new IndexOutOfRangeException("Meory length Too small");
         }
 
     
 
-        public short? ReadInt16()
+        public short ReadInt16()
         {
             if (Memory.Length > 1)
             {
@@ -150,10 +150,10 @@ namespace ZYSocket
                     return value;
             }
             else
-                return null;
+                throw new IndexOutOfRangeException("Meory length Too small");
         }
 
-        public ushort? ReadUint16()
+        public ushort ReadUint16()
         {
             if (Memory.Length > 1)
             {
@@ -165,10 +165,10 @@ namespace ZYSocket
                 return IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
             }
             else
-                return null;
+                throw new IndexOutOfRangeException("Meory length Too small");
         }
 
-        public int? ReadInt32()
+        public int ReadInt32()
         {
             if (Memory.Length > 3)
             {
@@ -189,12 +189,12 @@ namespace ZYSocket
                     return value;
             }
             else
-                return null;
+                throw new IndexOutOfRangeException("Meory length Too small");
         }
 
 
 
-        public uint? ReadUint32()
+        public uint ReadUint32()
         {
             if (Memory.Length > 3)
             {
@@ -206,11 +206,11 @@ namespace ZYSocket
                 return IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
             }
             else
-                return null;
+                throw new IndexOutOfRangeException("Meory length Too small");
         }
 
 
-        public long? ReadInt64()
+        public long ReadInt64()
         {
             if (Memory.Length > 7)
             {
@@ -222,10 +222,10 @@ namespace ZYSocket
                 return IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
             }
             else
-                return null;
+                throw new IndexOutOfRangeException("Meory length Too small");
         }
 
-        public ulong? ReadUint64()
+        public ulong ReadUint64()
         {
             if (Memory.Length > 7)
             {
@@ -237,10 +237,10 @@ namespace ZYSocket
                 return IsLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
             }
             else
-                return null;
+                throw new IndexOutOfRangeException("Meory length Too small");
         }
 
-        public float? ReadSingle()
+        public float ReadSingle()
         {
             if (Memory.Length > 3)
             {
@@ -256,10 +256,10 @@ namespace ZYSocket
                 }
             }
             else
-                return null;
+                throw new IndexOutOfRangeException("Meory length Too small");
         }
 
-        public double? ReadDouble()
+        public double ReadDouble()
         {
             if (Memory.Length > 7)
             {
@@ -275,18 +275,13 @@ namespace ZYSocket
                 }
             }
             else
-                return null;
+                throw new IndexOutOfRangeException("Meory length Too small");
         }
 
 
         public string ReadString()
-        {
-            var len = ReadInt32();
-
-            if (len is null)
-                return "";
-
-            return ReadString(len.Value);
+        {           
+            return ReadString(ReadInt32());
         }
 
         public string ReadString(int len)
@@ -305,14 +300,8 @@ namespace ZYSocket
 
 
         public Memory<byte> ReadMemory()
-        {
-            var len = ReadInt32();
-
-            if (len is null)
-                return default;
-
-            return ReadMemory(len.Value);
-
+        {         
+            return ReadMemory(ReadInt32());
         }
 
         public Memory<byte> ReadMemory(int len)
@@ -340,13 +329,7 @@ namespace ZYSocket
 
         public byte[] ReadArray()
         {
-            var len = ReadInt32();
-
-            if (len is null)
-                return null;
-
-            return ReadArray(len.Value);        
-            
+            return ReadArray(ReadInt32());
         }
 
         public byte[] ReadArray(int len)

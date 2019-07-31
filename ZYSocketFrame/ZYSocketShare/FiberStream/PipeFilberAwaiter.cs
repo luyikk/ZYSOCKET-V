@@ -27,7 +27,6 @@ namespace ZYSocket.FiberStream
         {
             iscompleted = true;
             Continuation?.Invoke();
-
         }
 
 

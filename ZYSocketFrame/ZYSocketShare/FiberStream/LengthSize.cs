@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ZYSocket.FiberStream
 {
-    public enum LengthLen
+    public enum LengthSize
     {
         None=0,
         Byte = 1,

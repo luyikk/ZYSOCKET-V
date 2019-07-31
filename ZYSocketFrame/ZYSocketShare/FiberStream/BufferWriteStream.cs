@@ -22,7 +22,7 @@ namespace ZYSocket.FiberStream
 
         private int _tmp_postion = 0;
 
-        public static LengthLen LenType { get; set; } = LengthLen.Int32;
+        public static LengthSize LenType { get; set; } = LengthSize.Int32;
 
         private readonly List<ArraySegment<byte>> DataSegment;
         private readonly List<IMemoryOwner<byte>> MemoryOwners;
@@ -124,6 +124,7 @@ namespace ZYSocket.FiberStream
                 Send.Send(data);
             }
             Reset();
+
         }
 
         public async Task<int> AwaitFlush()

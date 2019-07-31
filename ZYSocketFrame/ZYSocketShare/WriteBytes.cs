@@ -17,7 +17,7 @@ namespace ZYSocket
 
         public IFiberRw FiberRw { get;  }
 
-        public LengthLen LenType { get; set; }
+        public LengthSize LenType { get; set; }
 
         private readonly bool IsLittleEndian;
 
@@ -35,7 +35,7 @@ namespace ZYSocket
           
 
             FiberRw = fiberRw;
-            LenType = LengthLen.None;
+            LenType = LengthSize.None;
             IsLittleEndian = FiberRw.IsLittleEndian;
             Numericbytes = FiberRw.FiberWriteStream.Numericbytes;
             StreamWriteFormat = FiberRw.StreamWriteFormat;
@@ -48,7 +48,7 @@ namespace ZYSocket
         {
            
             FiberRw = fiberRw;
-            LenType = LengthLen.None;
+            LenType = LengthSize.None;
             IsLittleEndian = FiberRw.IsLittleEndian;
             Numericbytes = FiberRw.FiberWriteStream.Numericbytes;
             StreamWriteFormat = FiberRw.StreamWriteFormat;
@@ -63,7 +63,7 @@ namespace ZYSocket
         {
 
             FiberRw = fiberRw;
-            LenType = LengthLen.None;
+            LenType = LengthSize.None;
             IsLittleEndian = FiberRw.IsLittleEndian;
             Numericbytes = FiberRw.FiberWriteStream.Numericbytes;
             StreamWriteFormat = FiberRw.StreamWriteFormat;
@@ -89,30 +89,30 @@ namespace ZYSocket
         }
 
 
-        public void WriteLen(LengthLen headLenType = LengthLen.Int32)
+        public void WriteLen(LengthSize headLenType = LengthSize.Int32)
         {
 
             LenType = headLenType;
 
             switch (LenType)
             {
-                case LengthLen.Byte:
+                case LengthSize.Byte:
                     {
                         StreamWrite.Write(Numericbytes, 0, 1);
                        
                     }
                     break;
-                case LengthLen.Int16:
+                case LengthSize.Int16:
                     {
                         StreamWrite.Write(Numericbytes, 0, 2);
                     }
                     break;
-                case LengthLen.Int32:
+                case LengthSize.Int32:
                     {
                         StreamWrite.Write(Numericbytes, 0, 4);
                     }
                     break;
-                case LengthLen.Int64:
+                case LengthSize.Int64:
                     {
                         StreamWrite.Write(Numericbytes, 0, 8);
                     }
@@ -392,26 +392,26 @@ namespace ZYSocket
            
             switch (LenType)
             {
-                case LengthLen.Byte:
+                case LengthSize.Byte:
                     {
                         StreamWrite.Position = 0;
                         var lenbytes = (byte)StreamWrite.Length;
                         Write(lenbytes);
                     }
                     break;
-                case LengthLen.Int16:
+                case LengthSize.Int16:
                     {
                         StreamWrite.Position = 0;
                         Write((ushort)StreamWrite.Length);
                     }
                     break;
-                case LengthLen.Int32:
+                case LengthSize.Int32:
                     {
                         StreamWrite.Position = 0;
                         Write((uint)StreamWrite.Length);
                     }
                     break;
-                case LengthLen.Int64:
+                case LengthSize.Int64:
                     {
                         StreamWrite.Position = 0;
                         Write((ulong)StreamWrite.Length);
