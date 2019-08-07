@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -9,7 +9,7 @@
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/luyikk/ZYSOCKET-V</PackageProjectUrl>
     <Description>ZYSOCKET CLIENT</Description>
-    <Version>1.4.7</Version>
+    <Version>1.5.0</Version>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>

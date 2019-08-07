@@ -129,19 +129,13 @@ namespace System.Threading.Tasks.Sources.Copy
 
             if ((flags & ValueTaskSourceOnCompletedFlags.UseSchedulingContext) != 0)
             {
-                SynchronizationContext sc = SynchronizationContext.Current;
-                if (sc != null && sc.GetType() != typeof(SynchronizationContext))
+
+                TaskScheduler ts = TaskScheduler.Current;
+                if (ts != TaskScheduler.Default)
                 {
-                    _capturedContext = sc;
+                    _capturedContext = ts;
                 }
-                else
-                {
-                    TaskScheduler ts = TaskScheduler.Current;
-                    if (ts != TaskScheduler.Default)
-                    {
-                        _capturedContext = ts;
-                    }
-                }
+
             }
 
             // We need to set the continuation state before we swap in the delegate, so that
@@ -171,15 +165,7 @@ namespace System.Threading.Tasks.Sources.Copy
                 {
                     case null:
                         Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
-                        break;
-
-                    case SynchronizationContext sc:
-                        sc.Post(s =>
-                        {
-                            var tuple = (Tuple<Action<object>, object>)s;
-                            tuple.Item1(tuple.Item2);
-                        }, Tuple.Create(continuation, state));
-                        break;
+                        break;                 
 
                     case TaskScheduler ts:
                         Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);
@@ -243,15 +229,7 @@ namespace System.Threading.Tasks.Sources.Copy
                     {
                         _continuation(_continuationState);
                     }
-                    break;
-
-                case SynchronizationContext sc:
-                    sc.Post(s =>
-                    {
-                        var state = (Tuple<Action<object>, object>)s;
-                        state.Item1(state.Item2);
-                    }, Tuple.Create(_continuation, _continuationState));
-                    break;
+                    break;              
 
                 case TaskScheduler ts:
                     Task.Factory.StartNew(_continuation, _continuationState, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);

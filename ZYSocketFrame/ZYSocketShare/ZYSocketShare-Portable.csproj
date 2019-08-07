@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -11,7 +11,7 @@
     <RepositoryUrl>https://github.com/luyikk/ZYSOCKET-V</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <Version>1.4.7</Version>
+    <Version>1.5.0</Version>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -26,6 +26,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputPath>bin\Portable\Release\netstandard2.0</OutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="FiberStream\ResultAwaiter.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.2" />
