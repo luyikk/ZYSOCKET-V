@@ -23,7 +23,7 @@ namespace ZYSocket.FiberStream
         long Seek(long offset, SeekOrigin origin);
         void SetLength(long value);
         void StreamInit();
-        StreamInitAwaiter WaitStreamInit();
+        ValueTask<bool> WaitStreamInit();
         PipeFilberAwaiter Check();
         bool NeedRead { get; }
 

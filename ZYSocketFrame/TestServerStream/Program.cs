@@ -222,7 +222,7 @@ namespace TestServer
             using (WriteBytes writeBytes = new WriteBytes(fiberRw))
             {
                 writeBytes.WriteLen();
-                writeBytes.Cmd(cmd.Value);
+                writeBytes.Cmd(cmd);
                 writeBytes.Write(p1);
                 writeBytes.Write(p2);
                 writeBytes.Write(p3);

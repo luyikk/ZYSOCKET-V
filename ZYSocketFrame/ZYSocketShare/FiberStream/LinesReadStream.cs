@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
-
+using System.Threading.Tasks.Sources.Copy;
 
 namespace ZYSocket.FiberStream
 {
@@ -23,7 +23,7 @@ namespace ZYSocket.FiberStream
 
         private long position;    
 
-        private StreamInitAwaiter InitAwaiter;    
+        private ManualResetValueTaskSource<bool> InitAwaiter;    
         
         private readonly byte[] numericbytes = new byte[8];
 
@@ -35,9 +35,11 @@ namespace ZYSocket.FiberStream
 
         public LinesReadStream(int length = 4096)
         {
+           
             Pipes = new Pipes();
             data = new byte[length];
-            len = length;          
+            len = length;
+            InitAwaiter = new ManualResetValueTaskSource<bool>();
         }
 
 
@@ -84,15 +86,12 @@ namespace ZYSocket.FiberStream
         }
 
         public void Reset()
-        {
-            if (InitAwaiter != null)
-                InitAwaiter.Reset();
+        {           
+            InitAwaiter.Reset();
             Pipes.Close();
             position = 0;
             wrlen = 0;
-            offset = 0;
-          
-          
+            offset = 0;  
         }
 
         public override bool CanRead => true;
@@ -114,40 +113,20 @@ namespace ZYSocket.FiberStream
 
 
 
-        public StreamInitAwaiter WaitStreamInit()
+        public ValueTask<bool> WaitStreamInit()
         {
-          
-
-            if (InitAwaiter != null)
-                return InitAwaiter;
-            else
-            {
-                InitAwaiter = new StreamInitAwaiter();
-                return InitAwaiter;
-            }
+            return new ValueTask<bool>(InitAwaiter, InitAwaiter.Version);
         }
 
         public void StreamInit()
         {
-            if (InitAwaiter != null)
-            {              
-                InitAwaiter.SetResult(true);
-                InitAwaiter.Completed();             
-            }
-            else
-                throw new Exception("Please call first  WaitStreamInit");
+            InitAwaiter.SetResult(true);
         }
 
 
         public void UnStreamInit()
         {
-            if (InitAwaiter != null)
-            {
-                InitAwaiter.SetResult(false);
-                InitAwaiter.Completed();
-            }
-            else
-                throw new Exception("Please call first  WaitStreamInit");
+            InitAwaiter.SetResult(false);
         }
 
 
