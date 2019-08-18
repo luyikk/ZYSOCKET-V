@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>7.2</LangVersion>
     <PackageId>ZYSocketShareV</PackageId>
-    <RootNamespace>ZYSocket.Share</RootNamespace>
+    <RootNamespace>ZYSocket</RootNamespace>
     <Authors>luyikk</Authors>
     <Copyright>luyikk</Copyright>
     <PackageProjectUrl>https://github.com/luyikk/ZYSOCKET-V</PackageProjectUrl>
@@ -34,9 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Memory" Version="4.5.2" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="System.Memory" Version="4.5.3" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.2" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
     <PackageReference Include="ZYSOCKET-protobuf-net" Version="4.3.2" />
   </ItemGroup>
 

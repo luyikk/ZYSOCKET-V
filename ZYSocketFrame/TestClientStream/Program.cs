@@ -37,7 +37,7 @@ namespace TestClient
 
         static async Task connect()
         {
-            var result =await client.ConnectAsync("127.0.0.1", 1002,6000);
+            var result =await client.ConnectAsync("127.0.0.1", 1002,60000);
             Console.WriteLine(result);
 
             if (result.IsSuccess)

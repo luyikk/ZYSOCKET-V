@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ZYSocket.Interface;
+using ZYSocket.FiberStream.Synchronization;
 
 namespace ZYSocket.FiberStream
 {
@@ -39,6 +40,8 @@ namespace ZYSocket.FiberStream
         public Stream StreamWriteFormat { get => streamWriteFormat; }
         public ISockAsyncEvent Async { get; }
         public T UserToken { get => (T)Async.UserToken; set => Async.UserToken = value; }
+
+        public ISyncRun Sync { get; set; }
 
         private readonly byte[] read_Numericbytes;
         private readonly byte[] write_Numericbytes;

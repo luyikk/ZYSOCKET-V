@@ -116,6 +116,8 @@ namespace TestClient
             var p6 = await fiberRw.ReadBoolean();
             var p7 = await fiberRw.ReadString();
 
+
+
             using (var p8 = await fiberRw.ReadMemory())
             {
 
@@ -123,17 +125,17 @@ namespace TestClient
                 // var p10 = await fiberRw.ReadObject<List<Guid>>();
 
 
-                fiberRw.Write(len.Value);
-                fiberRw.Write(cmd.Value);
-                fiberRw.Write(p1.Value);
-                fiberRw.Write(p2.Value);
-                fiberRw.Write(p3.Value);
-                fiberRw.Write(p4.Value);
-                fiberRw.Write(p5.Value);
-                fiberRw.Write(p6.Value);
+                fiberRw.Write(len);
+                fiberRw.Write(cmd);
+                fiberRw.Write(p1);
+                fiberRw.Write(p2);
+                fiberRw.Write(p3);
+                fiberRw.Write(p4);
+                fiberRw.Write(p5);
+                fiberRw.Write(p6);
                 fiberRw.Write(p7);
-                fiberRw.Write(p8.Value);
-                fiberRw.Write(p9.Value);
+                fiberRw.Write(p8);
+                fiberRw.Write(p9);
                 // fiberRw.Write(p10);
                 await fiberRw.Flush();
             }

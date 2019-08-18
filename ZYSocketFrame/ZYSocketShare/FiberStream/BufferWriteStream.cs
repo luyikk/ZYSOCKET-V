@@ -12,6 +12,7 @@ namespace ZYSocket.FiberStream
     {
 
         public  const int BufferBlockSize = 4096;
+
         public const int checknum = 12;
 
         private long _len = 0;
@@ -127,7 +128,7 @@ namespace ZYSocket.FiberStream
 
         }
 
-        public async Task<int> AwaitFlush()
+        public virtual async Task<int> AwaitFlush()
         {           
             if (_len == 0)
                 return 0;          
@@ -170,13 +171,6 @@ namespace ZYSocket.FiberStream
             await AwaitFlush();
         }
 
-
-        public void Reset()
-        {           
-            _len = _postion= _index= _tmp_postion=0;         
-        }
-
-
         public override void SetLength(long value)
         {
             long needs = value - CurrentSegmentLen;
@@ -208,7 +202,6 @@ namespace ZYSocket.FiberStream
             }
         }
 
-
         public override void Write(byte[] buffer, int offset, int count)
         {
             int countp = count;
@@ -224,8 +217,7 @@ namespace ZYSocket.FiberStream
         }
 
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken=default)
-        {
-           
+        {           
             int countp = count;
             int offsetp = offset;
 
@@ -242,7 +234,6 @@ namespace ZYSocket.FiberStream
             await AwaitFlush();
         }
 
-
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             var task = WriteAsync(buffer, offset, count);
@@ -250,11 +241,7 @@ namespace ZYSocket.FiberStream
         }
 
         public override void EndWrite(IAsyncResult asyncResult)
-        {
-            TaskToApm.End(asyncResult);
-        }
-
-
+        => TaskToApm.End(asyncResult);
 
         private unsafe int copy_to_block(byte[] buffer,int offset,int count)
         {
@@ -310,7 +297,6 @@ namespace ZYSocket.FiberStream
 
         }
 
-
         private void check_datasegment()
         {
             var current_segment_count = DataSegment.Count;
@@ -327,26 +313,15 @@ namespace ZYSocket.FiberStream
             }
         }
 
-
         private ArraySegment<byte> get_array_by_postion()
-        {
-            return DataSegment[_index];
-        }
-
+            => DataSegment[_index];
 
         private void set_current_tmp_postion(long postion)
-        {
-            //if (postion > _len)
-            //    postion = _len;
-            //_postion = postion; 
-
+        {         
             _postion = postion = postion > _len ? _len : postion;
             _index =(int)(postion >>checknum);
             _tmp_postion = (int)(postion % BufferBlockSize);
         }
-
-
-
 
         private void InitSegment(long need = BufferBlockSize)
         {
@@ -361,6 +336,8 @@ namespace ZYSocket.FiberStream
             }
         }
 
-      
+        private void Reset()
+        => _len = _postion = _index = _tmp_postion = 0;
+        
     }
 }

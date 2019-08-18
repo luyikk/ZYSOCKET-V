@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using ZYSocket.FiberStream.Synchronization;
 using ZYSocket.Interface;
 
 namespace ZYSocket.FiberStream
@@ -9,6 +10,8 @@ namespace ZYSocket.FiberStream
 
     public interface IFiberRw: IBufferWrite, IBufferAsyncRead
     {
+        
+        ISyncRun Sync { get; set; }
         ISockAsyncEvent Async { get; }
         Encoding Encoding { get; }
         ISerialization ObjFormat { get; }
