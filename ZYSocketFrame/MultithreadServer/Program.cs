@@ -92,8 +92,7 @@ namespace TestServer
 
             var fiberRw = await socketAsync.GetFiberRw<string>();
 
-            fiberRw.UserToken = "my is ttk";
-            fiberRw.Sync = new SyncRun();
+            fiberRw.UserToken = "my is ttk";           
 
             for (; ; )
             {

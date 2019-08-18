@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using ZYSocket.FiberStream.Synchronization;
 
 namespace ZYSocket.FiberStream
 {
@@ -33,6 +34,8 @@ namespace ZYSocket.FiberStream
 
     public interface IBufferWrite
     {
+        ISyncRun Sync { get; }
+
         void Write(ArraySegment<byte> data);
         void Write(byte[] data, int offset, int count);
         void Write(byte[] data, bool wlen = true);

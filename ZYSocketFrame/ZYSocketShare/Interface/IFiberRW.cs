@@ -11,7 +11,6 @@ namespace ZYSocket.FiberStream
     public interface IFiberRw: IBufferWrite, IBufferAsyncRead
     {
         
-        ISyncRun Sync { get; set; }
         ISockAsyncEvent Async { get; }
         Encoding Encoding { get; }
         ISerialization ObjFormat { get; }

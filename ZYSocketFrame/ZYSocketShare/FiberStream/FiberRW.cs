@@ -41,7 +41,7 @@ namespace ZYSocket.FiberStream
         public ISockAsyncEvent Async { get; }
         public T UserToken { get => (T)Async.UserToken; set => Async.UserToken = value; }
 
-        public ISyncRun Sync { get; set; }
+        public ISyncRun Sync { get;}
 
         private readonly byte[] read_Numericbytes;
         private readonly byte[] write_Numericbytes;
@@ -79,7 +79,7 @@ namespace ZYSocket.FiberStream
             this.isLittleEndian = isLittleEndian;
             read_Numericbytes = fiberReadStream.Numericbytes;
             write_Numericbytes = fiberWriteStream.Numericbytes;
-
+            Sync = new SyncRun();
             if (objFormat is null)
                 ObjFormat = new ProtobuffObjFormat();
             else

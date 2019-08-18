@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using ZYSocket.FiberStream;
+using ZYSocket.FiberStream.Synchronization;
 
 namespace ZYSocket
 {
@@ -16,6 +17,8 @@ namespace ZYSocket
     {
 
         public IFiberRw FiberRw { get;  }
+
+        public ISyncRun Sync { get => FiberRw.Sync; }
 
         public LengthSize LenType { get; set; }
 

@@ -25,10 +25,7 @@ namespace TestClient
             {
                 await connect();
 
-                var fiberRw = await client.GetFiberRw();
-
-                fiberRw.Sync = new SyncRun();
-
+                var fiberRw = await client.GetFiberRw();              
 
                 var task1 = Task.Factory.StartNew(async () =>
                    {
