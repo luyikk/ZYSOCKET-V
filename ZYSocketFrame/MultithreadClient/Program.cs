@@ -103,7 +103,7 @@ namespace TestClient
         {
             await await fiberRw.Sync.Ask(() =>
             {
-                fiberRw.Write(System.Threading.Interlocked.Increment(ref id).ToString());
+                fiberRw.Write((++id).ToString());
                 return fiberRw.Flush();
             });
         }
