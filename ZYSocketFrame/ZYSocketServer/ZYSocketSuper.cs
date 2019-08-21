@@ -569,11 +569,15 @@ namespace ZYSocket.Server
                 }
                 catch (System.ObjectDisposedException)
                 {
-                    message = "User Disconect";
+                    message = "User Disconnect";
                 }
                 catch (System.NullReferenceException)
                 {
-                    message = "User Disconect";
+                    message = "User Disconnect";
+                }
+                catch (SocketException)
+                {
+                    message = "User Disconnect";
                 }
 
 
