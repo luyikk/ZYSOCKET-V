@@ -38,8 +38,7 @@ namespace ZYSocket.FiberStream.Synchronization
         {
             var sync = new SyncMessage<object>(0, action);
             SyncRunQueue.Enqueue(sync);
-            Runing().Wait();
-            sync.Awaiter.AsTask().Wait();
+            Runing().Wait();          
         }
 
         public async ValueTask Ask(Action action)
