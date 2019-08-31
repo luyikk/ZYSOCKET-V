@@ -858,15 +858,14 @@ namespace ZYSocket.FiberStream
 
         public Task<int> Flush()
         {
-
+            var length = FiberWriteStream.Length;
             StreamWriteFormat.Flush();
-
             if (FiberWriteStream.Length > 0)
             {
                 return  FiberWriteStream.AwaitFlush();
             }
             else
-                return Task.FromResult(0);
+                return Task.FromResult<int>((int)length);
         }
 
    

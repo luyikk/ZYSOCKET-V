@@ -107,23 +107,28 @@ namespace ZYSocket.FiberStream
             if (isfull == 0)
                 if (segment_ptr > 0)
                     segment_ptr -= 1;
+       
 
-            for (int i = 0; i < segment_ptr; i++)
+            if (isfull == 0)
             {
-                var data = DataSegment[i];
-                Send.Send(data);
-            }
-
-            if (isfull != 0)
-            {
-                var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull);
-                Send.Send(array);
+                Send.Send(DataSegment.GetRange(0, segment_ptr + 1));
             }
             else
             {
-                var data = DataSegment[segment_ptr];
-                Send.Send(data);
+                if (segment_ptr > 0)
+                {
+                    var list = DataSegment.GetRange(0, segment_ptr);
+                    list.Add(DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray());
+                    Send.Send(list);
+                }
+                else
+                {
+                    var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull);
+                    Send.Send(array);
+                }
             }
+
+
             Reset();
 
         }
@@ -141,25 +146,26 @@ namespace ZYSocket.FiberStream
                 if (segment_ptr > 0)
                     segment_ptr -= 1;
 
-            int sendlen = 0;
+            int sendlen = 0;  
 
-            for (int i = 0; i < segment_ptr; i++)
+            if (isfull == 0)
             {
-                var data = DataSegment[i];
-                sendlen+=await AsyncSend.SendAsync(data);
-            }
-
-            if (isfull != 0)
-            {
-                var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull);
-                sendlen += await AsyncSend.SendAsync(array);               
+                sendlen += await AsyncSend.SendAsync(DataSegment.GetRange(0, segment_ptr + 1));
             }
             else
             {
-                var data = DataSegment[segment_ptr];
-                sendlen += await AsyncSend.SendAsync(data);
+                if (segment_ptr > 0)
+                {
+                    var list = DataSegment.GetRange(0, segment_ptr);
+                    list.Add(DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray());
+                    sendlen += await AsyncSend.SendAsync(list);
+                }
+                else
+                {
+                    var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull);
+                    sendlen += await AsyncSend.SendAsync(array);
+                }
             }
-
 
             Reset();
 
