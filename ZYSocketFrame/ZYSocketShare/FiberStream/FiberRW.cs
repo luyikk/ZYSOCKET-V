@@ -856,13 +856,16 @@ namespace ZYSocket.FiberStream
 
         #endregion
 
-        public Task<int> Flush(bool _=true)
+        public Task<int> Flush(bool send = true)
         {
+            if (!send)
+                return Task.FromResult(0);
+
             var length = FiberWriteStream.Length;
             StreamWriteFormat.Flush();
             if (FiberWriteStream.Length > 0)
             {
-                return  FiberWriteStream.AwaitFlush();
+                return FiberWriteStream.AwaitFlush();
             }
             else
                 return Task.FromResult<int>((int)length);
