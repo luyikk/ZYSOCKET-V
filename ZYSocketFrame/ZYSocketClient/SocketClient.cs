@@ -81,16 +81,18 @@ namespace ZYSocket.Client
             if (sync_send is null)
                 sync_send = new PoolSend();
 
+
             if (async_send is null)
                 async_send = new PoolSend();
 
             if (obj_Format is null)
-                objFormat = new ProtobuffObjFormat();
+                obj_Format = new ProtobuffObjFormat();
 
 
             syncsend = sync_send;
             asyncsend = async_send;
             bufferSize = buffer_size;
+            objFormat = obj_Format;
         }
 
 
