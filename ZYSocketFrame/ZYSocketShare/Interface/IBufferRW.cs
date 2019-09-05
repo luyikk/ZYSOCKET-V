@@ -65,7 +65,7 @@ namespace ZYSocket.FiberStream
         void Write(float? data);
         void Write(bool data);
         void Write(object obj);
-        Task<int> Flush();
+        Task<int> Flush(bool send=true);
     }
 
 }

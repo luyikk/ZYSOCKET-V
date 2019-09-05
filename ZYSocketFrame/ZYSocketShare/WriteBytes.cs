@@ -390,9 +390,9 @@ namespace ZYSocket
             return (postion, data.Length);
         }
 
-        public Task<int> Flush()
+        public Task<int> Flush(bool send = true)
         {
-           
+
             switch (LenType)
             {
                 case LengthSize.Byte:
@@ -426,10 +426,11 @@ namespace ZYSocket
             if (StreamWrite.TryGetBuffer(out ArraySegment<byte> buffer))
             {
                 StreamWriteFormat.Write(buffer.Array, buffer.Offset, buffer.Count);
-                StreamWriteFormat.Flush();
+                if (send)
+                    StreamWriteFormat.Flush();
             }
 
-            if (FiberWriteStream.Length > 0)
+            if (send && FiberWriteStream.Length > 0)
                 return FiberWriteStream.AwaitFlush();
             else
                 return Task.FromResult(0);
