@@ -12,7 +12,9 @@ namespace ZYSocket.FiberStream.Synchronization
         public const int Idle = 0;
         public const int Open = 1;
 
-        public int status = Idle;
+        private int status = Idle;
+
+        private int delaystatus = Idle;
 
         private readonly Lazy<ConcurrentQueue<SyncMessage>> syncRunQueue;
 
@@ -58,6 +60,18 @@ namespace ZYSocket.FiberStream.Synchronization
             Runing().Wait();
             return sync.Awaiter;
         }
+
+
+        public async ValueTask Delay<T>(int millisecondsDelay, Func<Task<T>> func)
+        {
+            if (Interlocked.Exchange(ref delaystatus, Open) == Idle)
+            {
+                await Task.Delay(millisecondsDelay);
+                Interlocked.CompareExchange(ref delaystatus, Idle, Open);
+                await await Ask(func);
+            }           
+        }
+
 
 
         private Task Runing()

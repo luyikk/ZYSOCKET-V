@@ -1,15 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Netx.Actor;
+using Netx.Actor.Builder;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using ZYSocket;
 using ZYSocket.FiberStream;
 using ZYSocket.Server;
 using ZYSocket.Server.Builder;
-using Netx.Actor.Builder;
-using Netx.Actor;
-using ZYSocket.FiberStream.Synchronization;
-using System.Net.Sockets;
 
 namespace TestServer
 {
@@ -92,7 +89,7 @@ namespace TestServer
 
             var fiberRw = await socketAsync.GetFiberRw<string>();
 
-            fiberRw.UserToken = "my is ttk";           
+            fiberRw.UserToken = "my is ttk";
 
             for (; ; )
             {
@@ -121,15 +118,31 @@ namespace TestServer
         static async ValueTask DataOnByLine(IFiberRw<string> fiberRw)
         {
 
-            var id = await fiberRw.ReadString();
+            var id = await fiberRw.ReadString();          
 
-            await await fiberRw.Sync.Ask(() =>
+            async void Send()
             {
-                fiberRw.Write(id);
-                return fiberRw.Flush();
-            });
+                try
+                {
+                    await fiberRw.Sync.Ask(() =>
+                    {
+                        fiberRw.Write(id);
+                    });
+
+                    await fiberRw.Sync.Delay(10, () =>
+                    {
+                         return fiberRw.Flush();
+                    });
+                }
+                catch (System.Net.Sockets.SocketException)
+                {
+                    fiberRw.Async.Disconnect();
+                }
+            };
+
+            Send();
         }
 
-     
+
     }
 }
