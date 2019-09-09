@@ -22,17 +22,16 @@ namespace ZYSocket.FiberStream.Synchronization
 
 
         public SyncScheduler SyncScheduler { get; }
-
-
+     
         public SyncRun()
         {
-            SyncScheduler = SyncScheduler.LineByLine;
+            SyncScheduler = SyncScheduler.LineByLine;          
             syncRunQueue = new Lazy<ConcurrentQueue<SyncMessage>>(System.Threading.LazyThreadSafetyMode.PublicationOnly);
         }
 
         public SyncRun(SyncScheduler syncScheduler)
         {
-            SyncScheduler = syncScheduler;
+            SyncScheduler = syncScheduler;           
             syncRunQueue = new Lazy<ConcurrentQueue<SyncMessage>>(System.Threading.LazyThreadSafetyMode.PublicationOnly);
         }
 
@@ -62,15 +61,19 @@ namespace ZYSocket.FiberStream.Synchronization
         }
 
 
-        public async ValueTask Delay<T>(int millisecondsDelay, Func<Task<T>> func)
+        public async ValueTask<T> Delay<T>(int millisecondsDelay, Func<Task<T>> func)
         {
             if (Interlocked.Exchange(ref delaystatus, Open) == Idle)
             {
                 await Task.Delay(millisecondsDelay);
                 Interlocked.CompareExchange(ref delaystatus, Idle, Open);
-                await await Ask(func);
-            }           
+                return await await Ask(func);
+            }
+
+            return default;
         }
+
+
 
 
 
@@ -82,19 +85,22 @@ namespace ZYSocket.FiberStream.Synchronization
                 {
                     try
                     {
+                       
                         while (SyncRunQueue.TryDequeue(out SyncMessage msg))
                         {
                             try
                             {
-                                var res = await Call_runing(msg);
-
+                                var res = await Call_runing(msg);                              
                                 msg.Completed(res);
+
                             }
                             catch (Exception er)
                             {
                                 msg.SetException(er);
                             }
                         }
+
+                        
                     }
                     finally
                     {
