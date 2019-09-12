@@ -104,8 +104,4 @@ GC方面:
 ## 有什么问题,或者有什么工作的机会,可以加我QQ:547386448
 
 
-
-
-
-最后来个SHOW ECHO RPS的IMAGE
-![enter image description here](https://github.com/luyikk/ZYSOCKET-V/blob/master/Benchmarks/echoBenchmarks.png?raw=true)
+最后测试结果 linux 64未 I7 8700K 输出可达80W QPS
