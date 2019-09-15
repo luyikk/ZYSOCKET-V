@@ -99,13 +99,4 @@ GC方面:
 **注意上面的 static async void ReadData,以及try catch,因为如果这里的异常 你根本无法外面捕捉,所以需要加一个try catch捕捉异常,否则异常的话将导致服务器崩溃.**
 
 
-
-
-## 有什么问题,或者有什么工作的机会,可以加我QQ:547386448
-
-
-
-
-
-最后来个SHOW ECHO RPS的IMAGE
-![enter image description here](https://github.com/luyikk/ZYSOCKET-V/blob/master/Benchmarks/echoBenchmarks.png?raw=true)
+最后测试结果 linux 64 I7 8700K 输出可达80W QPS

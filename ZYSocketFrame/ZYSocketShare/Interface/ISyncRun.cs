@@ -12,6 +12,6 @@ namespace ZYSocket.FiberStream.Synchronization
         ValueTask Ask(Action action);
         ValueTask<dynamic> Ask(Func<dynamic> func);
         void Tell(Action action);
-        ValueTask Delay<T>(int millisecondsDelay, Func<Task<T>> func);
+        ValueTask<T> Delay<T>(int millisecondsDelay, Func<Task<T>> func);
     }
 }
