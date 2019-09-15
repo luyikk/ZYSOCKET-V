@@ -101,18 +101,24 @@ namespace Server
                                 UserName=username,
                                 Password=password
                             };
-                           
-                            fiberRw.Write(1001);  //发送登入成功
-                            fiberRw.Write(true);
-                            fiberRw.Write("logon ok");
-                            await fiberRw.Flush();
+
+                            await await fiberRw.Sync.Ask(() =>
+                            {
+                                fiberRw.Write(1001);  //发送登入成功
+                                fiberRw.Write(true);
+                                fiberRw.Write("logon ok");
+                                return fiberRw.Flush();
+                            });
                         }
                         else
                         {
-                            fiberRw.Write(1001); //发送登入失败
-                            fiberRw.Write(false);
-                            fiberRw.Write("logon fail");
-                            await fiberRw.Flush();
+                            await await fiberRw.Sync.Ask(() =>
+                            {
+                                fiberRw.Write(1001); //发送登入失败
+                                fiberRw.Write(false);
+                                fiberRw.Write("logon fail");
+                                return fiberRw.Flush();
+                            });
                         }                      
                     }
                     break;
@@ -131,9 +137,12 @@ namespace Server
                         string msg = await fiberRw.ReadString();
                         Console.WriteLine(msg);
 
-                        fiberRw.Write(3001);
-                        fiberRw.Write("msg show");
-                        await fiberRw.Flush();
+                        await await fiberRw.Sync.Ask(() =>
+                        {
+                            fiberRw.Write(3001);
+                            fiberRw.Write("msg show");
+                            return fiberRw.Flush();
+                        });
                     }
                     break;
 

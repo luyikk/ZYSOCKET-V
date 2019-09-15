@@ -40,10 +40,13 @@ namespace Client
 
             var fiberRw = await client.GetFiberRw();
 
-            fiberRw.Write(1000); //登入
-            fiberRw.Write("test");
-            fiberRw.Write("password");
-            await fiberRw.Flush();
+            await await fiberRw.Sync.Ask(() =>
+            {
+                fiberRw.Write(1000); //登入
+                fiberRw.Write("test");
+                fiberRw.Write("password");
+                return fiberRw.Flush();
+            });
 
 
             //for (; ; ) //我们也可以在这里处理数据
@@ -121,13 +124,16 @@ namespace Client
                                 Time = DateTime.Now
                             };
 
-                            fiberRw.Write(2000); //发送数据
-                            fiberRw.Write(data);
-                            await fiberRw.Flush();
+                            await await fiberRw.Sync.Ask(() =>
+                            {
+                                fiberRw.Write(2000); //发送数据
+                                fiberRw.Write(data);
 
-                            fiberRw.Write(3000); //发送消息                          
-                            fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");                          
-                            await fiberRw.Flush();
+
+                                fiberRw.Write(3000); //发送消息                          
+                                fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
+                                return fiberRw.Flush();
+                            });
                         }
 
                     }
@@ -139,9 +145,12 @@ namespace Client
                         {
                             Console.WriteLine(data.Value.Length);
 
-                            fiberRw.Write(3000);
-                            fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM");
-                            await fiberRw.Flush();
+                            await await fiberRw.Sync.Ask(() =>
+                            {
+                                fiberRw.Write(3000);
+                                fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM");
+                                return fiberRw.Flush();
+                            });
                         }
 
                     }

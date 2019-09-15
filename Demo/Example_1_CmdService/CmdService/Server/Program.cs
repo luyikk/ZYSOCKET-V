@@ -85,29 +85,34 @@ namespace Server
                         string username = await fiberRw.ReadString();
                         string password = await fiberRw.ReadString();
 
-                        if (string.Equals(username,"test",StringComparison.Ordinal) && string.Equals(password,"password",StringComparison.Ordinal))
+                        if (string.Equals(username, "test", StringComparison.Ordinal) && string.Equals(password, "password", StringComparison.Ordinal))
                         {
                             fiberRw.UserToken = new UserInfo()
                             {
-                                UserName=username,
-                                Password=password
+                                UserName = username,
+                                Password = password
                             };
-
 
                             //fiberRw.Async.UserToken = fiberRw.UserToken; //我们可以断开后对userinfo做一些事情   
                             //(已无效,默认 fiberRw.Async.UserToken 就等于 fiberRw.UserToken)
 
-                            fiberRw.Write(1001);  //发送登入成功
-                            fiberRw.Write(true);
-                            fiberRw.Write("logon ok");
-                            await fiberRw.Flush();
+                            await await fiberRw.Sync.Ask(() =>
+                            {
+                                fiberRw.Write(1001);  //发送登入成功
+                                fiberRw.Write(true);
+                                fiberRw.Write("logon ok");
+                                return fiberRw.Flush();
+                            });
                         }
                         else
                         {
-                            fiberRw.Write(1001); //发送登入失败
-                            fiberRw.Write(false);
-                            fiberRw.Write("logon fail");
-                            await fiberRw.Flush();
+                            await await fiberRw.Sync.Ask(() =>
+                            {
+                                fiberRw.Write(1001); //发送登入失败
+                                fiberRw.Write(false);
+                                fiberRw.Write("logon fail");
+                                return fiberRw.Flush();
+                            });
                         }                      
                     }
                     break;
@@ -126,9 +131,12 @@ namespace Server
                         string msg = await fiberRw.ReadString();
                         Console.WriteLine(msg);
 
-                        fiberRw.Write(3001);
-                        fiberRw.Write("msg show");
-                        await fiberRw.Flush();
+                        await await fiberRw.Sync.Ask(() =>
+                        {
+                            fiberRw.Write(3001);
+                            fiberRw.Write("msg show");
+                            return fiberRw.Flush();
+                        });
                     }
                     break;
 

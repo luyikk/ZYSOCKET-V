@@ -24,10 +24,10 @@ namespace Client
                 connect();
 
                 Console.ReadLine();
-
+             
                 client.ShutdownBoth();
-
-                Console.ReadLine();
+              
+                 Console.ReadLine();
             }
         }
      
@@ -38,12 +38,15 @@ namespace Client
            // var (IsSuccess, Msg) = await client.ConnectAsync("127.0.0.1", 3000); //异步链接
             Console.WriteLine(result);
 
-            var fiberRw = await client.GetFiberRw(); 
+            var fiberRw = await client.GetFiberRw();
 
-            fiberRw.Write(1000); //登入
-            fiberRw.Write("test");
-            fiberRw.Write("password");
-            await  fiberRw.Flush();
+            await await fiberRw.Sync.Ask(() =>
+            {
+                fiberRw.Write(1000); //登入
+                fiberRw.Write("test");
+                fiberRw.Write("password");
+                return fiberRw.Flush();
+            });
 
 
             //for (; ; ) //我们也可以在这里处理数据
@@ -125,13 +128,16 @@ namespace Client
                                 Time = DateTime.Now
                             };
 
-                            fiberRw.Write(2000); //发送数据
-                            fiberRw.Write(data);
-                            await fiberRw.Flush();
+                            await await fiberRw.Sync.Ask(() =>
+                            {
+                                fiberRw.Write(2000); //发送数据
+                                fiberRw.Write(data);
 
-                            fiberRw.Write(3000); //发送消息                          
-                            fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
-                            await fiberRw.Flush();
+
+                                fiberRw.Write(3000); //发送消息                          
+                                fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
+                                return fiberRw.Flush();
+                            });
                         }
                       
                     }

@@ -84,8 +84,11 @@ namespace Client
                         {
                             await fiberRw.ReadString();
 
-                            fiberRw.Write(2000);
-                            await fiberRw.Flush();
+                            await await fiberRw.Sync.Ask(() =>
+                            {
+                                fiberRw.Write(2000);
+                                return fiberRw.Flush();
+                            });
 
                         }
                         else
@@ -191,10 +194,14 @@ namespace Client
             {
 
                 var fiberRw = await client.GetFiberRw();
-                fiberRw.Write(1000);
-                fiberRw.Write(logOnWin.UserName);
-                fiberRw.Write(logOnWin.PassWord);
-                await fiberRw.Flush();
+
+                await await fiberRw.Sync.Ask(() =>
+                {
+                    fiberRw.Write(1000);
+                    fiberRw.Write(logOnWin.UserName);
+                    fiberRw.Write(logOnWin.PassWord);
+                    return fiberRw.Flush();
+                });
 
             }
             else
@@ -205,10 +212,13 @@ namespace Client
         {
             var fiberRw = await client.GetFiberRw();
 
-            fiberRw.Write(3000);
-            fiberRw.Write(this.comboBox1.Text);
-            fiberRw.Write(this.textBox1.Text);
-            await fiberRw.Flush();
+            await await fiberRw.Sync.Ask(() =>
+            {
+                fiberRw.Write(3000);
+                fiberRw.Write(this.comboBox1.Text);
+                fiberRw.Write(this.textBox1.Text);
+                return fiberRw.Flush();
+            });
 
             this.richTextBox1.AppendText($"->{this.comboBox1.Text}:{this.textBox1.Text}\r\n");
 

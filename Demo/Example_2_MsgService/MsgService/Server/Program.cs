@@ -45,14 +45,14 @@ namespace Server
         {
             Console.WriteLine($"{message}");
 
-            if(socketAsync.UserToken is IFiberRw<UserInfo> user)
+            if(socketAsync.UserToken is UserInfo user)
             {
-                UserList.Remove(user);
+                UserList.RemoveAll(p => p.UserToken == user);
 
                 foreach (var item in UserList.AsReadOnly())
                 {
                     item.Write(4000);
-                    item.Write(user.UserToken.UserName);
+                    item.Write(user.UserName);
                     await item.Flush();
                 }
             }
@@ -128,17 +128,23 @@ namespace Server
                          
                             UserList.Add(fiberRw);
 
-                            fiberRw.Write(1001);  //发送登入成功
-                            fiberRw.Write(true);
-                            fiberRw.Write("logon ok");
-                            await fiberRw.Flush();
+                            await await fiberRw.Sync.Ask(() =>
+                            {
+                                fiberRw.Write(1001);  //发送登入成功
+                                fiberRw.Write(true);
+                                fiberRw.Write("logon ok");
+                                return fiberRw.Flush();
+                            });
                         }
                         else
                         {
-                            fiberRw.Write(1001); //发送登入失败
-                            fiberRw.Write(false);
-                            fiberRw.Write("logon fail");
-                            await fiberRw.Flush();
+                            await await fiberRw.Sync.Ask(() =>
+                            {
+                                fiberRw.Write(1001); //发送登入失败
+                                fiberRw.Write(false);
+                                fiberRw.Write("logon fail");
+                                return fiberRw.Flush();
+                            });
                         }
                     }
                     break;
@@ -156,9 +162,12 @@ namespace Server
 
                             foreach (var item in UserList.Where(p=>p!=fiberRw))
                             {
-                                item.Write(2002);
-                                item.Write(fiberRw.UserToken.UserName);
-                                await item.Flush();
+                                await await item.Sync.Ask(() =>
+                                {
+                                    item.Write(2002);
+                                    item.Write(fiberRw.UserToken.UserName);
+                                    return item.Flush();
+                                });
                             }
                         }
                     }
@@ -177,10 +186,13 @@ namespace Server
                                 {
                                     if (item != fiberRw)
                                     {
-                                        item.Write(3001);
-                                        item.Write(fiberRw.UserToken.UserName);
-                                        item.Write(msg);
-                                        await item.Flush();
+                                        await await item.Sync.Ask(() =>
+                                        {
+                                            item.Write(3001);
+                                            item.Write(fiberRw.UserToken.UserName);
+                                            item.Write(msg);
+                                            return item.Flush();
+                                        });
                                     }
                                 }
                             }
@@ -190,10 +202,13 @@ namespace Server
 
                                 if(user!=null)
                                 {
-                                    user.Write(3002);
-                                    user.Write(fiberRw.UserToken.UserName);
-                                    user.Write(msg);
-                                    await user.Flush();
+                                    await await user.Sync.Ask(() =>
+                                    {
+                                        user.Write(3002);
+                                        user.Write(fiberRw.UserToken.UserName);
+                                        user.Write(msg);
+                                        return user.Flush();
+                                    });
                                 }
 
                             }
