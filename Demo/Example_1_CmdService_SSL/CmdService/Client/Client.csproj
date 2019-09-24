@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ZYSocketClientV" Version="1.5.7" />
+    <PackageReference Include="ZYSocketClientV" Version="1.6.0" />
   </ItemGroup>
 
   <ItemGroup>
