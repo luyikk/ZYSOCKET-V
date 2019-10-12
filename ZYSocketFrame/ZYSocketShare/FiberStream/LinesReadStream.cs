@@ -80,7 +80,7 @@ namespace ZYSocket.FiberStream
         }
 
 
-        public PipeFilberAwaiter Check()
+        public ValueTask<int> Check()
         {
             return Pipes.Need();
         }

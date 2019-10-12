@@ -124,8 +124,8 @@ namespace TestServer
 
             fiberRw.UserToken = "my is ttk";
 
-         
-            for (; ;)
+
+            for (; ; )
             {
 
                 //读取 发送 测试
@@ -136,14 +136,14 @@ namespace TestServer
                 try
                 {
                     //提供2种数据 读取写入方式
-                    using (ReadBytes readBytes = new ReadBytes(fiberRw))
-                    {
-                        await readBytes.Init();
-                        DataOn(readBytes, fiberRw);
-                    }
+                    //using (ReadBytes readBytes = new ReadBytes(fiberRw))
+                    //{
+                    //    await readBytes.Init();
+                    //    DataOn(readBytes, fiberRw);
+                    //}
 
 
-                  //  await DataOnByLine(fiberRw);
+                    await DataOnByLine(fiberRw);
 
 
 
@@ -176,8 +176,7 @@ namespace TestServer
             var p4 = await fiberRw.ReadSingle();
             var p5 = await fiberRw.ReadBoolean();
             var p6 = await fiberRw.ReadBoolean();
-            var p7 = await fiberRw.ReadString();
-
+            var p7 = await fiberRw.ReadString();           
 
             using (var p8 = await fiberRw.ReadMemory())
             {
