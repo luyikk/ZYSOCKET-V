@@ -66,7 +66,7 @@ namespace TestServer
              })
              .ConfigServer(p => {
                  p.Port = 1002;
-                 p.MaxBufferSize = 4096;                
+                 p.MaxBufferSize = 8;                
                  });
 
             var build = containerBuilder.BuildServiceProvider();
@@ -164,6 +164,7 @@ namespace TestServer
 
         }
 
+        
         static async ValueTask DataOnByLine(IFiberRw<string> fiberRw)
         {
 
@@ -181,9 +182,9 @@ namespace TestServer
             using (var p8 = await fiberRw.ReadMemory())
             {
                 
-                var p9 = await fiberRw.ReadInt16();
-             
-               // var p10 = await fiberRw.ReadObject<List<Guid>>();
+                var p9 = await fiberRw.ReadInt16();           
+
+                // var p10 = await fiberRw.ReadObject<List<Guid>>();
 
                 fiberRw.Write(len);
                 fiberRw.Write(cmd);
@@ -215,11 +216,13 @@ namespace TestServer
             var p6 = read.ReadBoolean();
             var p7 = read.ReadString();
             var p8 = read.ReadMemory();
-            var p9 = read.ReadInt16();      
+            var p9 = read.ReadInt16();
 
 
-           // var p10 = read.ReadObject<List<Guid>>();
-           // read.Dispose();
+            // var p10 = read.ReadObject<List<Guid>>();
+            // read.Dispose();
+
+          
           
 
             using (WriteBytes writeBytes = new WriteBytes(fiberRw))

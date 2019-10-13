@@ -164,8 +164,15 @@ namespace System.Threading.Tasks.Sources.Copy
                 switch (_capturedContext)
                 {
                     case null:
-                        Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
-                        break;                 
+                        if (_executionContext != null)
+                        {
+                            ThreadPool.QueueUserWorkItem(continuation, state, preferLocal: true);
+                        }
+                        else
+                        {
+                            Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+                        }
+                        break;
 
                     case TaskScheduler ts:
                         Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);
@@ -223,7 +230,15 @@ namespace System.Threading.Tasks.Sources.Copy
                 case null:
                     if (RunContinuationsAsynchronously)
                     {
-                        Task.Factory.StartNew(_continuation, _continuationState, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+                       
+                        if (_executionContext != null)
+                        {
+                            ThreadPool.QueueUserWorkItem(_continuation, _continuationState, preferLocal: true);
+                        }
+                        else
+                        {
+                            Task.Factory.StartNew(_continuation, _continuationState, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+                        }
                     }
                     else
                     {
