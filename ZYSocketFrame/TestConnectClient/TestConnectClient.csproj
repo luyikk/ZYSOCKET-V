@@ -10,4 +10,10 @@
     <ProjectReference Include="..\ZYSocketShare\ZYSocketShare.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="client.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

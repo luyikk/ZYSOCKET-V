@@ -129,6 +129,22 @@ namespace ZYSocket.Server
                 return (null,"not install");
         }
 
+        public async ValueTask<(IFiberRw, string)> GetFiberRwSSL(Func<Stream,Task<SslStream>> sslstream_init,Func<Stream, Stream, GetFiberRwResult> init = null)
+        {
+            if (await RStream.WaitStreamInit())
+            {
+                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);
+                SslStream sslstream =await sslstream_init(mergestream);
+                if (sslstream is null)
+                    return (null,"sslstream init fail");
+                var fiber = new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat, IsLittleEndian, sslstream, sslstream, init: init);
+                fibersslobj = fiber;
+                return (fiber, null);
+            }
+            else
+                return (null, "not install");
+        }
+
         public async ValueTask<(IFiberRw<T>,string)> GetFiberRwSSL<T>(X509Certificate certificate, Func<Stream, Stream, GetFiberRwResult> init = null) where T : class
         {
             if (await RStream.WaitStreamInit())
@@ -151,7 +167,21 @@ namespace ZYSocket.Server
                 return (null,"not install");
         }
 
-
+        public async ValueTask<(IFiberRw<T>, string)> GetFiberRwSSL<T>(Func<Stream, Task<SslStream>> sslstream_init, Func<Stream, Stream, GetFiberRwResult> init = null) where T : class
+        {
+            if (await RStream.WaitStreamInit())
+            {
+                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);              
+                SslStream sslstream = await sslstream_init(mergestream);
+                if (sslstream is null)
+                    return (null, "sslstream init fail");
+                var fiber = new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat, IsLittleEndian, sslstream, sslstream, init: init);
+                fibersslT = fiber;
+                return (fiber, null);
+            }
+            else
+                return (null, "not install");
+        }
 
 
         public void StreamInit()

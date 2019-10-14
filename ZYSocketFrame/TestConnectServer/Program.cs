@@ -8,6 +8,9 @@ using ZYSocket;
 using System.IO.Compression;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Security;
+using System.Net;
+using System.Security.Authentication;
 
 namespace TestServer
 {
@@ -15,13 +18,13 @@ namespace TestServer
     {
 
 
-        static X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/server.pfx", "testPassword");
+        static X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/server.pfx", "testPassword");       
 
         //程序入口
         static void Main(string[] args)
         {
 
-
+          
 
             var containerBuilder = new ServiceCollection();
             new SockServBuilder(containerBuilder, p =>
@@ -93,9 +96,24 @@ namespace TestServer
         static async void BinaryInputHandler(ISockAsyncEventAsServer socketAsync)
         {
 
-            var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate);
+            // var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate);
+            var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(async (stream) =>
+            {
 
-            Console.WriteLine("SSL OK");
+                var sslstream = new SslStream(stream, false);
+
+                try
+                {
+                    await sslstream.AuthenticateAsServerAsync(certificate,false,SslProtocols.Tls,true);
+                }
+                catch (Exception er)
+                {
+                    Console.WriteLine(er.Message);
+                    return null;
+                }
+
+                return sslstream;
+            });
 
             if (fiberRw is null)
             {
@@ -103,6 +121,9 @@ namespace TestServer
                 socketAsync.Disconnect();
                 return;
             }
+
+
+            Console.WriteLine("SSL OK");
 
             fiberRw.UserToken = "my is ttk";
                      
@@ -113,16 +134,22 @@ namespace TestServer
 
                 try
                 {
-                    using (var data = await fiberRw.ReadMemory())
+
+                    while (true)
                     {
-                        int? x = await fiberRw.ReadInt32();
-
-                        Console.WriteLine(data.Value.Length);
-                        Console.WriteLine(x);
-
-                        fiberRw.Write("ok");
-                        await fiberRw.Flush();
+                        Console.Write((char)await fiberRw.ReadByte());
                     }
+
+                    //using (var data = await fiberRw.ReadMemory())
+                    //{
+                    //    int? x = await fiberRw.ReadInt32();
+
+                    //    Console.WriteLine(data.Value.Length);
+                    //    Console.WriteLine(x);
+
+                    //    fiberRw.Write("ok");
+                    //    await fiberRw.Flush();
+                    //}
 
                     break;
 

@@ -139,6 +139,26 @@ namespace ZYSocket.Client
 
         }
 
+        public async ValueTask<GetFiberRwSSLResult> GetFiberRwSSL(Func<Stream,Task<SslStream>> sslstream_init, Func<Stream, Stream, GetFiberRwResult> init = null)
+        {
+            if (await RStream.WaitStreamInit())
+            {
+
+                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);
+                var sslstream = await sslstream_init(mergestream);
+                if (sslstream is null)
+                    return new GetFiberRwSSLResult { IsError = true, FiberRw = null, ErrMsg = "sslstream init fail" };
+                var fiber = new FiberRw<object>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat, IsLittleEndian, sslstream, sslstream, init: init);
+                fibersslobj = fiber;
+                taskCompletionSource?.TrySetResult(fiber);
+                return new GetFiberRwSSLResult { IsError = false, FiberRw = fiber, ErrMsg = null };
+
+            }
+            else
+                return new GetFiberRwSSLResult { IsError = true, FiberRw = null, ErrMsg = "not install" };
+
+        }
+
         public async ValueTask<GetFiberRwSSLResult<T>> GetFiberRwSSL<T>(X509Certificate certificate_client, string targethost = "localhost", Func<Stream, Stream, GetFiberRwResult> init = null) where T : class
         {
             if (await RStream.WaitStreamInit())
@@ -169,6 +189,27 @@ namespace ZYSocket.Client
                 return new GetFiberRwSSLResult<T> { IsError= true, FiberRw= null, ErrMsg= "not install" };
         }
 
+        public async ValueTask<GetFiberRwSSLResult<T>> GetFiberRwSSL<T>(Func<Stream,Task<SslStream>> sslstream_init, Func<Stream, Stream, GetFiberRwResult> init = null) where T : class
+        {
+            if (await RStream.WaitStreamInit())
+            {
+
+                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);
+                var sslstream = await sslstream_init(mergestream);
+
+                if(sslstream is null)
+                    return new GetFiberRwSSLResult<T> { IsError = true, FiberRw = null, ErrMsg = "sslstream init fail" };
+
+                var fiber = new FiberRw<T>(this, RStream, WStream, MemoryPool, Encoding, ObjFormat, IsLittleEndian, sslstream, sslstream, init: init);
+                fibersslT = fiber;
+                taskCompletionSource?.TrySetResult(fiber);
+                return new GetFiberRwSSLResult<T> { IsError = false, FiberRw = fiber, ErrMsg = null };
+
+
+            }
+            else
+                return new GetFiberRwSSLResult<T> { IsError = true, FiberRw = null, ErrMsg = "not install" };
+        }
 
         public void StreamInit()
         {
