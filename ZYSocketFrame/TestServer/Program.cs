@@ -168,7 +168,7 @@ namespace TestServer
         static async ValueTask DataOnByLine(IFiberRw<string> fiberRw)
         {
 
-           
+
             var len = await fiberRw.ReadInt32();
             var cmd = await fiberRw.ReadInt32();
             var p1 = await fiberRw.ReadInt32();
@@ -177,36 +177,35 @@ namespace TestServer
             var p4 = await fiberRw.ReadSingle();
             var p5 = await fiberRw.ReadBoolean();
             var p6 = await fiberRw.ReadBoolean();
-            var p7 = await fiberRw.ReadString();           
+            var p7 = await fiberRw.ReadString();
 
-            using (var p8 = await fiberRw.ReadMemory())
-            {
-                
-                var p9 = await fiberRw.ReadInt16();           
+            using var p8 = await fiberRw.ReadMemory();
 
-                // var p10 = await fiberRw.ReadObject<List<Guid>>();
+            var p9 = await fiberRw.ReadInt16();
 
-                fiberRw.Write(len);
-                fiberRw.Write(cmd);
-                fiberRw.Write(p1);
-                fiberRw.Write(p2);
-                fiberRw.Write(p3);
-                fiberRw.Write(p4);
-                fiberRw.Write(p5);
-                fiberRw.Write(p6);
-                fiberRw.Write(p7);
-                fiberRw.Write(p8);
-                fiberRw.Write(p9);
-                //fiberRw.Write(p10);
-                await fiberRw.Flush();
-            }
+            // var p10 = await fiberRw.ReadObject<List<Guid>>();
+
+            fiberRw.Write(len);
+            fiberRw.Write(cmd);
+            fiberRw.Write(p1);
+            fiberRw.Write(p2);
+            fiberRw.Write(p3);
+            fiberRw.Write(p4);
+            fiberRw.Write(p5);
+            fiberRw.Write(p6);
+            fiberRw.Write(p7);
+            fiberRw.Write(p8);
+            fiberRw.Write(p9);
+            //fiberRw.Write(p10);
+            await fiberRw.Flush();
+
 
 
         }
 
-        static void  DataOn(ReadBytes read, IFiberRw<string> fiberRw)
+        static void DataOn(ReadBytes read, IFiberRw<string> fiberRw)
         {
-           
+
             var cmd = read.ReadInt32();
             var p1 = read.ReadInt32();
             var p2 = read.ReadInt64();
@@ -222,25 +221,23 @@ namespace TestServer
             // var p10 = read.ReadObject<List<Guid>>();
             // read.Dispose();
 
-          
-          
 
-            using (WriteBytes writeBytes = new WriteBytes(fiberRw))
-            {
-                writeBytes.WriteLen();
-                writeBytes.Cmd(cmd);
-                writeBytes.Write(p1);
-                writeBytes.Write(p2);
-                writeBytes.Write(p3);
-                writeBytes.Write(p4);
-                writeBytes.Write(p5);
-                writeBytes.Write(p6);
-                writeBytes.Write(p7);
-                writeBytes.Write(p8);
-                writeBytes.Write(p9);
-                //writeBytes.Write(p10);
-                writeBytes.Flush();
-            }
+            using var writeBytes = new WriteBytes(fiberRw);
+
+            writeBytes.WriteLen();
+            writeBytes.Cmd(cmd);
+            writeBytes.Write(p1);
+            writeBytes.Write(p2);
+            writeBytes.Write(p3);
+            writeBytes.Write(p4);
+            writeBytes.Write(p5);
+            writeBytes.Write(p6);
+            writeBytes.Write(p7);
+            writeBytes.Write(p8);
+            writeBytes.Write(p9);
+            //writeBytes.Write(p10);
+            writeBytes.Flush();
+
 
 
         }
