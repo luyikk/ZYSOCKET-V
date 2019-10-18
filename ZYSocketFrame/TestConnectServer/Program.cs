@@ -135,21 +135,18 @@ namespace TestServer
                 try
                 {
 
-                    while (true)
+
+
+                    using (var data = await fiberRw.ReadMemory())
                     {
-                        Console.Write((char)await fiberRw.ReadByte());
+                        int? x = await fiberRw.ReadInt32();
+
+                        Console.WriteLine(data.Value.Length);
+                        Console.WriteLine(x);
+
+                        fiberRw.Write("ok");
+                        await fiberRw.Flush();
                     }
-
-                    //using (var data = await fiberRw.ReadMemory())
-                    //{
-                    //    int? x = await fiberRw.ReadInt32();
-
-                    //    Console.WriteLine(data.Value.Length);
-                    //    Console.WriteLine(x);
-
-                    //    fiberRw.Write("ok");
-                    //    await fiberRw.Flush();
-                    //}
 
                     break;
 

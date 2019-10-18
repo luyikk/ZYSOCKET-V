@@ -430,6 +430,8 @@ namespace ZYSocket
                     StreamWriteFormat.Flush();
             }
 
+            StreamWrite.Position = 0;
+
             if (send && FiberWriteStream.Length > 0)
                 return FiberWriteStream.AwaitFlush();
             else

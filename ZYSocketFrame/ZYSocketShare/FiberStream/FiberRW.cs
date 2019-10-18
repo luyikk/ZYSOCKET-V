@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ZYSocket.Interface;
 using ZYSocket.FiberStream.Synchronization;
+using System.Runtime.InteropServices;
 
 namespace ZYSocket.FiberStream
 {
@@ -184,14 +185,29 @@ namespace ZYSocket.FiberStream
         }
 
 
+        public async ValueTask<int> ReadAsync(Memory<byte> data,bool doall=true)
+        {
+            if (!isinit)
+                throw new NotSupportedException("not init it");
+            if (doall)
+            {
+                if (MemoryMarshal.TryGetArray(data, out ArraySegment<byte> destinationArray))
+                    return await ReadAsync(destinationArray.Array, destinationArray.Offset, destinationArray.Count);
+                else
+                    return 0;
+            }
+            else
+            {
+                return await streamReadFormat.ReadAsync(data, CancellationToken.None);
+            }
+        }
+
+
 
         public IMemoryOwner<byte> GetMemory(int inithint)
         {
             return memoryPool.Rent(inithint);
         }
-
-
-
 
         #region read integer
         public async Task<byte> ReadByte()
@@ -293,7 +309,7 @@ namespace ZYSocket.FiberStream
         {           
             fixed (byte* numRef = &(value[0]))
             {
-                var x = *(((int*)numRef));
+                var x = *(int*)numRef;
                 if (isLittleEndian)
                     return BinaryPrimitives.ReverseEndianness(x);
                 else
@@ -336,7 +352,7 @@ namespace ZYSocket.FiberStream
            
             fixed (byte* numRef = &(value[0]))
             {
-                var x = *(((long*)numRef));
+                var x = *(long*)numRef;
                 if (isLittleEndian)
                     return BinaryPrimitives.ReverseEndianness(x);
                 else
@@ -393,9 +409,9 @@ namespace ZYSocket.FiberStream
 
             fixed (byte* numRef = &(value[0]))
             {
-                var x = *(((uint*)numRef));
+                var x = *(uint*)numRef;
                 uint p = IsLittleEndian ? BinaryPrimitives.ReverseEndianness(x) : x;
-                return *(((float*)&p));
+                return *((float*)&p);
             }
         }
 
@@ -410,10 +426,8 @@ namespace ZYSocket.FiberStream
                 return default;
 
             var imo = GetMemory(size);
-
             var memory = imo.Memory;
             var array = memory.GetArray();
-
             int len = await ReadAsync(array.Array, array.Offset, size);
 
             if (len != size)
@@ -422,8 +436,8 @@ namespace ZYSocket.FiberStream
             var slice_mem = memory.Slice(0, len);
 
             return new ResultByMemoryOwner<Memory<byte>>(imo, slice_mem);
-
         }
+    
 
         public async Task<ResultByMemoryOwner<Memory<byte>>> ReadMemory()
         {
@@ -436,6 +450,8 @@ namespace ZYSocket.FiberStream
                 return await ReadMemory(len.Value);
             }
         }
+
+     
 
         public async Task<byte[]> ReadArray(int size)
         {
@@ -452,7 +468,7 @@ namespace ZYSocket.FiberStream
             return array;
         }
 
-
+      
 
         public async Task<byte[]> ReadArray()
         {
@@ -465,6 +481,8 @@ namespace ZYSocket.FiberStream
                 return await ReadArray(len.Value);
             }
         }
+
+       
 
         public async Task<string> ReadString(int len)
         {
@@ -745,7 +763,7 @@ namespace ZYSocket.FiberStream
         {
             unsafe
             {
-                ulong format = *(((ulong*)&data));
+                ulong format = *(ulong*)&data;
                 Write(format);
             }
         }
@@ -754,7 +772,7 @@ namespace ZYSocket.FiberStream
         {
             unsafe
             {
-                uint format = *(((uint*)&data));
+                uint format = *(uint*)&data;
                 Write(format);
             }
         }
@@ -762,7 +780,7 @@ namespace ZYSocket.FiberStream
 
         public void Write(bool data)
         {
-            Write(data ? ((byte)1) : ((byte)0));
+            Write(data ? (byte)1 : (byte)0);
         }
 
 

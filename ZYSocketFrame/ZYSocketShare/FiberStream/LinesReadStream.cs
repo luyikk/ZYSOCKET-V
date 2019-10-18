@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks.Sources.Copy;
+using System.Runtime.InteropServices;
 
 namespace ZYSocket.FiberStream
 {
@@ -156,8 +157,25 @@ namespace ZYSocket.FiberStream
             }
         }
 
+
+        public override int Read(Span<byte> buffer)
+        {
+
+            int _postion = (int)position;
+            int n = Math.Min((int)wrlen - _postion, buffer.Length);
+            if (n <= 0)
+                return 0;
+
+            new Span<byte>(data, _postion, n).CopyTo(buffer);
+            position += n;
+            return n;
+        }
+
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+                return 0;
+
             if (NeedRead)
                 await Check();
 
@@ -178,6 +196,22 @@ namespace ZYSocket.FiberStream
             return TaskToApm.End<int>(asyncResult);
         }
 
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return 0;
+
+            if (MemoryMarshal.TryGetArray(buffer, out ArraySegment<byte> destinationArray))
+                return await ReadAsync(destinationArray.Array!, destinationArray.Offset, destinationArray.Count);
+            else
+            {
+
+                if (NeedRead)
+                    await Check();
+
+                return Read(buffer.Span);
+            }
+        }
 
 
         public  Memory<byte> ReadToBlockEnd()
