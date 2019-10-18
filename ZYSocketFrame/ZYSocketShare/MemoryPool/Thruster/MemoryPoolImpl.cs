@@ -48,7 +48,7 @@ namespace Thruster
             return LeaseSlowPath(bucketId, chunkCount);
         }
 
-        Owner Lease(int bucketId, int chunkCount, int retries)
+        Owner? Lease(int bucketId, int chunkCount, int retries)
         {
             var index = bucketId;
 
@@ -96,7 +96,7 @@ namespace Thruster
 
         class Owner : IMemoryOwner<T>
         {
-            MemoryPoolImpl<T, TSize> pool;
+            MemoryPoolImpl<T, TSize>? pool;
             public readonly byte BucketId;
             public readonly byte ChunkCount;
             public readonly byte Lease;

@@ -12,11 +12,13 @@
 // - Nullability annotations are removed.
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 
 namespace System.Threading.Tasks.Sources.Copy
 {
+
     /// <summary>Provides the core logic for implementing a manual-reset <see cref="IValueTaskSource"/> or <see cref="IValueTaskSource{TResult}"/>.</summary>
     /// <typeparam name="TResult"></typeparam>
     [StructLayout(LayoutKind.Auto)]
@@ -27,22 +29,22 @@ namespace System.Threading.Tasks.Sources.Copy
         /// or <see cref="ManualResetValueTaskSourceCoreShared.s_sentinel"/> if the operation completed before a callback was supplied,
         /// or null if a callback hasn't yet been provided and the operation hasn't yet completed.
         /// </summary>
-        private Action<object> _continuation;
+        private Action<object?>? _continuation;
         /// <summary>State to pass to <see cref="_continuation"/>.</summary>
-        private object _continuationState;
+        private object? _continuationState;
         /// <summary><see cref="ExecutionContext"/> to flow to the callback, or null if no flowing is required.</summary>
-        private ExecutionContext _executionContext;
+        private ExecutionContext? _executionContext;
         /// <summary>
         /// A "captured" <see cref="SynchronizationContext"/> or <see cref="TaskScheduler"/> with which to invoke the callback,
         /// or null if no special context is required.
         /// </summary>
-        private object _capturedContext;
+        private object? _capturedContext;
         /// <summary>Whether the current operation has completed.</summary>
         private bool _completed;
         /// <summary>The result with which the operation succeeded, or the default value if it hasn't yet completed or failed.</summary>
-        private TResult _result;
+        [AllowNull, MaybeNull] private TResult _result;
         /// <summary>The exception with which the operation failed, or null if it hasn't yet completed or completed successfully.</summary>
-        private ExceptionDispatchInfo _error;
+        private ExceptionDispatchInfo? _error;
         /// <summary>The current version of this value, used to help prevent misuse.</summary>
         private short _version;
 
@@ -56,7 +58,7 @@ namespace System.Threading.Tasks.Sources.Copy
             // Reset/update state for the next use/await of this instance.
             _version++;
             _completed = false;
-            _result = default; // TODO-NULLABLE-GENERIC
+            _result = default;
             _error = null;
             _executionContext = null;
             _capturedContext = null;
@@ -72,8 +74,8 @@ namespace System.Threading.Tasks.Sources.Copy
             SignalCompletion();
         }
 
-        /// <summary>Complets with an error.</summary>
-        /// <param name="error"></param>
+        /// <summary>Completes with an error.</summary>
+        /// <param name="error">The exception.</param>
         public void SetException(Exception error)
         {
             _error = ExceptionDispatchInfo.Capture(error);
@@ -97,6 +99,7 @@ namespace System.Threading.Tasks.Sources.Copy
 
         /// <summary>Gets the result of the operation.</summary>
         /// <param name="token">Opaque value that was provided to the <see cref="ValueTask"/>'s constructor.</param>
+       
         public TResult GetResult(short token)
         {
             ValidateToken(token);
@@ -114,7 +117,7 @@ namespace System.Threading.Tasks.Sources.Copy
         /// <param name="state">The state object to pass to <paramref name="continuation"/> when it's invoked.</param>
         /// <param name="token">Opaque value that was provided to the <see cref="ValueTask"/>'s constructor.</param>
         /// <param name="flags">The flags describing the behavior of the continuation.</param>
-        public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags) // TODO-NULLABLE: https://github.com/dotnet/roslyn/issues/26761
+        public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
         {
             if (continuation == null)
             {
@@ -129,13 +132,12 @@ namespace System.Threading.Tasks.Sources.Copy
 
             if ((flags & ValueTaskSourceOnCompletedFlags.UseSchedulingContext) != 0)
             {
-
+               
                 TaskScheduler ts = TaskScheduler.Current;
                 if (ts != TaskScheduler.Default)
                 {
                     _capturedContext = ts;
                 }
-
             }
 
             // We need to set the continuation state before we swap in the delegate, so that
@@ -146,7 +148,7 @@ namespace System.Threading.Tasks.Sources.Copy
             // To minimize the chances of that, we check preemptively whether _continuation
             // is already set to something other than the completion sentinel.
 
-            object oldContinuation = _continuation;
+            object? oldContinuation = _continuation;
             if (oldContinuation == null)
             {
                 _continuationState = state;
@@ -172,7 +174,7 @@ namespace System.Threading.Tasks.Sources.Copy
                         {
                             Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
                         }
-                        break;
+                        break;                   
 
                     case TaskScheduler ts:
                         Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);
@@ -203,7 +205,8 @@ namespace System.Threading.Tasks.Sources.Copy
             if (_continuation != null || Interlocked.CompareExchange(ref _continuation, ManualResetValueTaskSourceCoreShared.s_sentinel, null) != null)
             {
                 if (_executionContext != null)
-                {
+                {                   
+
                     ExecutionContext.Run(
                         _executionContext,
                         s => ((ManualResetValueTaskSourceCore<TResult>)s).InvokeContinuation(),
@@ -230,7 +233,6 @@ namespace System.Threading.Tasks.Sources.Copy
                 case null:
                     if (RunContinuationsAsynchronously)
                     {
-                       
                         if (_executionContext != null)
                         {
                             ThreadPool.QueueUserWorkItem(_continuation, _continuationState, preferLocal: true);
@@ -244,7 +246,7 @@ namespace System.Threading.Tasks.Sources.Copy
                     {
                         _continuation(_continuationState);
                     }
-                    break;              
+                    break;
 
                 case TaskScheduler ts:
                     Task.Factory.StartNew(_continuation, _continuationState, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);
@@ -255,8 +257,8 @@ namespace System.Threading.Tasks.Sources.Copy
 
     internal static class ManualResetValueTaskSourceCoreShared // separated out of generic to avoid unnecessary duplication
     {
-        internal static readonly Action<object> s_sentinel = CompletionSentinel;
-        private static void CompletionSentinel(object _) // named method to aid debugging
+        internal static readonly Action<object?> s_sentinel = CompletionSentinel;
+        private static void CompletionSentinel(object? _) // named method to aid debugging
         {
             Debug.Fail("The sentinel delegate should never be invoked.");
             throw new InvalidOperationException();

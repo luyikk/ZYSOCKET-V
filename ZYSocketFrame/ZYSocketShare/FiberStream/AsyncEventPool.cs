@@ -30,19 +30,19 @@ namespace ZYSocket.Share
         /// <summary>
         /// 对象第一次创建时的代理
         /// </summary>
-        public ObjectRunTimeHandle ObjectCreateRunTime { get; set; }
+        public ObjectRunTimeHandle? ObjectCreateRunTime { get; set; }
 
 
         /// <summary>
         ///     获取对象时所处理的方法
         /// </summary>
-        public ObjectRunTimeHandle GetObjectRunTime { get; set; }
+        public ObjectRunTimeHandle? GetObjectRunTime { get; set; }
      
 
         /// <summary>
         ///     回收对象时处理的方法
         /// </summary>
-        public ObjectRunTimeHandle ReleaseObjectRunTime { get; set; }
+        public ObjectRunTimeHandle? ReleaseObjectRunTime { get; set; }
 
         /// <summary>
         ///     最大对象数量
@@ -59,12 +59,12 @@ namespace ZYSocket.Share
         /// <summary>
         ///     构造函数
         /// </summary>
-        public ConstructorInfo TheConstructor { get; set; }
+        public ConstructorInfo? TheConstructor { get; set; }
 
         /// <summary>
         ///     参数
         /// </summary>
-        public object[] Param { get; set; }
+        public object[]? Param { get; set; }
 
         public ObjectPool(int maxObjectCount)
         {
@@ -197,7 +197,7 @@ namespace ZYSocket.Share
       
         public AsyncTaskMethodBuilder<TResult> _builder;
 
-        public new event EventHandler<TaskSocketAsyncEventArgs<TResult>> Completed;
+        public new event EventHandler<TaskSocketAsyncEventArgs<TResult>>? Completed;
 
         public bool _accessed = false;
         public TaskSocketAsyncEventArgs() :base() // avoid flowing context at lower layers as we only expose Task, which handles it
@@ -224,11 +224,8 @@ namespace ZYSocket.Share
 
     public class SendTaskSocketAsyncEventArgs : TaskSocketAsyncEventArgs<int>
     {
-        
-
-        private static readonly SendTaskSocketAsyncEventArgs s_rentedsendSentinel = new SendTaskSocketAsyncEventArgs();
-
-        public new event EventHandler<SendTaskSocketAsyncEventArgs> Completed;
+    
+        public new event EventHandler<SendTaskSocketAsyncEventArgs>? Completed;
 
         public void Reset()
         {
@@ -306,11 +303,11 @@ namespace ZYSocket.Share
 
         private void Async_Completed(object sender, SendTaskSocketAsyncEventArgs e)
         {
-            CompleteAccept(e.AcceptSocket, e);
+            CompleteAccept(e);
 
         }
 
-        private static void CompleteAccept(Socket s, SendTaskSocketAsyncEventArgs saea)
+        private static void CompleteAccept(SendTaskSocketAsyncEventArgs saea)
         {
           
             SocketError error = saea.SocketError;

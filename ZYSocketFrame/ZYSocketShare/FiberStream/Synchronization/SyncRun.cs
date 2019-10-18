@@ -70,7 +70,7 @@ namespace ZYSocket.FiberStream.Synchronization
                 return await await Ask(func);
             }
 
-            return default;
+            return default!;
         }
 
 
@@ -114,7 +114,7 @@ namespace ZYSocket.FiberStream.Synchronization
             return Task.CompletedTask;
         }
 
-        private async Task<object> Call_runing(SyncMessage sync)
+        private async Task<object?> Call_runing(SyncMessage sync)
         {
             switch (sync.RunType)
             {

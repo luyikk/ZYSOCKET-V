@@ -24,8 +24,8 @@ namespace ZYSocket.FiberStream
         Task<long> NextMove(long offset);
     }
 
-    public interface IFiberRw<T> : IFiberRw
+    public interface IFiberRw<T> : IFiberRw where T:class 
     {
-        T UserToken { get; set; }
+        T? UserToken { get; set; }
     }
 }

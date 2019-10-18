@@ -29,7 +29,7 @@ namespace ZYSocket
         private readonly Stream StreamWriteFormat;
         private readonly IFiberWriteStream FiberWriteStream;
         private readonly MemoryStream StreamWrite;
-        private readonly IMemoryOwner<byte> memory;
+        private readonly IMemoryOwner<byte>? memory;
 
        
 

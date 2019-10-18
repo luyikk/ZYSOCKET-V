@@ -9,17 +9,17 @@ namespace ZYSocket
     {
         public bool IsError { get; set; }
 
-        public IFiberRw FiberRw { get; set; }
+        public IFiberRw? FiberRw { get; set; }
 
-        public string ErrMsg { get; set; }
+        public string? ErrMsg { get; set; }
     }
 
-    public struct GetFiberRwSSLResult<T>
+    public struct GetFiberRwSSLResult<T> where T:class
     {
         public bool IsError { get; set; }
 
-        public IFiberRw<T> FiberRw { get; set; }
+        public IFiberRw<T>? FiberRw { get; set; }
 
-        public string ErrMsg { get; set; }
+        public string? ErrMsg { get; set; }
     }
 }

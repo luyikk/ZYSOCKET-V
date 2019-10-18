@@ -10,7 +10,7 @@ namespace ZYSocket.Share
     {
         private bool isAccpet = false;
 
-        private SocketAsyncEventArgs _accpet;
+        private SocketAsyncEventArgs? _accpet;
 
         private readonly SendSocketAsyncEventPool _sendPool;
 
@@ -62,12 +62,11 @@ namespace ZYSocket.Share
 
         public void Send(ArraySegment<byte> data)
         {
-            Socket socket = null;
-
+            Socket? socket;
             if (isAccpet)
-                socket = _accpet.AcceptSocket;
+                socket = _accpet?.AcceptSocket;
             else
-                socket = _accpet.ConnectSocket;
+                socket = _accpet?.ConnectSocket;
             
 
             if (socket != null)
@@ -88,12 +87,11 @@ namespace ZYSocket.Share
 
         public  void Send(byte[] data)
         {
-            Socket socket = null;
-
+            Socket? socket;
             if (isAccpet)
-                socket = _accpet.AcceptSocket;
+                socket = _accpet?.AcceptSocket;
             else
-                socket = _accpet.ConnectSocket;
+                socket = _accpet?.ConnectSocket;
 
             if (socket != null)
             {
@@ -115,12 +113,11 @@ namespace ZYSocket.Share
 
         public  void Send(IList<ArraySegment<byte>> data)
         {
-            Socket socket = null;
-
+            Socket? socket;
             if (isAccpet)
-                socket = _accpet.AcceptSocket;
+                socket = _accpet?.AcceptSocket;
             else
-                socket = _accpet.ConnectSocket;
+                socket = _accpet?.ConnectSocket;
 
             if (socket != null)
             {
@@ -143,12 +140,12 @@ namespace ZYSocket.Share
         public void Send(ReadOnlyMemory<byte> data)
         {
 
-            Socket socket = null;
+            Socket? socket;
 
             if (isAccpet)
-                socket = _accpet.AcceptSocket;
+                socket = _accpet?.AcceptSocket;
             else
-                socket = _accpet.ConnectSocket;
+                socket = _accpet?.ConnectSocket;
 
             if (socket != null)
             {
@@ -172,12 +169,11 @@ namespace ZYSocket.Share
 
         public async Task<int> SendAsync(ArraySegment<byte> data)
         {
-            Socket socket = null;
-
+            Socket? socket;
             if (isAccpet)
-                socket = _accpet.AcceptSocket;
+                socket = _accpet?.AcceptSocket;
             else
-                socket = _accpet.ConnectSocket;
+                socket = _accpet?.ConnectSocket;
 
             if (socket != null)
             {
@@ -202,12 +198,11 @@ namespace ZYSocket.Share
 
         public async Task<int> SendAsync(byte[] data)
         {
-            Socket socket = null;
-
+            Socket? socket;
             if (isAccpet)
-                socket = _accpet.AcceptSocket;
+                socket = _accpet?.AcceptSocket;
             else
-                socket = _accpet.ConnectSocket;
+                socket = _accpet?.ConnectSocket;
 
             if (socket != null)
             {
@@ -231,12 +226,11 @@ namespace ZYSocket.Share
 
         public async Task<int> SendAsync(IList<ArraySegment<byte>> data)
         {
-            Socket socket = null;
-
+            Socket? socket;
             if (isAccpet)
-                socket = _accpet.AcceptSocket;
+                socket = _accpet?.AcceptSocket;
             else
-                socket = _accpet.ConnectSocket;
+                socket = _accpet?.ConnectSocket;
 
             if (socket != null)
             {
@@ -260,12 +254,12 @@ namespace ZYSocket.Share
 
         public async Task<int> SendAsync(ReadOnlyMemory<byte> data)
         {
-            Socket socket = null;
+            Socket? socket;
 
             if (isAccpet)
-                socket = _accpet.AcceptSocket;
+                socket = _accpet?.AcceptSocket;
             else
-                socket = _accpet.ConnectSocket;
+                socket = _accpet?.ConnectSocket;
 
             if (socket != null)
             {

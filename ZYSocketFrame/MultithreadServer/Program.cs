@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Netx.Actor;
-using Netx.Actor.Builder;
 using System;
 using System.Threading.Tasks;
 using ZYSocket;
@@ -12,13 +10,11 @@ namespace TestServer
 {
     class Program
     {
-        static IActorLambda actor;
+     
 
         //程序入口
         static void Main(string[] args)
         {
-
-            actor = new ActorBuilder().UseActorLambda().Build().Get<IActorLambda>();
 
             var containerBuilder = new ServiceCollection();
             new SockServBuilder(containerBuilder, p =>

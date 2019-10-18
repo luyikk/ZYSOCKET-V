@@ -40,19 +40,24 @@ namespace ZYSocket.FiberStream
         private readonly Stream streamWriteFormat;
         public Stream StreamWriteFormat { get => streamWriteFormat; }
         public ISockAsyncEvent Async { get; }
-        public T UserToken { get => (T)Async.UserToken; set => Async.UserToken = value; }
+        public T? UserToken { get => (T?)Async.UserToken; set => Async.UserToken = value; }
 
         public ISyncRun Sync { get;}
 
         private readonly byte[] read_Numericbytes;
         private readonly byte[] write_Numericbytes;
 
-        public FiberRw(ISockAsyncEvent async, IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream, MemoryPool<byte> memoryPool, Encoding encoding, ISerialization objFormat, bool isLittleEndian = false, Stream inputStream = null, Stream outputStream = null, Func<Stream, Stream, GetFiberRwResult> init = null)
+        public FiberRw(ISockAsyncEvent async, IFiberReadStream fiberRStream, IFiberWriteStream fiberWStream, MemoryPool<byte> memoryPool, Encoding encoding, ISerialization? objFormat, bool isLittleEndian = false, Stream? inputStream = null, Stream? outputStream = null, Func<Stream, Stream, GetFiberRwResult>? init = null)
         {
+            if (!(fiberRStream is Stream r_stream))
+                throw new NullReferenceException("fiberRStream not stream");
+            if (!(fiberWStream is Stream w_stream))
+                throw new NullReferenceException("fiberWStream not stream");
 
             if (init != null)
             {
-                var result = init(inputStream ?? fiberRStream as Stream, outputStream ?? fiberWStream as Stream);
+
+                var result = init(inputStream ?? r_stream, outputStream ?? w_stream);
 
                 if (result != null)
                 {
@@ -62,14 +67,14 @@ namespace ZYSocket.FiberStream
                 }
                 else
                 {
-                    streamReadFormat = inputStream ?? fiberRStream as Stream;
-                    streamWriteFormat = outputStream ?? fiberWStream as Stream;
+                    streamReadFormat = inputStream ?? r_stream;
+                    streamWriteFormat = outputStream ?? w_stream;
                 }
             }
             else
             {
-                streamReadFormat = inputStream ?? fiberRStream as Stream;
-                streamWriteFormat = outputStream ?? fiberWStream as Stream;
+                streamReadFormat = inputStream ?? r_stream;
+                streamWriteFormat = outputStream ?? w_stream;
             }
             this.Async = async;
             UserToken = null;
@@ -492,20 +497,12 @@ namespace ZYSocket.FiberStream
             else
             {
 
-                using (var imo = GetMemory(len))
-                {
-
-                    var array = imo.Memory.GetArray();
-
-                    int rlen = await ReadAsync(array.Array, array.Offset, len);
-
-                    if (rlen != len)
-                        throw new System.IO.IOException($"not read data");
-
-                    return Encoding.GetString(array.Array, array.Offset, rlen);
-
-
-                }
+                using var imo = GetMemory(len);
+                var array = imo.Memory.GetArray();
+                int rlen = await ReadAsync(array.Array, array.Offset, len);
+                if (rlen != len)
+                    throw new System.IO.IOException($"not read data");
+                return Encoding.GetString(array.Array, array.Offset, rlen);
             }
         }
 
@@ -596,22 +593,16 @@ namespace ZYSocket.FiberStream
         #region read obj
         public async Task<S> ReadObject<S>()
         {
-            using (var mem = await ReadMemory())
-            {
-                var array = mem.Value.GetArray();
-
-                return ObjFormat.Deserialize<S>(array.Array, array.Offset, array.Count);
-            }
+            using var mem = await ReadMemory();
+            var array = mem.Value.GetArray();
+            return ObjFormat.Deserialize<S>(array.Array, array.Offset, array.Count);
         }
 
         public async Task<object> ReadObject(Type type)
         {
-            using (var mem = await ReadMemory())
-            {
-                var array = mem.Value.GetArray();
-
-                return ObjFormat.Deserialize(type, array.Array, array.Offset, array.Count);
-            }
+            using var mem = await ReadMemory();
+            var array = mem.Value.GetArray();
+            return ObjFormat.Deserialize(type, array.Array, array.Offset, array.Count);
         }
         #endregion
 

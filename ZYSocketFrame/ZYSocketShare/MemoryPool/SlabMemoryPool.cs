@@ -61,7 +61,7 @@ namespace System.Buffers
         /// </summary>
         private const int AnySize = -1;
 
-        public override IMemoryOwner<byte> Rent(int size = AnySize)
+        public override IMemoryOwner<byte>? Rent(int size = AnySize)
         {
             if (size > _blockSize)
             {
@@ -76,14 +76,14 @@ namespace System.Buffers
         /// Called to take a block from the pool.
         /// </summary>
         /// <returns>The block that is reserved for the called. It must be passed to Return when it is no longer being used.</returns>
-        private MemoryPoolBlock Lease()
+        private MemoryPoolBlock? Lease()
         {
             if (_isDisposed)
             {
                 MemoryPoolThrowHelper.ThrowObjectDisposedException(MemoryPoolThrowHelper.ExceptionArgument.MemoryPool);
             }
 
-            if (_blocks.TryDequeue(out MemoryPoolBlock block))
+            if (_blocks.TryDequeue(out MemoryPoolBlock? block))
             {
                 // block successfully taken from the stack - return it
 
@@ -92,7 +92,7 @@ namespace System.Buffers
             }
             // no blocks available - grow the pool
             block = AllocateSlab();
-            block.Lease();
+            block?.Lease();
             return block;
         }
 
@@ -100,7 +100,7 @@ namespace System.Buffers
         /// Internal method called when a block is requested and the pool is empty. It allocates one additional slab, creates all of the
         /// block tracking objects, and adds them all to the pool.
         /// </summary>
-        private MemoryPoolBlock AllocateSlab()
+        private MemoryPoolBlock? AllocateSlab()
         {
             var slab = MemoryPoolSlab.Create(_slabLength);
             _slabs.Push(slab);
@@ -114,7 +114,7 @@ namespace System.Buffers
             var blockCount = (_slabLength - offset) / _blockSize;
             Interlocked.Add(ref _totalAllocatedBlocks, blockCount);
 
-            MemoryPoolBlock block = null;
+            MemoryPoolBlock? block = null;
 
             for (int i = 0; i < blockCount; i++)
             {

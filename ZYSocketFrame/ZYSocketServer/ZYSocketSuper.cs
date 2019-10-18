@@ -80,8 +80,8 @@ namespace ZYSocket.Server
                 try
                 {
                    // sock.Shutdown(SocketShutdown.Both);
-                    sock.Close();
-                    sock.Dispose();
+                    sock?.Close();
+                    sock?.Dispose();
                     reset[0].Dispose();
 
                 }
@@ -98,29 +98,29 @@ namespace ZYSocket.Server
         /// <summary>
         /// SOCK对象
         /// </summary>
-        private Socket sock;
+        private Socket? sock;
 
         /// <summary>
         /// Socket对象
         /// </summary>
-        public Socket Sock { get { return sock; } }
+        public Socket? Sock { get { return sock; } }
 
 
         /// <summary>
         /// 连接传入处理
         /// </summary>
-        public ConnectionFilter Connetions { get; set; }
+        public ConnectionFilter? Connetions { get; set; }
 
         /// <summary>
         /// 数据输入处理
         /// </summary>
-        public BinaryInputHandler BinaryInput { get; set; }
+        public BinaryInputHandler? BinaryInput { get; set; }
 
   
         /// <summary>
         /// 异常错误通常是用户断开处理
         /// </summary>
-        public DisconnectHandler MessageInput { get; set; }
+        public DisconnectHandler? MessageInput { get; set; }
 
 
         private readonly System.Threading.ManualResetEvent[] reset;
@@ -132,12 +132,13 @@ namespace ZYSocket.Server
         {
             get
             {
-                return sock.NoDelay;
+                return sock?.NoDelay??false;
             }
 
             set
             {
-                sock.NoDelay = value;
+                if (sock != null)
+                    sock.NoDelay = value;
             }
 
         }
@@ -149,12 +150,13 @@ namespace ZYSocket.Server
         {
             get
             {
-                return sock.ReceiveTimeout;
+                return sock?.ReceiveTimeout??0;
             }
 
             set
             {
-                sock.ReceiveTimeout = value;
+                if (sock != null)
+                    sock.ReceiveTimeout = value;
 
             }
 
@@ -168,12 +170,13 @@ namespace ZYSocket.Server
         {
             get
             {
-                return sock.SendTimeout;
+                return sock?.SendTimeout??0;
             }
 
             set
             {
-                sock.SendTimeout = value;
+                if (sock != null)
+                    sock.SendTimeout = value;
             }
 
         }
@@ -214,7 +217,7 @@ namespace ZYSocket.Server
         /// <summary>
         /// IP
         /// </summary>
-        private string Host;
+        private readonly string Host;
 
         /// <summary>
         /// 端口
@@ -303,19 +306,19 @@ namespace ZYSocket.Server
             for (int i = 0; i < MaxConnectCout; i++)
             {
 
-                PoolSend poolSend = new PoolSend(true);                  
+                PoolSend poolSend = new PoolSend(true);
 
                 ZYSocketAsyncEventArgs socketasyn = new ZYSocketAsyncEventArgs(
                     new LinesReadStream(MaxBufferSize),
                     new BufferWriteStream(memoryPool, poolSend, poolSend),
                     poolSend,
                     poolSend,
-                    memoryPool,                    
+                    memoryPool,
                     Encoding.UTF8
-                   );
-                               
-             
-                socketasyn.DisconnectIt = Disconnect_It;
+                   )
+                {
+                    DisconnectIt = Disconnect_It
+                };
                 poolSend.SetAccpet(socketasyn);
                 socketasyn.Completed += new EventHandler<ZYSocketAsyncEventArgs>(Asyn_Completed);
                 Accept(socketasyn);
@@ -437,9 +440,10 @@ namespace ZYSocket.Server
                     encode,
                     objFormat,
                     config.IsLittleEndian
-                   );
-               
-                socketasyn.DisconnectIt = Disconnect_It;
+                   )
+                {
+                    DisconnectIt = Disconnect_It
+                };
                 poolSend.SetAccpet(socketasyn);
                 poolAsyncSend.SetAccpet(socketasyn);
 
@@ -472,7 +476,7 @@ namespace ZYSocket.Server
 
             try
             {
-                if (!Sock.AcceptAsync(sockasyn))
+                if (!Sock!.AcceptAsync(sockasyn))
                 {
                     BeginAccep(sockasyn);
                 }
@@ -504,7 +508,7 @@ namespace ZYSocket.Server
                     }
 
                 e.SetBuffer(MaxBufferSize);
-                BinaryInput(e);
+                BinaryInput?.Invoke(e);
                 e.StreamInit();
                 StartReceive(e);
             }
@@ -538,7 +542,7 @@ namespace ZYSocket.Server
                     if (e.Add_check() > 512)
                     {
                         e.Reset_check();
-                        ThreadPool.QueueUserWorkItem(obj => BeginReceive(obj as ZYSocketAsyncEventArgs),e);
+                        ThreadPool.QueueUserWorkItem(obj => BeginReceive((obj as ZYSocketAsyncEventArgs)!),e);
                     }
                     else
                         BeginReceive(e);

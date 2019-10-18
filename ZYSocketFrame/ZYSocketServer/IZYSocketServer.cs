@@ -4,15 +4,15 @@ namespace ZYSocket.Server
 {
     public interface ISocketServer
     {
-        BinaryInputHandler BinaryInput { get; set; }
-        ConnectionFilter Connetions { get; set; }
+        BinaryInputHandler? BinaryInput { get; set; }
+        ConnectionFilter? Connetions { get; set; }
+        DisconnectHandler? MessageInput { get; set; }
         int GetMaxBufferSize { get; }
-        int GetMaxUserConnect { get; }
-        DisconnectHandler MessageInput { get; set; }
+        int GetMaxUserConnect { get; }      
         bool NoDelay { get; set; }
         int ReceiveTimeout { get; set; }
         int SendTimeout { get; set; }
-        Socket Sock { get; }
+        Socket? Sock { get; }
         void Disconnect(Socket socks);
         void Dispose();
         void Start();

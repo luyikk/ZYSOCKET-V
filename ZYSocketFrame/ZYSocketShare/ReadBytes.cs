@@ -22,7 +22,7 @@ namespace ZYSocket
 
         public int Packerlen { get; private set; }
 
-        public IMemoryOwner<byte> MemoryOwner { get; private set; }
+        public IMemoryOwner<byte>? MemoryOwner { get; private set; }
 
         public Memory<byte> Memory { get; private set; }
 

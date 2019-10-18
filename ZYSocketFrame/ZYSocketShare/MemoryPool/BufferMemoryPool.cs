@@ -11,11 +11,11 @@ namespace ZYSocket.MemoryPool
 {
     public class BufferMemoryPool : MemoryPool<byte>
     {
-        private MemoryPool<byte> _pool = Shared;
+        private readonly MemoryPool<byte> _pool = Shared;
 
         private bool _disposed;
 
-        private PooledMemory pooledMemory;
+        private readonly PooledMemory pooledMemory;
         public BufferMemoryPool()
         {
             pooledMemory = new PooledMemory(this);
@@ -31,7 +31,7 @@ namespace ZYSocket.MemoryPool
         }
 
         protected override void Dispose(bool disposing)
-        {
+        {        
             _disposed = true;
         }
 
@@ -47,7 +47,7 @@ namespace ZYSocket.MemoryPool
 
         private class PooledMemory : MemoryManager<byte>
         {
-            private IMemoryOwner<byte> _owner;
+            private IMemoryOwner<byte>? _owner;
 
             private readonly BufferMemoryPool _pool;
 
@@ -90,6 +90,10 @@ namespace ZYSocket.MemoryPool
             public override MemoryHandle Pin(int elementIndex = 0)
             {
                 _pool.CheckDisposed();
+
+                if (_owner is null)
+                    throw new NullReferenceException("_owner is null");
+
                 Interlocked.Increment(ref _referenceCount);
 
                 if (!MemoryMarshal.TryGetArray(_owner.Memory, out ArraySegment<byte> segment))
@@ -135,6 +139,9 @@ namespace ZYSocket.MemoryPool
 
             protected override bool TryGetArray(out ArraySegment<byte> segment)
             {
+                if (_owner is null)
+                    throw new NullReferenceException("_owner is null");
+
                 _pool.CheckDisposed();
                 return MemoryMarshal.TryGetArray(_owner.Memory, out segment);
             }
@@ -143,6 +150,8 @@ namespace ZYSocket.MemoryPool
             {
                 get
                 {
+                    if (_owner is null)
+                        throw new NullReferenceException("_owner is null");
                     _pool.CheckDisposed();
                     return _owner.Memory;
                 }
@@ -150,6 +159,9 @@ namespace ZYSocket.MemoryPool
 
             public override Span<byte> GetSpan()
             {
+                if (_owner is null)
+                    throw new NullReferenceException("_owner is null");
+
                 _pool.CheckDisposed();
                 return _owner.Memory.Span;
             }

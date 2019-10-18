@@ -10,7 +10,7 @@ namespace ZYSocket.FiberStream
     {
        
 
-        private Action Continuation;
+        private Action? Continuation;
 
         private int count;
 

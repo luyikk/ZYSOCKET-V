@@ -16,6 +16,7 @@
     <RepositoryUrl>https://github.com/luyikk/ZYSOCKET-V</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

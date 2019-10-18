@@ -46,27 +46,27 @@ namespace ZYSocket.Client
 
    
 
-        public Socket Sock { get; private set; }     
+        public Socket? Sock { get; private set; }     
 
         public bool IsConnect { get; private set; }
 
-        public ZYSocketAsyncEventArgs CurrentSocketAsyncEventArgs { get; private set; }
+        public ZYSocketAsyncEventArgs? CurrentSocketAsyncEventArgs { get; private set; }
       
 
-        private System.Threading.AutoResetEvent wait = new System.Threading.AutoResetEvent(false);
+        private readonly System.Threading.AutoResetEvent wait = new System.Threading.AutoResetEvent(false);
 
-        private System.Threading.SemaphoreSlim semaphore = new System.Threading.SemaphoreSlim(1,1);
+        private readonly System.Threading.SemaphoreSlim semaphore = new System.Threading.SemaphoreSlim(1,1);
 
-        private TaskCompletionSource<IFiberRw> completionSource;
+        private TaskCompletionSource<IFiberRw>? completionSource;
 
-        private string errorMsg;
-        public string ErrorMsg { get => errorMsg; set => errorMsg = value; }
+        private string? errorMsg;
+        public string ErrorMsg { get => errorMsg??""; set => errorMsg = value; }
 
-        public event BinaryInputHandler BinaryInput;
+        public event BinaryInputHandler? BinaryInput;
 
-        public event DisconnectHandler Disconnect;
+        public event DisconnectHandler? Disconnect;
 
-        public SocketClient(int buffer_size=4096,MemoryPool<byte> memPool =null,ISend sync_send=null,IAsyncSend async_send=null, ISerialization obj_Format = null, Encoding encode =null)
+        public SocketClient(int buffer_size=4096,MemoryPool<byte>? memPool =null,ISend? sync_send=null,IAsyncSend? async_send=null, ISerialization? obj_Format = null, Encoding? encode =null)
         {
             if (encode is null)
                 this.encoding = Encoding.UTF8;
@@ -121,7 +121,7 @@ namespace ZYSocket.Client
                     completionSource = new TaskCompletionSource<IFiberRw>(TaskCreationOptions.RunContinuationsAsynchronously);
 
                     errorMsg = null;
-                    IPEndPoint myEnd = null;
+                    IPEndPoint? myEnd;
 
                     #region ipformat
                     try
@@ -137,7 +137,12 @@ namespace ZYSocket.Client
                             myEnd = new IPEndPoint(s, port);
                             break;
                         }
+
+                        myEnd = null;
                     }
+
+                    if (myEnd is null)
+                        throw new NullReferenceException("IPEndPoint is null");
 
                     #endregion
 
@@ -198,8 +203,11 @@ namespace ZYSocket.Client
                 return new ConnectResult(false, "connect time out");
         }
 
-        public async Task<IFiberRw> GetFiberRw()
+        public async Task<IFiberRw?> GetFiberRw()
         {
+            if (completionSource is null)
+                return null;
+
             return await completionSource.Task; 
         }
 
@@ -238,13 +246,13 @@ namespace ZYSocket.Client
 
         private void StartReceive()
         {
-            if (!CurrentSocketAsyncEventArgs.IsStartReceive)
+            if (!CurrentSocketAsyncEventArgs!.IsStartReceive)
             {
                 CurrentSocketAsyncEventArgs.IsStartReceive = true;
 
                 try
                 {
-                    if (!Sock.ReceiveAsync(CurrentSocketAsyncEventArgs))
+                    if (!Sock!.ReceiveAsync(CurrentSocketAsyncEventArgs))
                         BeginReceive(CurrentSocketAsyncEventArgs);
                 }
                 catch (ObjectDisposedException)
@@ -254,7 +262,7 @@ namespace ZYSocket.Client
             }
         }
 
-        public void SetConnected(bool isSuccess=true,string err=null)
+        public void SetConnected(bool isSuccess=true,string? err=null)
         {
             if (isSuccess)
             {
@@ -268,7 +276,7 @@ namespace ZYSocket.Client
                 else
                     errorMsg = err;
 
-                Diconnect_It(CurrentSocketAsyncEventArgs,errorMsg);
+                Diconnect_It(CurrentSocketAsyncEventArgs!,errorMsg);
                 IsConnect = false;
             }
 
@@ -289,12 +297,12 @@ namespace ZYSocket.Client
                 try
                 {
                     
-                    if (!Sock.ReceiveAsync(e))
+                    if (!Sock!.ReceiveAsync(e))
                     {
                         if (e.Add_check() > 512)
                         {
                             e.Reset_check();
-                            ThreadPool.QueueUserWorkItem(obj => BeginReceive(obj as ZYSocketAsyncEventArgs), e);
+                            ThreadPool.QueueUserWorkItem(obj => BeginReceive((obj as ZYSocketAsyncEventArgs)!), e);
                         }
                         else
                             BeginReceive(e);
@@ -318,7 +326,7 @@ namespace ZYSocket.Client
         private void Diconnect_It(ZYSocketAsyncEventArgs e) => Diconnect_It(e,null);
 
 
-        private void Diconnect_It(ZYSocketAsyncEventArgs e, string errorMsg=null)
+        private void Diconnect_It(ZYSocketAsyncEventArgs e, string? errorMsg=null)
         {                       
             Disconnect?.Invoke(this, e, errorMsg?? "Disconnect");
             if(IsConnect)
@@ -327,7 +335,7 @@ namespace ZYSocket.Client
 
 
 
-        public void ShutdownBoth(bool events=false, string errorMsg =null)
+        public void ShutdownBoth(bool events=false, string? errorMsg =null)
         {
             if (IsConnect)
             {
@@ -342,7 +350,7 @@ namespace ZYSocket.Client
 
 
             if (events)
-                Disconnect?.Invoke(this, CurrentSocketAsyncEventArgs, errorMsg?? "Disconnect");
+                Disconnect?.Invoke(this, CurrentSocketAsyncEventArgs!, errorMsg?? "Disconnect");
             
         }
 
@@ -352,7 +360,7 @@ namespace ZYSocket.Client
         {
             IsConnect = false;
             try
-            {
+            {             
                 Sock?.Close();
                 Sock?.Dispose();
             }

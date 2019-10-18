@@ -63,7 +63,7 @@ namespace System.Threading.Tasks
         /// <param name="asyncResult">The IAsyncResult to unwrap.</param>
         public static void End(IAsyncResult asyncResult)
         {
-            Task task;
+            Task? task;
 
             // If the IAsyncResult is our task-wrapping IAsyncResult, extract the Task.
             var twar = asyncResult as TaskWrapperAsyncResult;
@@ -91,7 +91,7 @@ namespace System.Threading.Tasks
         /// <param name="asyncResult">The IAsyncResult to unwrap.</param>
         public static TResult End<TResult>(IAsyncResult asyncResult)
         {
-            Task<TResult> task;
+            Task<TResult>? task;
 
             // If the IAsyncResult is our task-wrapping IAsyncResult, extract the Task.
             var twar = asyncResult as TaskWrapperAsyncResult;

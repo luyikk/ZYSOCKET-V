@@ -12,10 +12,10 @@ namespace ZYSocket.Server.Builder
     {
         private IServiceCollection Container { get; set; }
 
-        public IServiceProvider ContainerBuilder { get; private set; }
+        public IServiceProvider? ContainerBuilder { get; private set; }
      
 
-        public SockServBuilder(Func<IServiceProvider, ISocketServer> func=null)
+        public SockServBuilder(Func<IServiceProvider, ISocketServer>? func=null)
         {
             Container = new ServiceCollection();
             ConfigureDefaults();
@@ -27,7 +27,7 @@ namespace ZYSocket.Server.Builder
 
         }
 
-        public SockServBuilder(IServiceCollection container, Func<IServiceProvider, ISocketServer> func = null)
+        public SockServBuilder(IServiceCollection container, Func<IServiceProvider, ISocketServer>? func = null)
         {
             this.Container = container;
             ConfigureDefaults();
@@ -51,7 +51,7 @@ namespace ZYSocket.Server.Builder
             return this;
         }
 
-        public ISockServBuilder ConfigServer(Action<SocketServerOptions> config = null)
+        public ISockServBuilder ConfigServer(Action<SocketServerOptions>? config = null)
         {
             Container.AddSingleton<SocketServerOptions>(p =>
                {
@@ -63,7 +63,7 @@ namespace ZYSocket.Server.Builder
             return this;
         }
 
-        public ISockServBuilder ConfigEncode(Func<Encoding> func=null)
+        public ISockServBuilder ConfigEncode(Func<Encoding>? func=null)
         {
             Container.AddSingleton<Encoding>(p =>
             {
@@ -76,7 +76,7 @@ namespace ZYSocket.Server.Builder
             return this;
         }
 
-        public ISockServBuilder ConfigMemoryPool(Func<MemoryPool<byte>> func = null)
+        public ISockServBuilder ConfigMemoryPool(Func<MemoryPool<byte>>? func = null)
         {
             Container.AddTransient<MemoryPool<byte>>(p =>
             {
@@ -90,7 +90,7 @@ namespace ZYSocket.Server.Builder
         }
 
 
-        public ISockServBuilder ConfigISend(Func<ISend> func=null)
+        public ISockServBuilder ConfigISend(Func<ISend>? func=null)
         {
             Container.AddTransient<ISend>(p =>
             {
@@ -103,7 +103,7 @@ namespace ZYSocket.Server.Builder
             return this;
         }
 
-        public ISockServBuilder ConfigIAsyncSend(Func<IAsyncSend> func = null)
+        public ISockServBuilder ConfigIAsyncSend(Func<IAsyncSend>? func = null)
         {
             Container.AddTransient<IAsyncSend>(p =>
             {
@@ -116,7 +116,7 @@ namespace ZYSocket.Server.Builder
             return this;
         }
 
-        public ISockServBuilder ConfigObjFormat(Func<ISerialization> func = null)
+        public ISockServBuilder ConfigObjFormat(Func<ISerialization>? func = null)
         {
             Container.AddTransient<ISerialization>(p =>
             {

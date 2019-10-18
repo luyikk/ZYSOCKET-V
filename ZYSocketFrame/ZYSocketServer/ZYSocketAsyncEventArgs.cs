@@ -14,15 +14,10 @@ namespace ZYSocket.Server
 {
 
     public class ZYSocketAsyncEventArgs : SocketAsyncEventArgs, ISockAsyncEventAsServer
-    {
-      
+    {      
 
         private readonly IFiberReadStream RStream;
-
-        private readonly IFiberWriteStream WStream;
-
-
-      
+        private readonly IFiberWriteStream WStream;      
         private bool isInit = false;
         public bool IsInit => isInit;
 
@@ -30,17 +25,17 @@ namespace ZYSocket.Server
 
         public  bool IsLittleEndian { get;  }
         public  Encoding Encoding { get;  }
-        public ISerialization ObjFormat { get;  }
+        public ISerialization? ObjFormat { get;  }
 
         public ISend SendImplemented { get;   }
         public IAsyncSend AsyncSendImplemented { get;  } 
 
-        private IDisposable fiberobj;
-        private IDisposable fiberT;
-        private IDisposable fibersslobj;
-        private IDisposable fibersslT;
-        public Action<ZYSocketAsyncEventArgs> DisconnectIt { get; set; }
-       
+        private IDisposable? fiberobj;
+        private IDisposable? fiberT;
+        private IDisposable? fibersslobj;
+        private IDisposable? fibersslT;
+        public Action<ZYSocketAsyncEventArgs>? DisconnectIt { get; set; }
+        public new event EventHandler<ZYSocketAsyncEventArgs>? Completed;
 
         private int _check_thread = 0;
 
@@ -59,7 +54,7 @@ namespace ZYSocket.Server
       
 
 
-        public ZYSocketAsyncEventArgs(IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, ISerialization objFormat = null,bool isLittleEndian=false)
+        public ZYSocketAsyncEventArgs(IFiberReadStream r_stream, IFiberWriteStream w_stream, ISend send,IAsyncSend asyncsend, MemoryPool<byte> memoryPool, Encoding encoding, ISerialization? objFormat = null,bool isLittleEndian=false)
         {
             this.MemoryPool = memoryPool;
             this.RStream = r_stream;
@@ -76,14 +71,12 @@ namespace ZYSocket.Server
 
         private void ZYSocketAsyncEventArgs_Completed(object sender, SocketAsyncEventArgs e)
         {
-            this.Completed(sender, this);
+            this.Completed!(sender, this);
         }
 
-        public new event EventHandler<ZYSocketAsyncEventArgs> Completed;
 
 
-
-        public async ValueTask<IFiberRw> GetFiberRw(Func<Stream, Stream, GetFiberRwResult> init = null)
+        public async ValueTask<IFiberRw?> GetFiberRw(Func<Stream, Stream, GetFiberRwResult>? init = null)
         {
             if (await RStream.WaitStreamInit())
             { 
@@ -92,10 +85,10 @@ namespace ZYSocket.Server
                 return fiber;
             }
             else
-                return null;
+                return default;
         }
 
-        public async ValueTask<IFiberRw<T>> GetFiberRw<T>(Func<Stream, Stream, GetFiberRwResult> init = null) where T:class
+        public async ValueTask<IFiberRw<T>?> GetFiberRw<T>(Func<Stream, Stream, GetFiberRwResult>? init = null) where T:class
         {
             if (await RStream.WaitStreamInit())
             {       
@@ -104,14 +97,14 @@ namespace ZYSocket.Server
                 return fiber;
             }
             else
-                return null;
+                return default;
         }
 
-        public async ValueTask<(IFiberRw,string)> GetFiberRwSSL(X509Certificate certificate, Func<Stream, Stream, GetFiberRwResult> init = null)
+        public async ValueTask<(IFiberRw?,string?)> GetFiberRwSSL(X509Certificate certificate, Func<Stream, Stream, GetFiberRwResult>? init = null)
         {
             if (await RStream.WaitStreamInit())
             {
-                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);              
+                var mergestream = new MergeStream((RStream as Stream)!, (WStream as Stream)!);              
                 var sslstream = new SslStream(mergestream, false);
                 try
                 {
@@ -129,11 +122,11 @@ namespace ZYSocket.Server
                 return (null,"not install");
         }
 
-        public async ValueTask<(IFiberRw, string)> GetFiberRwSSL(Func<Stream,Task<SslStream>> sslstream_init,Func<Stream, Stream, GetFiberRwResult> init = null)
+        public async ValueTask<(IFiberRw?, string?)> GetFiberRwSSL(Func<Stream,Task<SslStream>> sslstream_init,Func<Stream, Stream, GetFiberRwResult>? init = null)
         {
             if (await RStream.WaitStreamInit())
             {
-                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);
+                var mergestream = new MergeStream((RStream as Stream)!, (WStream as Stream)!);
                 SslStream sslstream =await sslstream_init(mergestream);
                 if (sslstream is null)
                     return (null,"sslstream init fail");
@@ -145,11 +138,11 @@ namespace ZYSocket.Server
                 return (null, "not install");
         }
 
-        public async ValueTask<(IFiberRw<T>,string)> GetFiberRwSSL<T>(X509Certificate certificate, Func<Stream, Stream, GetFiberRwResult> init = null) where T : class
+        public async ValueTask<(IFiberRw<T>?,string?)> GetFiberRwSSL<T>(X509Certificate certificate, Func<Stream, Stream, GetFiberRwResult>? init = null) where T : class
         {
             if (await RStream.WaitStreamInit())
             {
-                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);               
+                var mergestream = new MergeStream((RStream as Stream)!, (WStream as Stream)!);               
                 var sslstream = new SslStream(mergestream, false);
                 try
                 {
@@ -167,11 +160,11 @@ namespace ZYSocket.Server
                 return (null,"not install");
         }
 
-        public async ValueTask<(IFiberRw<T>, string)> GetFiberRwSSL<T>(Func<Stream, Task<SslStream>> sslstream_init, Func<Stream, Stream, GetFiberRwResult> init = null) where T : class
+        public async ValueTask<(IFiberRw<T>?, string?)> GetFiberRwSSL<T>(Func<Stream, Task<SslStream>> sslstream_init, Func<Stream, Stream, GetFiberRwResult>? init = null) where T : class
         {
             if (await RStream.WaitStreamInit())
             {
-                var mergestream = new MergeStream(RStream as Stream, WStream as Stream);              
+                var mergestream = new MergeStream((RStream as Stream)!, (WStream as Stream)!);              
                 SslStream sslstream = await sslstream_init(mergestream);
                 if (sslstream is null)
                     return (null, "sslstream init fail");
@@ -225,12 +218,9 @@ namespace ZYSocket.Server
         {
             try
             {
-                if (isInit)
-                {
-                    AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);
-                    //if(dispose)
-                    //    DisconnectIt?.Invoke(this);
-                }
+                if (isInit)                
+                    AcceptSocket?.Shutdown(System.Net.Sockets.SocketShutdown.Both);                  
+                
             }
             catch (ObjectDisposedException)
             {

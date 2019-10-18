@@ -37,7 +37,7 @@ namespace System.Buffers
 
         public IntPtr NativePointer { get; private set; }
 
-        public byte[] Array { get; private set; }
+        public byte[]? Array { get; private set; }
 
         public static MemoryPoolSlab Create(int length)
         {

@@ -8,9 +8,9 @@ namespace ZYSocket.Client
     {
         public bool IsSuccess { get; set; }
 
-        public string Msg { get; set; }
+        public string? Msg { get; set; }
 
-        public ConnectResult(bool isSuccess,string msg)
+        public ConnectResult(bool isSuccess,string? msg)
         {
             IsSuccess = isSuccess;
             Msg = msg;

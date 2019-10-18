@@ -7,8 +7,8 @@ namespace Thruster
     {
         readonly int processorCount;
         readonly MemoryPoolImpl<T, Size4K> pool4K;
-        volatile MemoryPoolImpl<T, Size8K> pool8K;
-        volatile MemoryPoolImpl<T, Size16K> pool16K;
+        volatile MemoryPoolImpl<T, Size8K>? pool8K;
+        volatile MemoryPoolImpl<T, Size16K>? pool16K;
 
         public FastMemoryPool()
             : this(Math.Min(Environment.ProcessorCount, 64))

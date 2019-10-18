@@ -17,7 +17,7 @@ namespace ZYSocket.FiberStream.Synchronization
             Args = args;
         }
 
-        public abstract void Completed(object result);
+        public abstract void Completed(object? result);
         public abstract void SetException(Exception error);
 
     }
@@ -34,9 +34,9 @@ namespace ZYSocket.FiberStream.Synchronization
             Awaiter = new ValueTask<T>(TaskSource, TaskSource.Version);
         }
 
-        public override void Completed(object result)
+        public override void Completed(object? result)
         {
-            TaskSource.SetResult((T)result);
+            TaskSource.SetResult((T)result!);
         }
 
         public override void SetException(Exception error)
