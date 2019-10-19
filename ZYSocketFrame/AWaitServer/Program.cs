@@ -121,13 +121,20 @@ namespace TestServer
         }
 
         static async void RunIng(IFiberRw<string> fiberRw,string id, int time)
-        {           
-            Console.WriteLine($"{id} start");
-            await Task.Delay(time);          
-            Console.WriteLine($"{id} close");
+        {
+            try
+            {
+                Console.WriteLine($"{id} start");
+                await Task.Delay(time);
+                Console.WriteLine($"{id} close");
 
-            fiberRw.Write(id);
-            await fiberRw.Flush();
+                fiberRw.Write(id);
+                await fiberRw.Flush();
+            }
+            catch (Exception er)
+            {
+                Console.WriteLine(er.Message);
+            }
         }
 
     }

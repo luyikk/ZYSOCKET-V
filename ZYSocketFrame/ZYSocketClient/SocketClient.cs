@@ -79,11 +79,11 @@ namespace ZYSocket.Client
                 memoryPool = memPool;
            
             if (sync_send is null)
-                sync_send = new PoolSend();
+                sync_send = new NetSend();
 
 
             if (async_send is null)
-                async_send = new PoolSend();
+                async_send = new NetSend();
 
             if (obj_Format is null)
                 obj_Format = new ProtobuffObjFormat();

@@ -306,20 +306,20 @@ namespace ZYSocket.Server
             for (int i = 0; i < MaxConnectCout; i++)
             {
 
-                PoolSend poolSend = new PoolSend(true);
+                var netSend = new NetSend(true);
 
                 ZYSocketAsyncEventArgs socketasyn = new ZYSocketAsyncEventArgs(
                     new LinesReadStream(MaxBufferSize),
-                    new BufferWriteStream(memoryPool, poolSend, poolSend),
-                    poolSend,
-                    poolSend,
+                    new BufferWriteStream(memoryPool, netSend, netSend),
+                    netSend,
+                    netSend,
                     memoryPool,
                     Encoding.UTF8
                    )
                 {
                     DisconnectIt = Disconnect_It
                 };
-                poolSend.SetAccpet(socketasyn);
+                netSend.SetAccpet(socketasyn);
                 socketasyn.Completed += new EventHandler<ZYSocketAsyncEventArgs>(Asyn_Completed);
                 Accept(socketasyn);
             }

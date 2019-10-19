@@ -95,7 +95,7 @@ namespace ZYSocket.Server.Builder
             Container.AddTransient<ISend>(p =>
             {
                 if (func is null)
-                    return new PoolSend(true);
+                    return new NetSend(true);
                 else
                     return func();
             });
@@ -108,7 +108,7 @@ namespace ZYSocket.Server.Builder
             Container.AddTransient<IAsyncSend>(p =>
             {
                 if (func is null)
-                    return new PoolSend(true);
+                    return new NetSend(true);
                 else
                     return func();
             });

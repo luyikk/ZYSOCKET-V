@@ -6,27 +6,22 @@ using System.Threading.Tasks;
 
 namespace ZYSocket.Share
 {
-    public class PoolSend : ISend, IAsyncSend
+    public class NetSend : ISend,IAsyncSend
     {
         private bool isAccpet = false;
 
         private SocketAsyncEventArgs? _accpet;
 
-        private readonly SendSocketAsyncEventPool _sendPool;
-
         private bool IsThrowDisconnectException { get; }
 
-        public PoolSend(bool isThrowSocketDisconnectException=false)
+        public NetSend(bool isThrowSocketDisconnectException = false)
         {
-            IsThrowDisconnectException = isThrowSocketDisconnectException;
-            _sendPool = SendSocketAsyncEventPool.Shared;
+            IsThrowDisconnectException = isThrowSocketDisconnectException;            
         }
 
-        public PoolSend(SocketAsyncEventArgs accpet)
+        public NetSend(SocketAsyncEventArgs accpet)
         {
-            _accpet = accpet;
-            _sendPool = SendSocketAsyncEventPool.Shared;
-            
+            _accpet = accpet;          
         }
 
         public void SetAccpet(SocketAsyncEventArgs accpet)
@@ -40,7 +35,6 @@ namespace ZYSocket.Share
             isAccpet = false;
             _accpet = connect;
         }
-
 
         public bool TheSocketExceptionThrow(SocketException er)
         {
@@ -58,7 +52,6 @@ namespace ZYSocket.Share
 
             return false;
         }
-        
 
         public void Send(ArraySegment<byte> data)
         {
@@ -67,20 +60,20 @@ namespace ZYSocket.Share
                 socket = _accpet?.AcceptSocket;
             else
                 socket = _accpet?.ConnectSocket;
-            
+
 
             if (socket != null && socket.Connected)
-            {               
+            {
                 try
                 {
                     socket.Send(data.Array, data.Offset, data.Count, SocketFlags.None);
                 }
                 catch (SocketException er)
                 {
-                    if(TheSocketExceptionThrow(er))
-                            throw er;
+                    if (TheSocketExceptionThrow(er))
+                        throw er;
                 }
-              
+
 
             }
         }
@@ -108,10 +101,9 @@ namespace ZYSocket.Share
 
 
             }
-
         }
 
-        public  void Send(IList<ArraySegment<byte>> data)
+        public void Send(IList<ArraySegment<byte>> data)
         {
             Socket? socket;
             if (isAccpet)
@@ -119,9 +111,9 @@ namespace ZYSocket.Share
             else
                 socket = _accpet?.ConnectSocket;
 
-            if (socket != null&&socket.Connected)
+            if (socket != null && socket.Connected)
             {
-               
+
                 try
                 {
                     socket.Send(data, SocketFlags.None);
@@ -131,7 +123,7 @@ namespace ZYSocket.Share
                     if (TheSocketExceptionThrow(er))
                         throw er;
                 }
-             
+
 
 
             }
@@ -139,7 +131,6 @@ namespace ZYSocket.Share
 
         public void Send(ReadOnlyMemory<byte> data)
         {
-
             Socket? socket;
 
             if (isAccpet)
@@ -162,12 +153,23 @@ namespace ZYSocket.Share
                 }
 
             }
-
-
         }
 
+        public  Task<int> SendAsync(ArraySegment<byte> data)
+        {
+            Socket? socket;
+            if (isAccpet)
+                socket = _accpet?.AcceptSocket;
+            else
+                socket = _accpet?.ConnectSocket;
 
-        public async Task<int> SendAsync(ArraySegment<byte> data)
+            if (socket != null && socket.Connected)            
+                 return  socket.SendAsync(data,SocketFlags.None);            
+            else
+                return Task.FromResult(0);
+        }
+
+        public Task<int> SendAsync(byte[] data)
         {
             Socket? socket;
             if (isAccpet)
@@ -176,27 +178,12 @@ namespace ZYSocket.Share
                 socket = _accpet?.ConnectSocket;
 
             if (socket != null && socket.Connected)
-            {
-                var async = _sendPool.GetObject();
-                async.SetBuffer(data.Array, data.Offset, data.Count);
-
-                try
-                {
-                    var len = await async.SendSync(socket);
-                    return len;
-                }               
-                finally
-                {
-                    _sendPool.ReleaseObject(async);
-                }
-               
-            }
+                return socket.SendAsync(data, SocketFlags.None);
             else
-                return 0;
-
+                return Task.FromResult(0);
         }
 
-        public async Task<int> SendAsync(byte[] data)
+        public Task<int> SendAsync(IList<ArraySegment<byte>> data)
         {
             Socket? socket;
             if (isAccpet)
@@ -205,26 +192,12 @@ namespace ZYSocket.Share
                 socket = _accpet?.ConnectSocket;
 
             if (socket != null && socket.Connected)
-            {
-                var async = _sendPool.GetObject();
-                async.SetBuffer(data, 0, data.Length);
-                try
-                {
-                    var len = await async.SendSync(socket);
-                    return len;
-                }              
-                finally
-                {
-                    _sendPool.ReleaseObject(async);
-                }
-              
-            }
+                return socket.SendAsync(data, SocketFlags.None);
             else
-                return 0;
-
+                return Task.FromResult(0);
         }
 
-        public async Task<int> SendAsync(IList<ArraySegment<byte>> data)
+        public ValueTask<int> SendAsync(ReadOnlyMemory<byte> data)
         {
             Socket? socket;
             if (isAccpet)
@@ -233,56 +206,9 @@ namespace ZYSocket.Share
                 socket = _accpet?.ConnectSocket;
 
             if (socket != null && socket.Connected)
-            {
-                var async = _sendPool.GetObject();
-                async.BufferList = data;
-                try
-                {
-                    var len = await async.SendSync(socket);
-                    return len;
-                }              
-                finally
-                {
-                    _sendPool.ReleaseObject(async);
-                }
-              
-            }
+                return socket.SendAsync(data, SocketFlags.None);
             else
-                return 0;
-
+                return new ValueTask<int>(0);
         }
-
-        public async ValueTask<int> SendAsync(ReadOnlyMemory<byte> data)
-        {
-            Socket? socket;
-
-            if (isAccpet)
-                socket = _accpet?.AcceptSocket;
-            else
-                socket = _accpet?.ConnectSocket;
-
-            if (socket != null && socket.Connected)
-            {
-                var async = _sendPool.GetObject();
-
-                var array = data.GetArray();
-                async.SetBuffer(array.Array, array.Offset, array.Count);
-                try
-                {
-                    var len = await async.SendSync(socket);
-                    return len;
-                }           
-                finally
-                {
-                    _sendPool.ReleaseObject(async);
-                }
-
-              
-            }
-            else
-                return 0;
-
-        }
-
     }
 }
