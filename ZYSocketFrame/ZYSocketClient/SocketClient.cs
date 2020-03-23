@@ -42,9 +42,7 @@ namespace ZYSocket.Client
 
         private readonly ISerialization objFormat;
 
-        private readonly int bufferSize;
-
-   
+        private readonly int bufferSize;   
 
         public Socket? Sock { get; private set; }     
 
@@ -66,7 +64,7 @@ namespace ZYSocket.Client
 
         public event DisconnectHandler? Disconnect;
 
-        public SocketClient(int buffer_size=4096,MemoryPool<byte>? memPool =null,ISend? sync_send=null,IAsyncSend? async_send=null, ISerialization? obj_Format = null, Encoding? encode =null)
+        public SocketClient(int buffer_size=4096,int maxPackerSize = 128*1024, MemoryPool<byte>? memPool =null,ISend? sync_send=null,IAsyncSend? async_send=null, ISerialization? obj_Format = null, Encoding? encode =null)
         {
             if (encode is null)
                 this.encoding = Encoding.UTF8;
@@ -74,7 +72,7 @@ namespace ZYSocket.Client
                 this.encoding = encode;
 
             if (memPool is null)
-                memoryPool = new Thruster.FastMemoryPool<byte>();
+                memoryPool = new Thruster.FastMemoryPool<byte>(maxPackerSize);
             else
                 memoryPool = memPool;
            
@@ -88,7 +86,7 @@ namespace ZYSocket.Client
             if (obj_Format is null)
                 obj_Format = new ProtobuffObjFormat();
 
-
+            ReadBytes.MaxPackerSize = maxPackerSize;
             syncsend = sync_send;
             asyncsend = async_send;
             bufferSize = buffer_size;

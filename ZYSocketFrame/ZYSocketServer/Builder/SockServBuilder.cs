@@ -81,7 +81,11 @@ namespace ZYSocket.Server.Builder
             Container.AddTransient<MemoryPool<byte>>(p =>
             {
                 if (func is null)
-                    return new Thruster.FastMemoryPool<byte>();
+                {
+                    var config = p.GetRequiredService<SocketServerOptions>();
+                    ReadBytes.MaxPackerSize = config.MaxPackerSize;
+                    return new Thruster.FastMemoryPool<byte>(config.MaxPackerSize);
+                }
                 else
                     return func();
             });

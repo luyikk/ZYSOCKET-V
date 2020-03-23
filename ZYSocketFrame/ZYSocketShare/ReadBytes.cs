@@ -16,7 +16,7 @@ namespace ZYSocket
     {
         public static LengthSize LenType { get; set; } = LengthSize.Int32;
 
-        public static long MaxPackerSize { get; set; } = 1024 * 16;
+        public static long MaxPackerSize { get; set; } = 1024 * 128;
 
         public IFiberRw FiberRw { get; }
 

@@ -10,15 +10,29 @@ namespace Thruster
         volatile MemoryPoolImpl<T, Size8K>? pool8K;
         volatile MemoryPoolImpl<T, Size16K>? pool16K;
 
+        readonly int maxBufferSize;
+
         public FastMemoryPool()
-            : this(Math.Min(Environment.ProcessorCount, 64))
+            :this(8 * default(Size16K).GetChunkSize())
+        {
+
+        }
+
+        public FastMemoryPool(int maxBufferSize)
+            : this(Math.Min(Environment.ProcessorCount, 64), maxBufferSize)
 
         {
         }
 
-        internal FastMemoryPool(int processorCount)
+        internal FastMemoryPool(int processorCount,int maxBufferSize)
         {
             this.processorCount = processorCount;
+
+            if (maxBufferSize > 2576 * 1024)
+                this.maxBufferSize = 2576 * 1024;
+            else
+                this.maxBufferSize = maxBufferSize;
+
             pool4K = new MemoryPoolImpl<T, Size4K>(processorCount);
         }
 
@@ -91,7 +105,7 @@ namespace Thruster
             }
         }
 
-        public override int MaxBufferSize => 8 * default(Size16K).GetChunkSize();  //max 2576 * 1024;
+        public override int MaxBufferSize => maxBufferSize;  //max 2576 * 1024;
 
         protected override void Dispose(bool disposing)
         {
