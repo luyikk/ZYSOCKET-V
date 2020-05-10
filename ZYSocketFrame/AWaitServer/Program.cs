@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AWaitServer;
+using Microsoft.Extensions.DependencyInjection;
+using Netx.Actor;
+using Netx.Actor.Builder;
 using System;
 using System.Threading.Tasks;
 using ZYSocket;
@@ -10,7 +13,7 @@ namespace TestServer
 {
     class Program
     {
-
+        static IActorRun actor;
 
         //程序入口
         static void Main(string[] args)
@@ -36,6 +39,10 @@ namespace TestServer
             var server3 = build.GetRequiredService<ISocketServer>();
             server3.Start(); //启动服务器 1002端口 缓冲区为4KB 
 
+            actor = new ActorBuilder()
+             .UseActorLambda()
+             .RegisterService<TestActorController>()
+             .Build();
 
             Console.ReadLine();
             build.Dispose();
@@ -117,13 +124,17 @@ namespace TestServer
             var id = await fiberRw.ReadString();
             int waittime = await fiberRw.ReadInt32();
             var p = await fiberRw.ReadString();
+            Console.WriteLine($"{id} start1");
             RunIng(fiberRw,id, waittime);
         }
 
-        static async void RunIng(IFiberRw<string> fiberRw,string id, int time)
-        {           
-            Console.WriteLine($"{id} start");
-            await Task.Delay(time);          
+        static async void RunIng(IFiberRw<string> fiberRw, string id, int time)
+        {
+            Console.WriteLine($"{id} start2");
+            //await Task.Delay(time);         
+
+            await actor.Get<ITestActorController>().Run();
+
             Console.WriteLine($"{id} close");
 
             fiberRw.Write(id);

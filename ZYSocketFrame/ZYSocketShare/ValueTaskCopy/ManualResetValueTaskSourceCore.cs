@@ -47,11 +47,7 @@ namespace System.Threading.Tasks.Sources.Copy
         private ExceptionDispatchInfo? _error;
         /// <summary>The current version of this value, used to help prevent misuse.</summary>
         private short _version;
-
-        /// <summary>Gets or sets whether to force continuations to run asynchronously.</summary>
-        /// <remarks>Continuations may run asynchronously if this is false, but they'll never run synchronously if this is true.</remarks>
-        public bool RunContinuationsAsynchronously { get; set; }
-
+ 
         /// <summary>Resets to prepare for the next operation.</summary>
         public void Reset()
         {
@@ -160,7 +156,8 @@ namespace System.Threading.Tasks.Sources.Copy
                 // Operation already completed, so we need to queue the supplied callback.
                 if (!ReferenceEquals(oldContinuation, ManualResetValueTaskSourceCoreShared.s_sentinel))
                 {
-                    throw new InvalidOperationException();
+                    string stackInfo = new StackTrace(0, true).ToString();
+                    throw new InvalidOperationException("\r\nstatckinfo:\r\n" + stackInfo + "\r\n---------end----------\r\n");
                 }
 
                 switch (_capturedContext)
@@ -174,8 +171,7 @@ namespace System.Threading.Tasks.Sources.Copy
                         {
                             Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
                         }
-                        break;                   
-
+                        break;
                     case TaskScheduler ts:
                         Task.Factory.StartNew(continuation, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);
                         break;
@@ -230,24 +226,9 @@ namespace System.Threading.Tasks.Sources.Copy
 
             switch (_capturedContext)
             {
-                case null:
-                    if (RunContinuationsAsynchronously)
-                    {
-                        if (_executionContext != null)
-                        {
-                            ThreadPool.QueueUserWorkItem(_continuation, _continuationState, preferLocal: true);
-                        }
-                        else
-                        {
-                            Task.Factory.StartNew(_continuation, _continuationState, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
-                        }
-                    }
-                    else
-                    {
-                        _continuation(_continuationState);
-                    }
+                case null:                 
+                    _continuation(_continuationState);                    
                     break;
-
                 case TaskScheduler ts:
                     Task.Factory.StartNew(_continuation, _continuationState, CancellationToken.None, TaskCreationOptions.DenyChildAttach, ts);
                     break;

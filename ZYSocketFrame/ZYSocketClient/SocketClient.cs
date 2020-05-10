@@ -299,16 +299,16 @@ namespace ZYSocket.Client
                     
                     if (!Sock!.ReceiveAsync(e))
                     {
-                        if (e.Add_check() > 512)
-                        {
-                            e.Reset_check();
-                            ThreadPool.QueueUserWorkItem(obj => BeginReceive((obj as ZYSocketAsyncEventArgs)!), e);
-                        }
-                        else
+                        //if (e.Add_check() > 512)
+                        //{
+                        //    e.Reset_check();
+                        //    ThreadPool.QueueUserWorkItem(obj => BeginReceive((obj as ZYSocketAsyncEventArgs)!), e);
+                        //}
+                        //else
                             BeginReceive(e);
                     }
 
-                    e.Reset_check();
+                   // e.Reset_check();
                 }
                 catch (ObjectDisposedException)
                 {

@@ -8,12 +8,18 @@ using ZYSocket.FiberStream;
 
 namespace TestClient
 {
+   
+
     class Program
     {
         static SocketClient client;
 
         static async Task Main(string[] args)
         {
+
+
+
+
             client = new SocketClient();
             client.BinaryInput += Client_BinaryInput;
             client.Disconnect += Client_Disconnect;
@@ -71,12 +77,16 @@ namespace TestClient
             }
         }
 
+     
 
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEvent socketAsync)
         {
             var fiberRw = await socketAsync.GetFiberRw();
 
             client.SetConnected();
+
+            long t = 0;
+            var stop = System.Diagnostics.Stopwatch.StartNew();
 
             while (true)
             {
@@ -90,7 +100,19 @@ namespace TestClient
 
                     await DataOnByLine(fiberRw);
 
-                    Console.WriteLine("OK");
+                    //Console.WriteLine("OK");
+
+                    t++;
+
+                    if (t > 10000)
+                    {
+                        t = 0;
+                        stop.Stop();
+
+                        Console.WriteLine(stop.ElapsedMilliseconds);
+
+                        stop.Restart();
+                    }
                 }
                 catch
                 {
