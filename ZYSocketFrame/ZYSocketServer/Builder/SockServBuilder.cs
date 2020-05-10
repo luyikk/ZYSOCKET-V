@@ -81,7 +81,11 @@ namespace ZYSocket.Server.Builder
             Container.AddTransient<MemoryPool<byte>>(p =>
             {
                 if (func is null)
-                    return new Thruster.FastMemoryPool<byte>();
+                {
+                    var config = p.GetRequiredService<SocketServerOptions>();
+                    ReadBytes.MaxPackerSize = config.MaxPackerSize;
+                    return new Thruster.FastMemoryPool<byte>(config.MaxPackerSize);
+                }
                 else
                     return func();
             });
@@ -95,7 +99,7 @@ namespace ZYSocket.Server.Builder
             Container.AddTransient<ISend>(p =>
             {
                 if (func is null)
-                    return new PoolSend(true);
+                    return new NetSend(true);
                 else
                     return func();
             });
@@ -108,7 +112,7 @@ namespace ZYSocket.Server.Builder
             Container.AddTransient<IAsyncSend>(p =>
             {
                 if (func is null)
-                    return new PoolSend(true);
+                    return new NetSend(true);
                 else
                     return func();
             });

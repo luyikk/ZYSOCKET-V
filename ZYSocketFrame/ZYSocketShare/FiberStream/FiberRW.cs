@@ -871,7 +871,7 @@ namespace ZYSocket.FiberStream
                 return Task.FromResult(0);
 
             var length = FiberWriteStream.Length;
-            StreamWriteFormat.Flush();
+            StreamWriteFormat.Flush();          
             if (FiberWriteStream.Length > 0)
             {
                 return FiberWriteStream.AwaitFlush();

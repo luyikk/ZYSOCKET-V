@@ -107,7 +107,7 @@ namespace ZYSocket.FiberStream
             if (isfull == 0)
                 if (segment_ptr > 0)
                     segment_ptr -= 1;
-       
+
 
             if (isfull == 0)
             {
@@ -133,10 +133,12 @@ namespace ZYSocket.FiberStream
 
         }
 
+        
+        
         public virtual async Task<int> AwaitFlush()
-        {           
+        {
             if (_len == 0)
-                return 0;          
+                return 0;
 
             int isfull = (int)(_len % BufferBlockSize);
 
@@ -146,25 +148,35 @@ namespace ZYSocket.FiberStream
                 if (segment_ptr > 0)
                     segment_ptr -= 1;
 
-            int sendlen = 0;  
+            int sendlen = 0;
 
-            if (isfull == 0)
+            try
             {
-                sendlen += await AsyncSend.SendAsync(DataSegment.GetRange(0, segment_ptr + 1));
-            }
-            else
-            {
-                if (segment_ptr > 0)
+                if (isfull == 0)
                 {
-                    var list = DataSegment.GetRange(0, segment_ptr);
-                    list.Add(DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray());
-                    sendlen += await AsyncSend.SendAsync(list);
+
+                    sendlen += await AsyncSend.SendAsync(DataSegment.GetRange(0, segment_ptr + 1));
+
                 }
                 else
                 {
-                    var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull);
-                    sendlen += await AsyncSend.SendAsync(array);
+                    if (segment_ptr > 0)
+                    {
+                        var list = DataSegment.GetRange(0, segment_ptr);
+                        list.Add(DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray());
+                        sendlen += await AsyncSend.SendAsync(list);
+                    }
+                    else
+                    {
+                        var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull);
+                        sendlen += await AsyncSend.SendAsync(array);
+                    }
                 }
+            }
+            catch (System.Net.Sockets.SocketException er)
+            {
+                if (AsyncSend.TheSocketExceptionThrow(er))
+                    throw er;
             }
 
             Reset();

@@ -86,30 +86,30 @@ namespace TestClient
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
 
-            //USE SSL+GZIP
-            //var res = await socketAsync.GetFiberRwSSL<string>(null, "localhost", (input, output) =>
-            //{
-            //    var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
-            //    var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
-            //    return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode          
+           // USE SSL+GZIP
+            var res = await socketAsync.GetFiberRwSSL<string>(null, "localhost", (input, output) =>
+            {
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
+                var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
+                return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode          
 
-            //});
-
-
-
-            //if (res.IsError)
-            //{
-            //    Console.WriteLine(res.ErrMsg);
-            //    client.ShutdownBoth(true);
-            //    return;
-            //}
-
-            //var fiberRw = res.FiberRw;
+            });
 
 
-            var fiberRw = await socketAsync.GetFiberRw();
 
-             client.SetConnected();
+            if (res.IsError)
+            {
+                Console.WriteLine(res.ErrMsg);
+                client.ShutdownBoth(true);
+                return;
+            }
+
+            var fiberRw = res.FiberRw;
+
+
+            // var fiberRw = await socketAsync.GetFiberRw();
+
+            client.SetConnected();
 
 
 

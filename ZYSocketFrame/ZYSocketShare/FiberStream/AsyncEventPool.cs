@@ -245,7 +245,7 @@ namespace ZYSocket.Share
         public Task<int> SendSync(Socket sock)
         {
             Task<int> t;
-            
+
             if (sock.SendAsync(this))
             {
                 t = GetCompletionResponsibility(out bool responsibleForReturningToPool).Task;
@@ -254,18 +254,12 @@ namespace ZYSocket.Share
                     Reset();
             }
             else
-            {              
+            {
                 if (SocketError == SocketError.Success)
                     return Task.FromResult(BytesTransferred);
-                else if (SocketError != SocketError.TimedOut &&
-                     SocketError != SocketError.ConnectionReset &&
-                     SocketError != SocketError.OperationAborted &&
-                     SocketError != SocketError.Shutdown &&
-                     SocketError != SocketError.ConnectionAborted&&
-                     SocketError !=SocketError.Interrupted)
-                        return Task.FromException<int>(GetException(SocketError));
                 else
-                    return Task.FromResult(0);
+                    return Task.FromException<int>(GetException(SocketError));
+
             }
 
             return t;
@@ -321,19 +315,8 @@ namespace ZYSocket.Share
             {
                 builder.SetResult(saea.BytesTransferred);
             }
-            else if (error != SocketError.TimedOut &&
-                     error != SocketError.ConnectionReset &&
-                     error != SocketError.OperationAborted &&
-                     error != SocketError.Shutdown &&
-                     error != SocketError.ConnectionAborted&&
-                     error != SocketError.Interrupted)
-            {
-                builder.SetException(GetException(error));
-            }
-            else
-            {
-                builder.SetResult(0);
-            }
+            else 
+                builder.SetException(GetException(error));          
 
         }
 

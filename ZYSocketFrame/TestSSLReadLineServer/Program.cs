@@ -123,23 +123,23 @@ namespace TestServer
 
 
             //USE SSL+GZIP
-            //var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate, (input, output) =>
-            //{
-            //    var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
-            //    var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
-            //    return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode
-            //});
+            var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate, (input, output) =>
+            {
+                var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
+                var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
+                return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode
+            });
 
-            //var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate);
+           // var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate);
 
-            //if (fiberRw is null)
-            //{
-            //    Console.WriteLine(errMsg);
-            //    socketAsync.Disconnect();
-            //    return;
-            //}
+            if (fiberRw is null)
+            {
+                Console.WriteLine(errMsg);
+                socketAsync.Disconnect();
+                return;
+            }
 
-            var fiberRw = await socketAsync.GetFiberRw<string>();
+           // var fiberRw = await socketAsync.GetFiberRw<string>();
 
             fiberRw.UserToken = "my is ttk";
 

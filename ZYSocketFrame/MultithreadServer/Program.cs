@@ -5,6 +5,7 @@ using ZYSocket;
 using ZYSocket.FiberStream;
 using ZYSocket.Server;
 using ZYSocket.Server.Builder;
+using ZYSocket.Share;
 
 namespace TestServer
 {
@@ -26,6 +27,8 @@ namespace TestServer
                     MessageInput = new DisconnectHandler(DisconnectHandler)
                 };
             })
+             .ConfigISend(() => new NetSend())
+             .ConfigIAsyncSend(() => new NetSend())
              .ConfigServer(p =>
              {
                  p.Port = 1002;

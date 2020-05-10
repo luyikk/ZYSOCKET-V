@@ -6,6 +6,7 @@ using ZYSocket;
 using ZYSocket.Client;
 using ZYSocket.FiberStream;
 using ZYSocket.FiberStream.Synchronization;
+using ZYSocket.Share;
 
 namespace TestClient
 {
@@ -17,7 +18,8 @@ namespace TestClient
 
         static async Task Main(string[] args)
         {
-            client = new SocketClient();
+            var send = new NetSend();
+            client = new SocketClient(async_send:send,sync_send:send);
             client.BinaryInput += Client_BinaryInput;
             client.Disconnect += Client_Disconnect;
 

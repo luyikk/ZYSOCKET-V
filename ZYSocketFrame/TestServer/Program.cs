@@ -5,6 +5,7 @@ using ZYSocket.FiberStream;
 using System.Threading.Tasks;
 using ZYSocket.Server.Builder;
 using ZYSocket;
+using ZYSocket.Share;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace TestServer
@@ -64,9 +65,12 @@ namespace TestServer
                      MessageInput = new DisconnectHandler(DisconnectHandler)
                  };
              })
+             .ConfigISend(()=>new NetSend())
+             .ConfigIAsyncSend(() => new NetSend())
              .ConfigServer(p => {
                  p.Port = 1002;
-                 p.MaxBufferSize = 8;                
+                 p.MaxBufferSize = 8;
+                 p.MaxPackerSize = 256 * 1024;
                  });
 
             var build = containerBuilder.BuildServiceProvider();
@@ -183,7 +187,7 @@ namespace TestServer
 
             var p9 = await fiberRw.ReadInt16();
 
-            // var p10 = await fiberRw.ReadObject<List<Guid>>();
+            var p10 = await fiberRw.ReadObject<List<Guid>>();
 
             fiberRw.Write(len);
             fiberRw.Write(cmd);
@@ -196,7 +200,7 @@ namespace TestServer
             fiberRw.Write(p7);
             fiberRw.Write(p8);
             fiberRw.Write(p9);
-            //fiberRw.Write(p10);
+            fiberRw.Write(p10);
             await fiberRw.Flush();
 
 
@@ -218,8 +222,8 @@ namespace TestServer
             var p9 = read.ReadInt16();
 
 
-            // var p10 = read.ReadObject<List<Guid>>();
-            // read.Dispose();
+            var p10 = read.ReadObject<List<Guid>>();
+            read.Dispose();
 
 
             using var writeBytes = new WriteBytes(fiberRw);
@@ -235,7 +239,7 @@ namespace TestServer
             writeBytes.Write(p7);
             writeBytes.Write(p8);
             writeBytes.Write(p9);
-            //writeBytes.Write(p10);
+            writeBytes.Write(p10);
             writeBytes.Flush();
 
 
