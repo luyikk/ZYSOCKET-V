@@ -53,7 +53,7 @@ namespace Server
                 {
                     item.Write(4000);
                     item.Write(user.UserName);
-                    await item.Flush();
+                    await item.FlushAsync();
                 }
             }
 
@@ -133,7 +133,7 @@ namespace Server
                                 fiberRw.Write(1001);  //发送登入成功
                                 fiberRw.Write(true);
                                 fiberRw.Write("logon ok");
-                                return fiberRw.Flush();
+                                return fiberRw.FlushAsync();
                             });
                         }
                         else
@@ -143,7 +143,7 @@ namespace Server
                                 fiberRw.Write(1001); //发送登入失败
                                 fiberRw.Write(false);
                                 fiberRw.Write("logon fail");
-                                return fiberRw.Flush();
+                                return fiberRw.FlushAsync();
                             });
                         }
                     }
@@ -158,7 +158,7 @@ namespace Server
 
                             fiberRw.Write(2001);
                             fiberRw.Write(x.ToList());
-                            await fiberRw.Flush();
+                            await fiberRw.FlushAsync();
 
                             foreach (var item in UserList.Where(p=>p!=fiberRw))
                             {
@@ -166,7 +166,7 @@ namespace Server
                                 {
                                     item.Write(2002);
                                     item.Write(fiberRw.UserToken.UserName);
-                                    return item.Flush();
+                                    return item.FlushAsync();
                                 });
                             }
                         }
@@ -191,7 +191,7 @@ namespace Server
                                             item.Write(3001);
                                             item.Write(fiberRw.UserToken.UserName);
                                             item.Write(msg);
-                                            return item.Flush();
+                                            return item.FlushAsync();
                                         });
                                     }
                                 }
@@ -207,7 +207,7 @@ namespace Server
                                         user.Write(3002);
                                         user.Write(fiberRw.UserToken.UserName);
                                         user.Write(msg);
-                                        return user.Flush();
+                                        return user.FlushAsync();
                                     });
                                 }
 

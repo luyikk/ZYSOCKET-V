@@ -50,7 +50,7 @@ namespace TestClient
             fiberRw.Write((++id).ToString());
             fiberRw.Write(new Random().Next(10, 10000));
             fiberRw.Write(new Random().Next(10, 10000).ToString());
-            await fiberRw.Flush();
+            await fiberRw.FlushAsync();
         }
 
 

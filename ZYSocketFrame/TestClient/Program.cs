@@ -45,7 +45,7 @@ namespace TestClient
         }
 
 
-        private static void SendTest(IFiberRw fiberRw)
+        private static async void SendTest(IFiberRw fiberRw)
         {
             using (WriteBytes writeBytes = new WriteBytes(fiberRw))
             {
@@ -67,7 +67,7 @@ namespace TestClient
                     guids.Add(Guid.NewGuid());
                 }
                 writeBytes.Write(guids);
-                writeBytes.Flush();
+                await writeBytes.FlushAsync();
             }
         }
 

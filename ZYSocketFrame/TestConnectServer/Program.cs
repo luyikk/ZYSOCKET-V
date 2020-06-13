@@ -145,7 +145,7 @@ namespace TestServer
                         Console.WriteLine(x);
 
                         fiberRw.Write("ok");
-                        await fiberRw.Flush();
+                        await fiberRw.FlushAsync();
                     }
 
                     break;

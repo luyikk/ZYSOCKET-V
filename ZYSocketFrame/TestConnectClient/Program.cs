@@ -47,7 +47,7 @@ namespace TestClient
                 fiberRw.Write(data);
                 fiberRw.Write(1);
 
-                await fiberRw.Flush();
+                await fiberRw.FlushAsync();
             //}
         }
 

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Netx.Actor;
 using Netx.Actor.Builder;
 using System;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using ZYSocket;
 using ZYSocket.FiberStream;
@@ -130,15 +131,22 @@ namespace TestServer
 
         static async void RunIng(IFiberRw<string> fiberRw, string id, int time)
         {
-            Console.WriteLine($"{id} start2");
-            //await Task.Delay(time);         
+            try
+            {
+                Console.WriteLine($"{id} start2");
+                //await Task.Delay(time);         
 
-            await actor.Get<ITestActorController>().Run();
+                await actor.Get<ITestActorController>().Run();
 
-            Console.WriteLine($"{id} close");
+                Console.WriteLine($"{id} close");
 
-            fiberRw.Write(id);
-            await fiberRw.Flush();
+                fiberRw.Write(id);
+                await fiberRw.FlushAsync();
+            }
+            catch (SocketException)
+            {
+
+            }
         }
 
     }

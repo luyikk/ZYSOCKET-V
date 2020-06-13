@@ -160,7 +160,7 @@ namespace TestClient
                 fiberRw.Write(p8);
                 fiberRw.Write(p9);
                 fiberRw.Write(p10);
-                await fiberRw.Flush();
+                await fiberRw.FlushAsync();
             }
 
 

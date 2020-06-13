@@ -157,7 +157,7 @@ namespace TestServer
                     Console.WriteLine(x.ElapsedTicks+":"+str);
 
                     fiberRw.Write("200\r\n",false);
-                    await fiberRw.Flush();
+                    await fiberRw.FlushAsync();
 
 
                 }

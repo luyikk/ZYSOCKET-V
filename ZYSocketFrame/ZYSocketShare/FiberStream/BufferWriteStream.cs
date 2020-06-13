@@ -135,10 +135,12 @@ namespace ZYSocket.FiberStream
 
         
         
-        public virtual async Task<int> AwaitFlush()
+      
+
+        public override async Task FlushAsync(CancellationToken cancellationToken=default)
         {
             if (_len == 0)
-                return 0;
+                return;
 
             int isfull = (int)(_len % BufferBlockSize);
 
@@ -148,15 +150,12 @@ namespace ZYSocket.FiberStream
                 if (segment_ptr > 0)
                     segment_ptr -= 1;
 
-            int sendlen = 0;
-
+         
             try
             {
                 if (isfull == 0)
                 {
-
-                    sendlen += await AsyncSend.SendAsync(DataSegment.GetRange(0, segment_ptr + 1));
-
+                    await AsyncSend.SendAsync(DataSegment.GetRange(0, segment_ptr + 1));
                 }
                 else
                 {
@@ -164,12 +163,12 @@ namespace ZYSocket.FiberStream
                     {
                         var list = DataSegment.GetRange(0, segment_ptr);
                         list.Add(DataSegment[segment_ptr].AsMemory().Slice(0, isfull).GetArray());
-                        sendlen += await AsyncSend.SendAsync(list);
+                        await AsyncSend.SendAsync(list);
                     }
                     else
                     {
                         var array = DataSegment[segment_ptr].AsMemory().Slice(0, isfull);
-                        sendlen += await AsyncSend.SendAsync(array);
+                        await AsyncSend.SendAsync(array);
                     }
                 }
             }
@@ -181,12 +180,7 @@ namespace ZYSocket.FiberStream
 
             Reset();
 
-            return sendlen;
-        }
-
-        public override async Task FlushAsync(CancellationToken cancellationToken=default)
-        { 
-            await AwaitFlush();
+            return;
         }
 
         public override void SetLength(long value)
@@ -249,7 +243,7 @@ namespace ZYSocket.FiberStream
                     break;
             }
           
-            await AwaitFlush();
+            await FlushAsync();
         }
 
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)

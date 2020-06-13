@@ -390,7 +390,7 @@ namespace ZYSocket
             return (postion, data.Length);
         }
 
-        public Task<int> Flush(bool send = true)
+        public Task FlushAsync(bool send = true)
         {
 
             switch (LenType)
@@ -431,13 +431,55 @@ namespace ZYSocket
             }
 
             StreamWrite.Position = 0;
-
             if (send && FiberWriteStream.Length > 0)
-                return FiberWriteStream.AwaitFlush();
+                return FiberWriteStream.FlushAsync();
             else
-                return Task.FromResult(0);
+                return Task.CompletedTask;
         }
 
-      
+        public void Flush(bool send = true)
+        {
+
+            switch (LenType)
+            {
+                case LengthSize.Byte:
+                    {
+                        StreamWrite.Position = 0;
+                        var lenbytes = (byte)StreamWrite.Length;
+                        Write(lenbytes);
+                    }
+                    break;
+                case LengthSize.Int16:
+                    {
+                        StreamWrite.Position = 0;
+                        Write((ushort)StreamWrite.Length);
+                    }
+                    break;
+                case LengthSize.Int32:
+                    {
+                        StreamWrite.Position = 0;
+                        Write((uint)StreamWrite.Length);
+                    }
+                    break;
+                case LengthSize.Int64:
+                    {
+                        StreamWrite.Position = 0;
+                        Write((ulong)StreamWrite.Length);
+                    }
+                    break;
+
+            }
+
+            if (StreamWrite.TryGetBuffer(out ArraySegment<byte> buffer))
+            {
+                StreamWriteFormat.Write(buffer.Array, buffer.Offset, buffer.Count);
+                if (send)
+                    StreamWriteFormat.Flush();
+            }
+
+            StreamWrite.Position = 0;
+            if (send && FiberWriteStream.Length > 0)
+                FiberWriteStream.Flush();           
+        }
     }
 }

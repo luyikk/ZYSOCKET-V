@@ -130,7 +130,7 @@ namespace TestServer
 
                     await fiberRw.Sync.Delay(10, () =>
                     {
-                         return fiberRw.Flush();
+                         return fiberRw.FlushAsync();
                     });
                 }
                 catch (System.Net.Sockets.SocketException)

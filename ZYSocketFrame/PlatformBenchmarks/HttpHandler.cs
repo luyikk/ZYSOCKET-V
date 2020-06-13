@@ -189,7 +189,7 @@ namespace PlatformBenchmarks
             var length = write.Stream.Length - token.HttpHandlerPostion;
             write.Stream.Position = token.ContentPostion.postion;
             write.Write(length.ToString(), false);
-            await write.Flush();          
+            await write.FlushAsync();          
         }
 
 

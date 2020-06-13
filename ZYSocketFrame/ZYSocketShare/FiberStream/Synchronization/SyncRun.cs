@@ -74,6 +74,15 @@ namespace ZYSocket.FiberStream.Synchronization
         }
 
 
+        public async ValueTask Delay(int millisecondsDelay, Func<Task> func)
+        {
+            if (Interlocked.Exchange(ref delaystatus, Open) == Idle)
+            {
+                await Task.Delay(millisecondsDelay);
+                Interlocked.CompareExchange(ref delaystatus, Idle, Open);
+                await await Ask(func);
+            }
+        }
 
 
 
@@ -140,5 +149,6 @@ namespace ZYSocket.FiberStream.Synchronization
 
             throw new NotSupportedException($"not find run type{sync.RunType}");
         }
+
     }
 }
