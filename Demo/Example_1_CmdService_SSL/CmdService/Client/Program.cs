@@ -46,7 +46,7 @@ namespace Client
                 fiberRw.Write(1000); //登入
                 fiberRw.Write("test");
                 fiberRw.Write("password");
-                return fiberRw.Flush();
+                return fiberRw.FlushAsync();
             });
 
             //for (; ; ) //我们也可以在这里处理数据
@@ -130,7 +130,7 @@ namespace Client
 
                                 fiberRw.Write(3000); //发送消息                          
                                 fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
-                                return fiberRw.Flush();
+                                return fiberRw.FlushAsync();
                             });
                         }
 
@@ -146,7 +146,7 @@ namespace Client
                             {
                                 fiberRw.Write(3000); //发送消息                          
                                 fiberRw.Write("EMMMMMMMMMMMMMMMMMMMMM...");
-                                return fiberRw.Flush();
+                                return fiberRw.FlushAsync();
                             });
                         }
                     }

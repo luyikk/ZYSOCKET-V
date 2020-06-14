@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetxActor" Version="2.1.2" />
+    <PackageReference Include="NetxActor" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>

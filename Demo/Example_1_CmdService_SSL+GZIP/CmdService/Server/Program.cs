@@ -107,7 +107,7 @@ namespace Server
                                 fiberRw.Write(1001);  //发送登入成功
                                 fiberRw.Write(true);
                                 fiberRw.Write("logon ok");
-                                return fiberRw.Flush();
+                                return fiberRw.FlushAsync();
                             });
                         }
                         else
@@ -117,7 +117,7 @@ namespace Server
                                 fiberRw.Write(1001); //发送登入失败
                                 fiberRw.Write(false);
                                 fiberRw.Write("logon fail");
-                                return fiberRw.Flush();
+                                return fiberRw.FlushAsync();
                             });
                         }                      
                     }
@@ -141,7 +141,7 @@ namespace Server
                         {
                             fiberRw.Write(3001);
                             fiberRw.Write("msg show");
-                            return fiberRw.Flush();
+                            return fiberRw.FlushAsync();
                         });
                     }
                     break;
