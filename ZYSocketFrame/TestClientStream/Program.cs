@@ -94,8 +94,8 @@ namespace TestClient
                    //var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
                    //return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode          
 
-                   var lz4_input = K4os.Compression.LZ4.Streams.LZ4Stream.Decode(input, leaveOpen: true);
-                   var lz4_output = K4os.Compression.LZ4.Streams.LZ4Stream.Encode(output, leaveOpen: true);
+                   var lz4_input = K4os.Compression.LZ4.AsyncStreams.LZ4Stream.Decode(input, leaveOpen: true);
+                   var lz4_output = K4os.Compression.LZ4.AsyncStreams.LZ4Stream.Encode(output, leaveOpen: true);
                    return new GetFiberRwResult(lz4_input, lz4_output); //return lz4 mode
                });
 

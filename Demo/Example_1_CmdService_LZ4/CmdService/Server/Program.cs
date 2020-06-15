@@ -49,8 +49,8 @@ namespace Server
         {
             var fiberW = await socketAsync.GetFiberRw<UserInfo>((input, output) =>  //我们在这地方使用GZIP 压缩发送流 解压读取流
             {
-                var lz4_input = K4os.Compression.LZ4.Streams.LZ4Stream.Decode(input);
-                var lz4_output= K4os.Compression.LZ4.Streams.LZ4Stream.Encode(output);
+                var lz4_input = K4os.Compression.LZ4.AsyncStreams.LZ4Stream.Decode(input);
+                var lz4_output= K4os.Compression.LZ4.AsyncStreams.LZ4Stream.Encode(output);
                 return new GetFiberRwResult(lz4_input, lz4_output); //这里顺序不要搞反 (input,output)的顺序
             });
 
