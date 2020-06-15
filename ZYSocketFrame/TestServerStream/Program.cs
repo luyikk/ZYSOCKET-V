@@ -125,9 +125,14 @@ namespace TestServer
             //USE SSL+GZIP
             var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate, (input, output) =>
               {
-                  var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
-                  var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
-                  return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode
+                  //var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
+                  //var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
+                  //return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode
+
+
+                  var lz4_input = K4os.Compression.LZ4.Streams.LZ4Stream.Decode(input, leaveOpen: true);
+                  var lz4_output = K4os.Compression.LZ4.Streams.LZ4Stream.Encode(output, leaveOpen: true);
+                  return new GetFiberRwResult(lz4_input, lz4_output); //return lz4 mode
               });
 
             if (fiberRw is null)
@@ -136,6 +141,15 @@ namespace TestServer
                 socketAsync.Disconnect();
                 return;
             }
+
+            //var fiberRw = await socketAsync.GetFiberRw<string>((input, output) =>
+            //{
+            //    var lz4_input = K4os.Compression.LZ4.Streams.LZ4Stream.Decode(input, leaveOpen: true);
+            //    var lz4_output = K4os.Compression.LZ4.Streams.LZ4Stream.Encode(output, leaveOpen: true);
+            //    return new GetFiberRwResult(lz4_input, lz4_output); //return lz4 mode
+            //});
+
+            //var fiberRw = await socketAsync.GetFiberRw<string>();
 
             fiberRw.UserToken = "my is ttk";
 

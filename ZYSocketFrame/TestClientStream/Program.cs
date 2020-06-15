@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.Security;
 using System.Security.Authentication;
@@ -73,7 +74,7 @@ namespace TestClient
                 writeBytes.Write((short)111);
 
                 List<Guid> guids = new List<Guid>();
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 1000; i++)
                 {
                     guids.Add(Guid.NewGuid());
                 }
@@ -86,13 +87,16 @@ namespace TestClient
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
 
-            //USE SSL+GZIP
+           // USE SSL+GZIP
             var res = await socketAsync.GetFiberRwSSL<string>(certificate, "localhost", (input, output) =>
                {
-                   var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
-                   var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
-                   return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode          
+                   //var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
+                   //var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
+                   //return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode          
 
+                   var lz4_input = K4os.Compression.LZ4.Streams.LZ4Stream.Decode(input, leaveOpen: true);
+                   var lz4_output = K4os.Compression.LZ4.Streams.LZ4Stream.Encode(output, leaveOpen: true);
+                   return new GetFiberRwResult(lz4_input, lz4_output); //return lz4 mode
                });
 
             if (res.IsError)
@@ -104,18 +108,33 @@ namespace TestClient
 
             var fiberRw = res.FiberRw;
 
+            //var fiberRw = await socketAsync.GetFiberRw((input, output) =>
+            //{
+            //    var lz4_input = K4os.Compression.LZ4.Streams.LZ4Stream.Decode(input, leaveOpen: true);
+            //    var lz4_output = K4os.Compression.LZ4.Streams.LZ4Stream.Encode(output, leaveOpen: true);
+            //    return new GetFiberRwResult(lz4_input, lz4_output); //return lz4 mode
+            //});
+
+            // var fiberRw = await socketAsync.GetFiberRw();
+
             client.SetConnected();
 
-
-
+            var testspeed = Stopwatch.StartNew();
+            var i = 0L;
             while (true)
             {
                 try
                 {
-
+                    i++;
                     await DataOnByLine(fiberRw);
 
-                    Console.WriteLine("OK");
+                    if(i%10000==0)
+                    {                      
+                        Console.WriteLine(testspeed.ElapsedMilliseconds+" ms");
+                        testspeed.Restart();
+                    }
+
+                    //Console.WriteLine("OK");
 
                 }
                 catch
