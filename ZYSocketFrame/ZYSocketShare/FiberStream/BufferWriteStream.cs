@@ -71,7 +71,7 @@ namespace ZYSocket.FiberStream
             DataSegment.Clear();
             foreach (var item in MemoryOwners)
             {
-                item.Dispose();
+                item?.Dispose();
             }
             MemoryOwners.Clear();
             base.Close();
