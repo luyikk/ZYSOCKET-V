@@ -534,15 +534,8 @@ namespace ZYSocket.Server
 
             if (e.SocketError == SocketError.Success && e.BytesTransferred > 0)
             {
-                try
-                {
-                    e.Advance();
-                }
-                catch(InvalidOperationException)
-                {                   
-                    Disconnect_It(e);
-                    return;
-                }
+
+                e.Advance();
 
 
                 if (!e.AcceptSocket.ReceiveAsync(e))
@@ -560,7 +553,7 @@ namespace ZYSocket.Server
                 e.Reset_check();
             }
             else
-            {             
+            {
                 Disconnect_It(e);
             }
 
