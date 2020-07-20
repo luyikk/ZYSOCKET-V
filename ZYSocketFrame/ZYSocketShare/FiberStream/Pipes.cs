@@ -57,9 +57,9 @@ namespace ZYSocket.FiberStream
             => source_read.Reset();
 
         public void Advance(int len)
-        {        
-            if (source_read.GetStatus(source_read.Version) == ValueTaskSourceStatus.Pending)            
-                source_read.SetResult(len);            
+        {
+            if (source_read.GetStatus(source_read.Version) == ValueTaskSourceStatus.Pending)
+                source_read.SetResult(len);
         }
 
         public ValueTask<int> Need()
