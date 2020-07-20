@@ -64,8 +64,11 @@ namespace ZYSocket.FiberStream
 
         public ValueTask<int> Need()
         {
-            source_read.Reset();
-            return new ValueTask<int>(source_read, source_read.Version);
+            lock (source_read)
+            {
+                source_read.Reset();
+                return new ValueTask<int>(source_read, source_read.Version);
+            }
         }
 
     }

@@ -156,8 +156,9 @@ namespace System.Threading.Tasks.Sources.Copy
                 // Operation already completed, so we need to queue the supplied callback.
                 if (!ReferenceEquals(oldContinuation, ManualResetValueTaskSourceCoreShared.s_sentinel))
                 {
-                    string stackInfo = new StackTrace(0, true).ToString();
-                    throw new InvalidOperationException("\r\nstatckinfo:\r\n" + stackInfo + "\r\n---------end----------\r\n");
+                    //string stackInfo = new StackTrace(0, true).ToString();
+                    //throw new InvalidOperationException("\r\nstatckinfo:\r\n" + stackInfo + "\r\n---------end----------\r\n");
+                    return;
                 }
 
                 switch (_capturedContext)
