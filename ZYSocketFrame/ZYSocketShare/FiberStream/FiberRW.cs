@@ -505,20 +505,14 @@ namespace ZYSocket.FiberStream
             else
             {
 
-                var imo = GetMemory(len);
-                try
-                {
-                    var array = imo.Memory.GetArray();
-                    int rlen = await ReadAsync(array.Array, array.Offset, len);
-                    if (rlen != len)
-                        throw new System.IO.IOException($"not read data");
-                    return Encoding.GetString(array.Array, array.Offset, rlen);
-                }
-                catch
-                {
-                    imo.Dispose();
-                    throw;
-                }
+                using var imo = GetMemory(len);
+
+                var array = imo.Memory.GetArray();
+                int rlen = await ReadAsync(array.Array, array.Offset, len);
+                if (rlen != len)
+                    throw new System.IO.IOException($"not read data");
+                return Encoding.GetString(array.Array, array.Offset, rlen);
+
             }
         }
 
