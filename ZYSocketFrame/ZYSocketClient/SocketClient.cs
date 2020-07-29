@@ -329,6 +329,7 @@ namespace ZYSocket.Client
             Disconnect?.Invoke(this, e, errorMsg?? "Disconnect");
             if(IsConnect)
                 this.Dispose();
+            e?.Reset();
         }
 
 
