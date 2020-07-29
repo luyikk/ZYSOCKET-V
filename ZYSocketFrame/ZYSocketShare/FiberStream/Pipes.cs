@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
@@ -58,8 +59,16 @@ namespace ZYSocket.FiberStream
 
         public void Advance(int len)
         {
-            if (source_read.GetStatus(source_read.Version) == ValueTaskSourceStatus.Pending)
-                source_read.SetResult(len);
+            if (len > 0)
+            {
+                if (source_read.GetStatus(source_read.Version) == ValueTaskSourceStatus.Pending)
+                    source_read.SetResult(len);
+            }
+            else
+            {
+                if (source_read.GetStatus(source_read.Version) == ValueTaskSourceStatus.Pending)
+                    source_read.SetException(new SocketException((int)SocketError.Disconnecting));
+            }
         }
 
         public ValueTask<int> Need()

@@ -315,10 +315,8 @@ namespace ZYSocket.Server
                     netSend,
                     memoryPool,
                     Encoding.UTF8
-                   )
-                {
-                    DisconnectIt = Disconnect_It
-                };
+                   );
+               
                 netSend.SetAccpet(socketasyn);
                 socketasyn.Completed += new EventHandler<ZYSocketAsyncEventArgs>(Asyn_Completed);
                 Accept(socketasyn);
@@ -440,10 +438,8 @@ namespace ZYSocket.Server
                     encode,
                     objFormat,
                     config.IsLittleEndian
-                   )
-                {
-                    DisconnectIt = Disconnect_It
-                };
+                   );
+               
                 poolSend.SetAccpet(socketasyn);
                 poolAsyncSend.SetAccpet(socketasyn);
 
@@ -554,6 +550,7 @@ namespace ZYSocket.Server
             }
             else
             {
+                e.Advance(-1);
                 Disconnect_It(e);
             }
 

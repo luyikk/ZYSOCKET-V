@@ -33,8 +33,7 @@ namespace ZYSocket.Server
         private IDisposable? fiberobj;
         private IDisposable? fiberT;
         private IDisposable? fibersslobj;
-        private IDisposable? fibersslT;
-        public Action<ZYSocketAsyncEventArgs>? DisconnectIt { get; set; }
+        private IDisposable? fibersslT;       
         public new event EventHandler<ZYSocketAsyncEventArgs>? Completed;
 
         private int _check_thread = 0;
