@@ -7,6 +7,7 @@ using ZYSocket.Server.Builder;
 using ZYSocket;
 using ZYSocket.Share;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Sockets;
 
 namespace TestServer
 {
@@ -69,8 +70,8 @@ namespace TestServer
              .ConfigIAsyncSend(() => new NetSend())
              .ConfigServer(p => {
                  p.Port = 1002;
-                 p.MaxBufferSize = 8;
-                 p.MaxPackerSize = 256 * 1024;
+                 p.MaxBufferSize = 4096;
+                 p.MaxPackerSize = 512 * 1024;
                  });
 
             var build = containerBuilder.BuildServiceProvider();
@@ -131,11 +132,24 @@ namespace TestServer
 
             for (; ; )
             {
+                //try
+                //{
+                //    //读取 发送 测试
+                //    var data = await fiberRw.ReadToBlockArrayEnd();
+                //    fiberRw.Write(data);
+                //    await fiberRw.FlushAsync();
 
-               // 读取 发送 测试
-                //var data = await fiberRw.ReadToBlockArrayEnd();
-                //fiberRw.Write(data);
-                //await fiberRw.FlushAsync();
+
+                //}
+                //catch (SocketException)
+                //{
+                //    break;
+                //}
+                //catch (Exception er)
+                //{
+                //    Console.WriteLine(er.ToString());
+                //    break;
+                //}
 
                 try
                 {
