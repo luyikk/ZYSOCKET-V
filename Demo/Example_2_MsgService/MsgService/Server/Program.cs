@@ -81,7 +81,11 @@ namespace Server
                 {
                     await ReadCommand(fiberW);
                 }
-                catch(System.Net.Sockets.SocketException)
+                catch (System.Net.Sockets.SocketException)
+                {
+                    break;
+                }
+                catch (System.IO.IOException)
                 {
                     break;
                 }

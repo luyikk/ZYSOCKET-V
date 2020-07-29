@@ -165,6 +165,10 @@ namespace TestServer
 
                    
                 }
+                catch (System.IO.IOException)
+                {
+                    break;
+                }
                 catch (System.Net.Sockets.SocketException)
                 {
                     break;

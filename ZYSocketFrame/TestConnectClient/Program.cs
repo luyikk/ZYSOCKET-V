@@ -42,12 +42,18 @@ namespace TestClient
 
             //for (; ; )
             //{
-               
+            try
+            {
                 byte[] data = new byte[102400];
                 fiberRw.Write(data);
                 fiberRw.Write(1);
 
                 await fiberRw.FlushAsync();
+            }
+            catch
+            {
+
+            }
             //}
         }
 
@@ -103,7 +109,7 @@ namespace TestClient
             }
 
 
-            client.ShutdownBoth(true);
+            client.ShutdownBoth();
         }
 
 

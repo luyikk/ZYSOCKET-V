@@ -431,16 +431,24 @@ namespace ZYSocket.FiberStream
                 return default;
 
             var imo = GetMemory(size);
-            var memory = imo.Memory;
-            var array = memory.GetArray();
-            int len = await ReadAsync(array.Array, array.Offset, size);
+            try
+            {
+                var memory = imo.Memory;
+                var array = memory.GetArray();
+                int len = await ReadAsync(array.Array, array.Offset, size);
 
-            if (len != size)
-                throw new System.IO.IOException($"not read data");
+                if (len != size)
+                    throw new System.IO.IOException($"not read data");
 
-            var slice_mem = memory.Slice(0, len);
+                var slice_mem = memory.Slice(0, len);
 
-            return new ResultByMemoryOwner<Memory<byte>>(imo, slice_mem);
+                return new ResultByMemoryOwner<Memory<byte>>(imo, slice_mem);
+            }
+            catch
+            {
+                imo.Dispose();
+                throw;
+            }
         }
     
 
@@ -497,12 +505,20 @@ namespace ZYSocket.FiberStream
             else
             {
 
-                using var imo = GetMemory(len);
-                var array = imo.Memory.GetArray();
-                int rlen = await ReadAsync(array.Array, array.Offset, len);
-                if (rlen != len)
-                    throw new System.IO.IOException($"not read data");
-                return Encoding.GetString(array.Array, array.Offset, rlen);
+                var imo = GetMemory(len);
+                try
+                {
+                    var array = imo.Memory.GetArray();
+                    int rlen = await ReadAsync(array.Array, array.Offset, len);
+                    if (rlen != len)
+                        throw new System.IO.IOException($"not read data");
+                    return Encoding.GetString(array.Array, array.Offset, rlen);
+                }
+                catch
+                {
+                    imo.Dispose();
+                    throw;
+                }
             }
         }
 
@@ -513,33 +529,41 @@ namespace ZYSocket.FiberStream
 
             var imo = GetMemory(4096);
 
-            var memory = imo.Memory;
-            var array = memory.GetArray();
-            int needcount = array.Count;
-            int offset_next = array.Offset;
-            do
+            try
             {
-
-                var res = streamReadFormat.Read(array.Array, offset_next, 1);
-
-                if (res == 0)
+                var memory = imo.Memory;
+                var array = memory.GetArray();
+                int needcount = array.Count;
+                int offset_next = array.Offset;
+                do
                 {
-                    if (fiberReadStream.NeedRead)
-                        await fiberReadStream.Check();
-                }            
-                else
-                {
-                    needcount--;
-                    if (array.Array[offset_next] == 10)
-                        break;                    
-                    offset_next++;
-                }
 
-            } while (needcount > 0);
+                    var res = streamReadFormat.Read(array.Array, offset_next, 1);
 
-            var slice_mem = imo.Memory.Slice(0, array.Count - needcount);
+                    if (res == 0)
+                    {
+                        if (fiberReadStream.NeedRead)
+                            await fiberReadStream.Check();
+                    }
+                    else
+                    {
+                        needcount--;
+                        if (array.Array[offset_next] == 10)
+                            break;
+                        offset_next++;
+                    }
 
-            return new ResultByMemoryOwner<Memory<byte>>(imo, slice_mem);
+                } while (needcount > 0);
+
+                var slice_mem = imo.Memory.Slice(0, array.Count - needcount);
+
+                return new ResultByMemoryOwner<Memory<byte>>(imo, slice_mem);
+             }
+            catch
+            {
+                imo.Dispose();
+                throw;
+            }
         }
 
         public async ValueTask<Memory<byte>> ReadLine(Memory<byte> memory)

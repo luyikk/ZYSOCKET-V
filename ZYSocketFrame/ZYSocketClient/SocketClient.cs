@@ -316,6 +316,7 @@ namespace ZYSocket.Client
             }
             else
             {
+                e.Advance(-1);
                 Diconnect_It(e);
             }
 

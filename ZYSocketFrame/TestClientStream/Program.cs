@@ -143,7 +143,7 @@ namespace TestClient
                 }
             }
 
-            client.ShutdownBoth(true);
+            client.ShutdownBoth();
 
         }
 

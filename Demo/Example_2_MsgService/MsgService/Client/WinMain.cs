@@ -59,7 +59,15 @@ namespace Client
                 {
                     await ReadCommand(res.FiberRw);
                 }
-                catch(Exception er)
+                catch (System.Net.Sockets.SocketException)
+                {
+                    break;
+                }
+                catch (System.IO.IOException)
+                {
+                    break;
+                }
+                catch (Exception er)
                 {
                     MessageBox.Show(er.ToString());
                     break;

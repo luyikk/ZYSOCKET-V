@@ -68,9 +68,10 @@ namespace ZYSocket.FiberStream
         public override void Close()
         {
             Reset();
-            DataSegment.Clear();
-            foreach (var item in MemoryOwners)
+            DataSegment.Clear();           
+            for (int i = 0; i < MemoryOwners.Count; i++)
             {
+                var item = MemoryOwners[i];
                 item?.Dispose();
             }
             MemoryOwners.Clear();

@@ -99,7 +99,7 @@ namespace TestClient
             }
 
 
-            client.ShutdownBoth(true);
+            client.ShutdownBoth();
         }
 
        
@@ -138,9 +138,7 @@ namespace TestClient
                 //fiberRw.Write(p9);
                 //// fiberRw.Write(p10);
                 //await fiberRw.Flush();
-            }
-
-
+            }           
            
         }
 
