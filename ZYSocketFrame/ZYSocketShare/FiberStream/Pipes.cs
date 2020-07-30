@@ -67,7 +67,7 @@ namespace ZYSocket.FiberStream
             else
             {
                 if (source_read.GetStatus(source_read.Version) == ValueTaskSourceStatus.Pending)
-                    source_read.SetException(new SocketException((int)SocketError.Disconnecting));
+                    source_read.SetException(new SocketException((int)SocketError.ConnectionReset));
             }
         }
 
