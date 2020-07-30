@@ -257,6 +257,10 @@ namespace ZYSocket.Client
                 {
 
                 }
+                catch (InvalidOperationException er)
+                {
+                    Diconnect_It(CurrentSocketAsyncEventArgs!, er.Message);
+                }
             }
         }
 
@@ -348,6 +352,7 @@ namespace ZYSocket.Client
                 }
                 catch (ObjectDisposedException)
                 {
+                  
                 }
             }
 
