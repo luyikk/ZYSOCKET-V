@@ -346,6 +346,9 @@ namespace ZYSocket.Client
                 catch (SocketException)
                 {
                 }
+                catch (ObjectDisposedException)
+                {
+                }
             }
 
 
