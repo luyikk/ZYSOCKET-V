@@ -19,7 +19,7 @@ namespace Thruster
         }
 
         public FastMemoryPool(int maxBufferSize)
-            : this(Math.Min(Environment.ProcessorCount, 64), maxBufferSize)
+            : this(Math.Min(Environment.ProcessorCount*2, 64), maxBufferSize)
 
         {
         }

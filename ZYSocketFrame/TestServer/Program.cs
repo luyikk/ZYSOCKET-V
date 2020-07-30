@@ -8,6 +8,7 @@ using ZYSocket;
 using ZYSocket.Share;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Sockets;
+using System.Diagnostics;
 
 namespace TestServer
 {
@@ -126,9 +127,8 @@ namespace TestServer
         {
 
             var fiberRw = await socketAsync.GetFiberRw<string>();
-
+            
             fiberRw.UserToken = "my is ttk";
-
 
             for (; ; )
             {
