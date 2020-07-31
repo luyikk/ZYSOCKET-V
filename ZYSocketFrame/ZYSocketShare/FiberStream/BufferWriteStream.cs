@@ -21,22 +21,17 @@ namespace ZYSocket.FiberStream
 
         private int _index = 0;
 
-        private int _tmp_postion = 0;
-
-        public static LengthSize LenType { get; set; } = LengthSize.Int32;
+        private int _tmp_postion = 0;    
 
         private readonly List<ArraySegment<byte>> DataSegment;
        // private readonly List<IMemoryOwner<byte>> MemoryOwners;
-
        // private readonly MemoryPool<byte> MemoryPool;
 
         private readonly ISend Send;
 
         private readonly IAsyncSend AsyncSend;
-
-        private readonly byte[] numbytes = new byte[8];
-        public  byte[] Numericbytes { get => numbytes; }
-
+       
+        public  byte[] Numericbytes { get; } = new byte[16];
 
         public long CurrentSegmentLen
         {
@@ -345,8 +340,8 @@ namespace ZYSocket.FiberStream
                 //var memoryOwner = MemoryPool.Rent(BufferBlockSize);
                 //DataSegment.Add(memoryOwner.Memory.GetArray());
                 //MemoryOwners.Add(memoryOwner);
-                DataSegment.Add(new ArraySegment<byte>(new byte[4096]));
-                p -= 4096;
+                DataSegment.Add(new ArraySegment<byte>(new byte[BufferBlockSize]));
+                p -= BufferBlockSize;
             }
         }
 
