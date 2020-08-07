@@ -106,7 +106,6 @@ namespace ZYSocket.Client
         public ConnectResult Connect(string host, int port, int connectTimeout = 6000)
         {
 
-
             if (semaphore.Wait(60000))
             {
 
@@ -186,18 +185,13 @@ namespace ZYSocket.Client
 
                     if (wait.WaitOne(connectTimeout))
                     {
-                        wait.Reset();
-
                         if (!IsConnect)
-                        {
                             this.Dispose();
-                        }
 
                         return new ConnectResult(IsConnect, errorMsg);
                     }
                     else
                     {
-                        wait.Reset();
                         this.Dispose();
                         return new ConnectResult(false, "connect time out");
                     }
@@ -209,6 +203,7 @@ namespace ZYSocket.Client
                 }
                 finally
                 {
+                    wait.Reset();
                     semaphore.Release();
                 }
 
@@ -387,8 +382,6 @@ namespace ZYSocket.Client
             {
                 Sock?.Close();
                 Sock?.Dispose();
-                wait?.Close();
-                wait?.Dispose();
             }
             catch { }
         }
