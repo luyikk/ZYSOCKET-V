@@ -427,7 +427,7 @@ namespace ZYSocket.FiberStream
 
         public async Task<ResultByMemoryOwner<Memory<byte>>> ReadMemory(int size)
         {
-            if (size == 0)
+            if (size <= 0)
                 return default;
 
             var imo = GetMemory(size);
@@ -468,7 +468,7 @@ namespace ZYSocket.FiberStream
 
         public async Task<byte[]> ReadArray(int size)
         {
-            if (size == 0)
+            if (size <= 0)
                 return new byte[] { };
 
             byte[] array = new byte[size];
