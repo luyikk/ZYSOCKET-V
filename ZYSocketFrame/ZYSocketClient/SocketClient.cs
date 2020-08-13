@@ -106,6 +106,7 @@ namespace ZYSocket.Client
         public ConnectResult Connect(string host, int port, int connectTimeout = 6000)
         {
 
+
             if (semaphore.Wait(60000))
             {
 
@@ -177,6 +178,8 @@ namespace ZYSocket.Client
                     e.DisconnectIt = Diconnect_It;
                     e.Completed += E_Completed;
                     CurrentSocketAsyncEventArgs = e;
+
+                    wait.Reset();
 
                     if (!Sock.ConnectAsync(CurrentSocketAsyncEventArgs))
                     {
@@ -370,6 +373,9 @@ namespace ZYSocket.Client
 
             if (events)
                 Disconnect?.Invoke(this, CurrentSocketAsyncEventArgs!, errorMsg ?? "Disconnect");
+            else
+                this.errorMsg = errorMsg;
+
 
         }
 
