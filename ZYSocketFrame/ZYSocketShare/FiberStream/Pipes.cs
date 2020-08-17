@@ -55,19 +55,27 @@ namespace ZYSocket.FiberStream
         readonly ManualResetValueTask<int> source_read = new ManualResetValueTask<int>();
 
         public void Close()
-            => source_read.Reset();
+        {
+            lock (source_read)
+            {
+                source_read.Reset();
+            }
+        }
 
         public void Advance(int len)
         {
-            if (len > 0)
+            lock (source_read)
             {
-                if (source_read.GetStatus(source_read.Version) == ValueTaskSourceStatus.Pending)
-                    source_read.SetResult(len);
-            }
-            else
-            {
-                if (source_read.GetStatus(source_read.Version) == ValueTaskSourceStatus.Pending)
-                    source_read.SetException(new SocketException((int)SocketError.ConnectionReset));
+                if (len > 0)
+                {
+                    if (source_read.GetStatus(source_read.Version) == ValueTaskSourceStatus.Pending)
+                        source_read.SetResult(len);
+                }
+                else
+                {
+                    if (source_read.GetStatus(source_read.Version) == ValueTaskSourceStatus.Pending)
+                        source_read.SetException(new SocketException((int)SocketError.ConnectionReset));
+                }
             }
         }
 
