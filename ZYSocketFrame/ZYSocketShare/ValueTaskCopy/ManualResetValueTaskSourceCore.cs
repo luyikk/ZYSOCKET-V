@@ -83,8 +83,10 @@ namespace System.Threading.Tasks.Sources.Copy
 
         /// <summary>Gets the status of the operation.</summary>
         /// <param name="token">Opaque value that was provided to the <see cref="ValueTask"/>'s constructor.</param>
-        public ValueTaskSourceStatus GetStatus()
-        {           
+        public ValueTaskSourceStatus GetStatus(short token)
+        {
+            ValidateToken(token);
+
             return
                 _continuation == null || !_completed ? ValueTaskSourceStatus.Pending :
                 _error == null ? ValueTaskSourceStatus.Succeeded :
