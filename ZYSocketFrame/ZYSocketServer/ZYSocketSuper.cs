@@ -354,7 +354,7 @@ namespace ZYSocket.Server
                 throw new ObjectDisposedException("ZYServer is Disposed");
             }
 
-            var config = component.GetService<SocketServerOptions>();
+            var config = component.GetRequiredService<SocketServerOptions>();
 
 
             IPEndPoint myEnd = new IPEndPoint(IPAddress.Any, Port);
