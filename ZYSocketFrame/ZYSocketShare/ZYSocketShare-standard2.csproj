@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
-    <PackageId>ZYSocketShareV</PackageId>
+    <PackageId>ZYSocketShareV-Standard2</PackageId>
     <RootNamespace>ZYSocket</RootNamespace>
     <Authors>luyikk</Authors>
     <Copyright>luyikk</Copyright>
@@ -11,7 +11,7 @@
     <RepositoryUrl>https://github.com/luyikk/ZYSOCKET-V</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <Version>1.8.0</Version>
+    <Version>0.0.1</Version>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
     <Description>ZYSocket Share lib</Description>

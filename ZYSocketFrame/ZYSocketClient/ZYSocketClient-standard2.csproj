@@ -4,13 +4,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>ZYSocket.Client</RootNamespace>
 	<LangVersion>8.0</LangVersion>
-    <PackageId>ZYSocketClientV-Portable</PackageId>
+    <PackageId>ZYSocketClientV-Standard2</PackageId>
     <Authors>luyikk</Authors>
     <Copyright>luyikk</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/luyikk/ZYSOCKET-V</PackageProjectUrl>
     <Description>ZYSOCKET CLIENT</Description>
-    <Version>1.6.8</Version>
+    <Version>0.0.1</Version>
     <AssemblyVersion>1.0.0.5</AssemblyVersion>
     <FileVersion>1.0.0.5</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
