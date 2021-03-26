@@ -35,9 +35,7 @@ namespace System.Threading.Tasks
         /// <returns>An IAsyncResult to represent the task's asynchronous operation.</returns>
         public static IAsyncResult Begin(Task task, AsyncCallback callback, object state)
         {
-            Debug.Assert(task != null);
-
-            // If the task has already completed, then since the Task's CompletedSynchronously==false
+              // If the task has already completed, then since the Task's CompletedSynchronously==false
             // and we want it to be true, we need to create a new IAsyncResult. (We also need the AsyncState to match.)
             IAsyncResult asyncResult;
             if (task.IsCompleted)
@@ -66,8 +64,7 @@ namespace System.Threading.Tasks
             Task? task;
 
             // If the IAsyncResult is our task-wrapping IAsyncResult, extract the Task.
-            var twar = asyncResult as TaskWrapperAsyncResult;
-            if (twar != null)
+            if (asyncResult is TaskWrapperAsyncResult twar)
             {
                 task = twar.Task;
                 Debug.Assert(task != null, "TaskWrapperAsyncResult should never wrap a null Task.");
@@ -94,8 +91,7 @@ namespace System.Threading.Tasks
             Task<TResult>? task;
 
             // If the IAsyncResult is our task-wrapping IAsyncResult, extract the Task.
-            var twar = asyncResult as TaskWrapperAsyncResult;
-            if (twar != null)
+            if (asyncResult is TaskWrapperAsyncResult twar)
             {
                 task = twar.Task as Task<TResult>;
                 Debug.Assert(twar.Task != null, "TaskWrapperAsyncResult should never wrap a null Task.");
@@ -121,10 +117,7 @@ namespace System.Threading.Tasks
         /// <param name="asyncResult">The Task used as the IAsyncResult.</param>
         private static void InvokeCallbackWhenTaskCompletes(Task antecedent, AsyncCallback callback, IAsyncResult asyncResult)
         {
-            Debug.Assert(antecedent != null);
-            Debug.Assert(callback != null);
-            Debug.Assert(asyncResult != null);
-
+           
             // We use OnCompleted rather than ContinueWith in order to avoid running synchronously
             // if the task has already completed by the time we get here.  This is separated out into
             // its own method currently so that we only pay for the closure if necessary.
@@ -168,9 +161,7 @@ namespace System.Threading.Tasks
             /// <param name="completedSynchronously">The new CompletedSynchronously value.</param>
             internal TaskWrapperAsyncResult(Task task, object state, bool completedSynchronously)
             {
-                Debug.Assert(task != null);
-                Debug.Assert(!completedSynchronously || task.IsCompleted, "If completedSynchronously is true, the task must be completed.");
-
+              
                 this.Task = task;
                 _state = state;
                 _completedSynchronously = completedSynchronously;

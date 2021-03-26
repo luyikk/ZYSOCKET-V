@@ -14,5 +14,6 @@ namespace ZYSocket.Share
         Task<int> SendAsync(byte[] data);
         Task<int> SendAsync(IList<ArraySegment<byte>> data);
         ValueTask<int> SendAsync(ReadOnlyMemory<byte> data);
+
     }
 }

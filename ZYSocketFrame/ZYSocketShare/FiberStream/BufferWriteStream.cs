@@ -49,7 +49,7 @@ namespace ZYSocket.FiberStream
         }
 
 
-        public BufferWriteStream(MemoryPool<byte> memoryPool,ISend send,IAsyncSend asyncSend)
+        public BufferWriteStream(MemoryPool<byte> _memoryPool,ISend send,IAsyncSend asyncSend)
         {
            //this.MemoryPool = memoryPool;
             Send = send;

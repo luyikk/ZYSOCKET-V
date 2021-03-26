@@ -12,7 +12,9 @@
 // - Nullability annotations are removed.
 
 using System.Diagnostics;
+#if !NETSTANDARD2_0
 using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 
@@ -42,7 +44,10 @@ namespace System.Threading.Tasks.Sources.Copy
         /// <summary>Whether the current operation has completed.</summary>
         private bool _completed;
         /// <summary>The result with which the operation succeeded, or the default value if it hasn't yet completed or failed.</summary>
-        [AllowNull, MaybeNull] private TResult _result;
+#if !NETSTANDARD2_0
+        [AllowNull, MaybeNull]
+#endif
+        private TResult _result;
         /// <summary>The exception with which the operation failed, or null if it hasn't yet completed or completed successfully.</summary>
         private ExceptionDispatchInfo? _error;
         /// <summary>The current version of this value, used to help prevent misuse.</summary>
@@ -167,7 +172,11 @@ namespace System.Threading.Tasks.Sources.Copy
                     case null:
                         if (_executionContext != null)
                         {
+#if !NETSTANDARD2_0
                             ThreadPool.QueueUserWorkItem(continuation, state, preferLocal: true);
+#else
+                            ThreadPool.QueueUserWorkItem(new WaitCallback(continuation), state);
+#endif
                         }
                         else
                         {
@@ -224,8 +233,9 @@ namespace System.Threading.Tasks.Sources.Copy
         /// </summary>
         private void InvokeContinuation()
         {
+#if !NETSTANDARD2_0
             Debug.Assert(_continuation != null);
-
+#endif
             switch (_capturedContext)
             {
                 case null:                 

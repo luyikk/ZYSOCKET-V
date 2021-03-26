@@ -157,7 +157,7 @@ namespace ZYSocket.FiberStream
             }
         }
 
-
+#if !NETSTANDARD2_0
         public override int Read(Span<byte> buffer)
         {
 
@@ -170,6 +170,7 @@ namespace ZYSocket.FiberStream
             position += n;
             return n;
         }
+#endif
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
@@ -196,6 +197,7 @@ namespace ZYSocket.FiberStream
             return TaskToApm.End<int>(asyncResult);
         }
 
+#if !NETSTANDARD2_0
         public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -212,9 +214,9 @@ namespace ZYSocket.FiberStream
                 return Read(buffer.Span);
             }
         }
+#endif
 
-
-        public  Memory<byte> ReadToBlockEnd()
+        public Memory<byte> ReadToBlockEnd()
         {
           
             int count = (int)have_current_length();

@@ -169,6 +169,7 @@ namespace ZYSocket.Share
                 return Task.FromResult(0);
         }
 
+
         public Task<int> SendAsync(byte[] data)
         {
             Socket? socket;
@@ -176,12 +177,19 @@ namespace ZYSocket.Share
                 socket = _accpet?.AcceptSocket;
             else
                 socket = _accpet?.ConnectSocket;
-
+#if !NETSTANDARD2_0
             if (socket != null && socket.Connected)
                 return socket.SendAsync(data, SocketFlags.None);
             else
                 return Task.FromResult(0);
+#else
+            if (socket != null && socket.Connected)
+                return socket.SendAsync(new ArraySegment<byte>(data,0,data.Length), SocketFlags.None);
+            else
+                return Task.FromResult(0);
+#endif  
         }
+
 
         public Task<int> SendAsync(IList<ArraySegment<byte>> data)
         {
@@ -197,18 +205,26 @@ namespace ZYSocket.Share
                 return Task.FromResult(0);
         }
 
-        public ValueTask<int> SendAsync(ReadOnlyMemory<byte> data)
+
+        public  ValueTask<int> SendAsync(ReadOnlyMemory<byte> data)
         {
             Socket? socket;
             if (isAccpet)
                 socket = _accpet?.AcceptSocket;
             else
                 socket = _accpet?.ConnectSocket;
-
+#if !NETSTANDARD2_0
             if (socket != null && socket.Connected)
                 return socket.SendAsync(data, SocketFlags.None);
             else
                 return new ValueTask<int>(0);
+#else
+            if (socket != null && socket.Connected)
+                return new ValueTask<int>(socket.SendAsync(data.GetArray(), SocketFlags.None));
+            else
+                return new ValueTask<int>(0);
+#endif
         }
+
     }
 }

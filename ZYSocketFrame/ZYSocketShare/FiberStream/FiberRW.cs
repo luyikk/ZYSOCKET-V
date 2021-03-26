@@ -189,7 +189,7 @@ namespace ZYSocket.FiberStream
             return count;
         }
 
-
+#if !NETSTANDARD2_0
         public async ValueTask<int> ReadAsync(Memory<byte> data,bool doall=true)
         {
             if (!isinit)
@@ -206,6 +206,7 @@ namespace ZYSocket.FiberStream
                 return await streamReadFormat.ReadAsync(data, CancellationToken.None);
             }
         }
+#endif
 
 
 
@@ -214,7 +215,7 @@ namespace ZYSocket.FiberStream
             return memoryPool.Rent(inithint);
         }
 
-        #region read integer
+#region read integer
         public async Task<byte> ReadByte()
         {
             if (!isinit)
@@ -233,8 +234,7 @@ namespace ZYSocket.FiberStream
         public async Task<bool> ReadBoolean()
         {
             var b = await ReadByte();
-
-            return b == 1 ? true : false;
+            return b == 1;
         }
 
         public async Task<ushort> ReadUInt16()
@@ -421,9 +421,9 @@ namespace ZYSocket.FiberStream
         }
 
 
-        #endregion
+#endregion
 
-        #region read memory block
+#region read memory block
 
         public async Task<ResultByMemoryOwner<Memory<byte>>> ReadMemory(int size)
         {
@@ -606,9 +606,9 @@ namespace ZYSocket.FiberStream
       
 
 
-        #endregion
+#endregion
 
-        #region read obj
+#region read obj
         public async Task<S> ReadObject<S>()
         {
             using var mem = await ReadMemory();
@@ -622,9 +622,9 @@ namespace ZYSocket.FiberStream
             var array = mem.Value.GetArray();
             return ObjFormat.Deserialize(type, array.Array, array.Offset, array.Count);
         }
-        #endregion
+#endregion
 
-        #region write buf
+#region write buf
 
         public void Write(ArraySegment<byte> data)
         {
@@ -685,9 +685,9 @@ namespace ZYSocket.FiberStream
 
 
 
-        #endregion
+#endregion
 
-        #region integer
+#region integer
 
         public void Write(byte data)
         {
@@ -874,14 +874,14 @@ namespace ZYSocket.FiberStream
         }
 
 
-        #endregion
+#endregion
 
-        #region wr obj
+#region wr obj
 
         public void Write(object obj) => Write(ObjFormat.Serialize(obj));
 
 
-        #endregion
+#endregion
 
         public Task FlushAsync(bool send = true)
         {
