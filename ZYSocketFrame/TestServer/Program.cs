@@ -132,41 +132,16 @@ namespace TestServer
 
             for (; ; )
             {
-                //try
-                //{
-                //    //读取 发送 测试
-                //    var data = await fiberRw.ReadToBlockArrayEnd();
-                //    fiberRw.Write(data);
-                //    await fiberRw.FlushAsync();
-
-
-                //}
-                //catch (SocketException)
-                //{
-                //    break;
-                //}
-                //catch (Exception er)
-                //{
-                //    Console.WriteLine(er.ToString());
-                //    break;
-                //}
-
                 try
                 {
-                    //提供2种数据 读取写入方式
-                    using (ReadBytes readBytes = new ReadBytes(fiberRw))
-                    {
-                        await readBytes.Init();
-                        DataOn(readBytes, fiberRw);
-                    }
-
-
-                    await DataOnByLine(fiberRw);
-
+                    //读取 发送 测试
+                    var data = await fiberRw.ReadToBlockArrayEnd();
+                    fiberRw.Write(data);
+                    await fiberRw.FlushAsync();
 
 
                 }
-                catch (System.Net.Sockets.SocketException)
+                catch (SocketException)
                 {
                     break;
                 }
@@ -175,6 +150,31 @@ namespace TestServer
                     Console.WriteLine(er.ToString());
                     break;
                 }
+
+                //try
+                //{
+                //    //提供2种数据 读取写入方式
+                //    using (ReadBytes readBytes = new ReadBytes(fiberRw))
+                //    {
+                //        await readBytes.Init();
+                //        DataOn(readBytes, fiberRw);
+                //    }
+
+
+                //    await DataOnByLine(fiberRw);
+
+
+
+                //}
+                //catch (System.Net.Sockets.SocketException)
+                //{
+                //    break;
+                //}
+                //catch (Exception er)
+                //{
+                //    Console.WriteLine(er.ToString());
+                //    break;
+                //}
 
             }
        

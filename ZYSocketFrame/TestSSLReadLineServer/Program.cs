@@ -17,7 +17,7 @@ namespace TestServer
     {
 
 
-        static X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/server.pfx", "testPassword");
+        static X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/service.pfx", "testPassword");
 
         //程序入口
         static void Main(string[] args)
@@ -123,12 +123,7 @@ namespace TestServer
 
 
             //USE SSL+GZIP
-            var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate, (input, output) =>
-            {
-                var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
-                var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
-                return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode
-            });
+            var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate);
 
            // var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate);
 

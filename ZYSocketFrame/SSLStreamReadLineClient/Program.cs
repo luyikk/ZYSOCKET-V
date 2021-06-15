@@ -13,6 +13,7 @@ namespace TestClient
 {
     class Program
     {
+      
         static SocketClient client;
 
         static async Task Main(string[] args)
@@ -86,14 +87,9 @@ namespace TestClient
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
 
-           // USE SSL+GZIP
-            var res = await socketAsync.GetFiberRwSSL<string>(null, "localhost", (input, output) =>
-            {
-                var gzip_input = new GZipStream(input, CompressionMode.Decompress, true);
-                var gzip_output = new GZipStream(output, CompressionMode.Compress, true);
-                return new GetFiberRwResult(gzip_input, gzip_output); //return gzip mode          
-
-            });
+            X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/service.pfx", "testPassword");
+            // USE SSL
+            var res = await socketAsync.GetFiberRwSSL<string>(certificate, "localhost");
 
 
 
