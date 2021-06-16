@@ -122,7 +122,7 @@ namespace TestServer
         {
 
 
-            //USE SSL+GZIP
+            //USE SSL
             var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate);
 
            // var (fiberRw, errMsg) = await socketAsync.GetFiberRwSSL<string>(certificate);
