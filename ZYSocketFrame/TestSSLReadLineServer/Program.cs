@@ -68,7 +68,7 @@ namespace TestServer
                 };
             })
              .ConfigServer(p => {
-                 p.Port = 1002;
+                 p.Port = 5555;
                  p.MaxBufferSize = 8192;
              });
 

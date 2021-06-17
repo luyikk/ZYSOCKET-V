@@ -37,7 +37,7 @@ namespace TestClient
 
         static async Task connect()
         {
-            var result = await client.ConnectAsync("127.0.0.1", 1002, 6000);
+            var result = await client.ConnectAsync("127.0.0.1", 5555, 6000);
             Console.WriteLine(result);
 
             if (result.IsSuccess)
@@ -87,12 +87,9 @@ namespace TestClient
 
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
-
            
             // USE SSL
-            var res = await socketAsync.GetFiberRwSSL<string>(certificate);
-
-
+            var res = await socketAsync.GetFiberRwSSL<string>(certificate, "localhost");
 
             if (res.IsError)
             {
@@ -103,12 +100,9 @@ namespace TestClient
 
             var fiberRw = res.FiberRw;
 
-
             // var fiberRw = await socketAsync.GetFiberRw();
 
             client.SetConnected();
-
-
 
             while (true)
             {
