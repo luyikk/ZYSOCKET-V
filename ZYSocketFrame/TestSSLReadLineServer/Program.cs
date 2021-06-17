@@ -17,7 +17,7 @@ namespace TestServer
     {
 
 
-        static X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/service.pfx", "testPassword");
+        static X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/server.pfx", "testPassword");
 
         //程序入口
         static void Main(string[] args)

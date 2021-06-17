@@ -13,7 +13,8 @@ namespace TestClient
 {
     class Program
     {
-      
+
+        static X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/client.pfx", "testPassword");
         static SocketClient client;
 
         static async Task Main(string[] args)
@@ -87,9 +88,9 @@ namespace TestClient
         private static async void Client_BinaryInput(ISocketClient client, ISockAsyncEventAsClient socketAsync)
         {
 
-            X509Certificate certificate = new X509Certificate2(Environment.CurrentDirectory + "/service.pfx", "testPassword");
+           
             // USE SSL
-            var res = await socketAsync.GetFiberRwSSL<string>(certificate, "localhost");
+            var res = await socketAsync.GetFiberRwSSL<string>(certificate);
 
 
 
